@@ -1,0 +1,1 @@
+gamepad_set_vibration(gamepad_slot, 0, 0);
