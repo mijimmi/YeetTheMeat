@@ -148,8 +148,8 @@ switch (state) {
         }
 		
 		// === PLAYER VS PLAYER COLLISION ===
-        if (instance_exists(OBj_P2) && place_meeting(x, y, OBj_P2)) {
-            var other_player = instance_nearest(x, y, OBj_P2);
+        if (instance_exists(OBJ_P2) && place_meeting(x, y, OBJ_P2)) {
+            var other_player = instance_nearest(x, y, OBJ_P2);
             
             // Direction from other player to this player
             var push_dir = point_direction(other_player.x, other_player.y, x, y);
@@ -171,7 +171,7 @@ switch (state) {
             }
             
             // Separate them so they don't overlap
-            while (place_meeting(x, y, OBj_P2)) {
+            while (place_meeting(x, y, OBJ_P2)) {
                 x += lengthdir_x(1, push_dir);
                 y += lengthdir_y(1, push_dir);
             }

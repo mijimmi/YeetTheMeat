@@ -1,6 +1,6 @@
 {
   "$GMObject":"",
-  "%Name":"OBj_P2",
+  "%Name":"OBJ_P2",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
@@ -8,7 +8,7 @@
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":2,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"OBj_P2",
+  "name":"OBJ_P2",
   "overriddenProperties":[],
   "parent":{
     "name":"OBJECTS",
