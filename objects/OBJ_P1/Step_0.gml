@@ -96,6 +96,57 @@ switch (state) {
             power_direction = 1;
             stick_held = false;
         }
+        
+        // === PLAYER VS PLAYER COLLISION (WHILE AIMING) ===
+        if (instance_exists(OBJ_P2) && place_meeting(x, y, OBJ_P2)) {
+            var other_player = instance_nearest(x, y, OBJ_P2);
+            
+            // Direction from other player to this player
+            var push_dir = point_direction(other_player.x, other_player.y, x, y);
+            
+            // Combine velocities for impact force
+            var impact_force = point_distance(0, 0, other_player.velocity_x, other_player.velocity_y);
+            var bounce_strength = max(impact_force * 0.7, 2);
+            
+            // Cancel aiming and go to moving state
+            state = "moving";
+            
+            // Push this player
+            velocity_x = lengthdir_x(bounce_strength, push_dir);
+            velocity_y = lengthdir_y(bounce_strength, push_dir);
+            
+            // Make sure other player is in moving state
+            if (other_player.state == "idle" || other_player.state == "aiming") {
+                other_player.state = "moving";
+                other_player.velocity_x = lengthdir_x(bounce_strength, push_dir + 180);
+                other_player.velocity_y = lengthdir_y(bounce_strength, push_dir + 180);
+                
+                // If other was aiming, reset their aim variables
+                if (other_player.state == "aiming") {
+                    other_player.aim_power = 0;
+                    other_player.aim_power_raw = 0;
+                    other_player.power_direction = 1;
+                    other_player.stick_held = false;
+                }
+            }
+            
+            // Reset aiming variables
+            aim_power = 0;
+            aim_power_raw = 0;
+            power_direction = 1;
+            stick_held = false;
+            
+            // Separate them so they don't overlap
+            while (place_meeting(x, y, OBJ_P2)) {
+                x += lengthdir_x(1, push_dir);
+                y += lengthdir_y(1, push_dir);
+            }
+            
+            // Effects
+            shake_amount = impact_force * 0.3;
+            gamepad_set_vibration(gamepad_slot, 0.8, 0.8);
+            alarm[0] = 6;
+        }
         break;
         
     case "moving":
@@ -147,7 +198,7 @@ switch (state) {
             state = "idle";
         }
 		
-		// === PLAYER VS PLAYER COLLISION ===
+		// === PLAYER VS PLAYER COLLISION (WHILE MOVING) ===
         if (instance_exists(OBJ_P2) && place_meeting(x, y, OBJ_P2)) {
             var other_player = instance_nearest(x, y, OBJ_P2);
             
@@ -168,6 +219,14 @@ switch (state) {
             // Make sure other player is in moving state
             if (other_player.state == "idle") {
                 other_player.state = "moving";
+            }
+            else if (other_player.state == "aiming") {
+                other_player.state = "moving";
+                // Reset their aiming variables
+                other_player.aim_power = 0;
+                other_player.aim_power_raw = 0;
+                other_player.power_direction = 1;
+                other_player.stick_held = false;
             }
             
             // Separate them so they don't overlap
