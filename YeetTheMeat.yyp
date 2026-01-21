@@ -12,6 +12,7 @@
   "Folders":[
     {"$GMFolder":"","%Name":"OBJECTS","folderPath":"folders/OBJECTS.yy","name":"OBJECTS","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"SPRITES","folderPath":"folders/SPRITES.yy","name":"SPRITES","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"BG","folderPath":"folders/SPRITES/BG.yy","name":"BG","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Player1","folderPath":"folders/SPRITES/Player1.yy","name":"Player1","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Player2","folderPath":"folders/SPRITES/Player2.yy","name":"Player2","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"TilesetSprites","folderPath":"folders/SPRITES/TilesetSprites.yy","name":"TilesetSprites","resourceType":"GMFolder","resourceVersion":"2.0",},
@@ -33,6 +34,7 @@
     {"id":{"name":"OBJ_P1","path":"objects/OBJ_P1/OBJ_P1.yy",},},
     {"id":{"name":"OBj_P2","path":"objects/OBj_P2/OBj_P2.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+    {"id":{"name":"_617911940_862996153142333_27891943568894632_n","path":"sprites/_617911940_862996153142333_27891943568894632_n/_617911940_862996153142333_27891943568894632_n.yy",},},
     {"id":{"name":"spr_1Hand","path":"sprites/spr_1Hand/spr_1Hand.yy",},},
     {"id":{"name":"spr_2Hand","path":"sprites/spr_2Hand/spr_2Hand.yy",},},
     {"id":{"name":"spr_collision","path":"sprites/spr_collision/spr_collision.yy",},},

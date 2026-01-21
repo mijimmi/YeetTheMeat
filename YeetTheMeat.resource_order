@@ -2,6 +2,7 @@
   "FolderOrderSettings":[
     {"name":"OBJECTS","order":3,"path":"folders/OBJECTS.yy",},
     {"name":"SPRITES","order":4,"path":"folders/SPRITES.yy",},
+    {"name":"BG","order":7,"path":"folders/SPRITES/BG.yy",},
     {"name":"Player1","order":3,"path":"folders/SPRITES/Player1.yy",},
     {"name":"Player2","order":5,"path":"folders/SPRITES/Player2.yy",},
     {"name":"TilesetSprites","order":6,"path":"folders/SPRITES/TilesetSprites.yy",},
