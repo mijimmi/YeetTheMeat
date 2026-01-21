@@ -3,6 +3,7 @@
     {"name":"OBJECTS","order":3,"path":"folders/OBJECTS.yy",},
     {"name":"SPRITES","order":4,"path":"folders/SPRITES.yy",},
     {"name":"BG","order":7,"path":"folders/SPRITES/BG.yy",},
+    {"name":"UI","order":8,"path":"folders/SPRITES/UI.yy",},
     {"name":"Player1","order":3,"path":"folders/SPRITES/Player1.yy",},
     {"name":"Player2","order":5,"path":"folders/SPRITES/Player2.yy",},
     {"name":"TilesetSprites","order":6,"path":"folders/SPRITES/TilesetSprites.yy",},
@@ -20,5 +21,6 @@
     {"name":"spr_P2","order":1,"path":"sprites/spr_P2/spr_P2.yy",},
     {"name":"spr_P2Arrow","order":2,"path":"sprites/spr_P2Arrow/spr_P2Arrow.yy",},
     {"name":"spr_P2Squish","order":3,"path":"sprites/spr_P2Squish/spr_P2Squish.yy",},
+    {"name":"spr_recipe","order":1,"path":"sprites/spr_recipe/spr_recipe.yy",},
   ],
 }
