@@ -12,7 +12,9 @@
   "ResourceOrderSettings":[
     {"name":"OBJ_CamController","order":1,"path":"objects/OBJ_CamController/OBJ_CamController.yy",},
     {"name":"OBJ_Collision","order":2,"path":"objects/OBJ_Collision/OBJ_Collision.yy",},
+    {"name":"OBJ_GameController","order":5,"path":"objects/OBJ_GameController/OBJ_GameController.yy",},
     {"name":"OBJ_P2","order":3,"path":"objects/OBJ_P2/OBJ_P2.yy",},
+    {"name":"OBJ_PauseController","order":4,"path":"objects/OBJ_PauseController/OBJ_PauseController.yy",},
     {"name":"spr_1Hand","order":5,"path":"sprites/spr_1Hand/spr_1Hand.yy",},
     {"name":"spr_collision","order":4,"path":"sprites/spr_collision/spr_collision.yy",},
     {"name":"spr_P1","order":4,"path":"sprites/spr_P1/spr_P1.yy",},

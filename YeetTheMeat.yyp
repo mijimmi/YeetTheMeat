@@ -33,9 +33,11 @@
   "resources":[
     {"id":{"name":"OBJ_CamController","path":"objects/OBJ_CamController/OBJ_CamController.yy",},},
     {"id":{"name":"OBJ_Collision","path":"objects/OBJ_Collision/OBJ_Collision.yy",},},
+    {"id":{"name":"OBJ_GameController","path":"objects/OBJ_GameController/OBJ_GameController.yy",},},
     {"id":{"name":"OBJ_P1","path":"objects/OBJ_P1/OBJ_P1.yy",},},
     {"id":{"name":"OBJ_P2","path":"objects/OBJ_P2/OBJ_P2.yy",},},
-    {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+    {"id":{"name":"OBJ_PauseController","path":"objects/OBJ_PauseController/OBJ_PauseController.yy",},},
+    {"id":{"name":"game_room","path":"rooms/game_room/game_room.yy",},},
     {"id":{"name":"BG","path":"sprites/BG/BG.yy",},},
     {"id":{"name":"spr_1Hand","path":"sprites/spr_1Hand/spr_1Hand.yy",},},
     {"id":{"name":"spr_2Hand","path":"sprites/spr_2Hand/spr_2Hand.yy",},},
@@ -52,7 +54,7 @@
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
   "RoomOrderNodes":[
-    {"roomId":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+    {"roomId":{"name":"game_room","path":"rooms/game_room/game_room.yy",},},
   ],
   "templateType":"game",
   "TextureGroups":[
