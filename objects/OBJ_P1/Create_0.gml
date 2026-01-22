@@ -2,13 +2,13 @@
 state = "idle";
 velocity_x = 0;
 velocity_y = 0;
-friction_rate = 0.97;
+friction_rate = 0.94;
 
 // === AIMING / POWER SYSTEM ===
 aim_dir = 0;
-aim_power = 0;
+aim_power = 1;
 aim_power_raw = 0;
-aim_power_max = 15
+aim_power_max = 35;
 charge_rate = 0.025;
 min_power_threshold = 0.1;
 // Oscillating power
@@ -41,7 +41,7 @@ arrow_color_weak = c_lime;
 arrow_color_strong = c_red;
 
 // === HANDS ===
-hand_offset = 20;          // Distance from body
+hand_offset = 32;     // Distance from body
 hand_bob_speed = 0.1;      // Floating bob speed
 hand_bob_amount = 3;       // How much they bob up/down
 hand_bob_timer = 0;
@@ -57,3 +57,14 @@ hand1_angle = 0;
 hand2_angle = 0;
 hand_scale_x = 1;
 hand_scale_y = 1;
+hand_frame = 0;
+
+// === CANCEL HINT ===
+aim_hold_timer = 0;
+cancel_hint_delay = 2.5;  // Seconds before showing hint
+cancel_hint_alpha = 0;
+
+// === CLOUD TRAIL ===
+cloud_list = ds_list_create();
+cloud_spawn_timer = 0;
+cloud_spawn_rate = 3;  // Spawn a cloud every X frames

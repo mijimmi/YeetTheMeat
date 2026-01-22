@@ -1,4 +1,3 @@
-
 // === GET CONTROLLER INPUT ===
 var stick_x = 0;
 var stick_y = 0;
@@ -35,12 +34,24 @@ switch (state) {
             state = "aiming";
             aim_power = 0;
             aim_power_raw = 0;
-            power_direction = 1;  // Start going up
+            power_direction = 1;
             stick_held = true;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
         }
         break;
         
     case "aiming":
+        // Update aim hold timer
+        aim_hold_timer += 1 / room_speed;
+        
+        // Fade in cancel hint after delay
+        if (aim_hold_timer >= cancel_hint_delay) {
+            cancel_hint_alpha = min(cancel_hint_alpha + 0.05, 1);
+        } else {
+            cancel_hint_alpha = 0;
+        }
+        
         if (cancel_pressed) {
             state = "idle";
             aim_power = 0;
@@ -48,6 +59,8 @@ switch (state) {
             power_direction = 1;
             stick_held = false;
             cancel_cooldown = true;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
             gamepad_set_vibration(gamepad_slot, 0, 0);
         }
         else if (stick_active) {
@@ -96,6 +109,8 @@ switch (state) {
             aim_power_raw = 0;
             power_direction = 1;
             stick_held = false;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
         }
         
         // === PLAYER VS PLAYER COLLISION (WHILE AIMING) ===
@@ -136,6 +151,8 @@ switch (state) {
             aim_power_raw = 0;
             power_direction = 1;
             stick_held = false;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
             
             // Separate them so they don't overlap
             while (place_meeting(x, y, OBJ_P2)) {
@@ -153,6 +170,7 @@ switch (state) {
     case "moving":
         var bounce_factor = 0.6;
         
+        // X collision
         var new_x = x + velocity_x;
         if (place_meeting(new_x, y, OBJ_Collision)) {
             while (!place_meeting(x + sign(velocity_x), y, OBJ_Collision)) {
@@ -160,10 +178,16 @@ switch (state) {
             }
             velocity_x = -velocity_x * bounce_factor;
             shake_amount = abs(velocity_x) * 0.5;
+            
+            // Rumble on wall hit
+            var hit_strength = min(abs(velocity_x) / 10, 1);
+            gamepad_set_vibration(gamepad_slot, hit_strength, hit_strength);
+            alarm[0] = 5;
         } else {
             x = new_x;
         }
         
+        // Y collision
         var new_y = y + velocity_y;
         if (place_meeting(x, new_y, OBJ_Collision)) {
             while (!place_meeting(x, y + sign(velocity_y), OBJ_Collision)) {
@@ -171,6 +195,11 @@ switch (state) {
             }
             velocity_y = -velocity_y * bounce_factor;
             shake_amount = abs(velocity_y) * 0.5;
+            
+            // Rumble on wall hit
+            var hit_strength = min(abs(velocity_y) / 10, 1);
+            gamepad_set_vibration(gamepad_slot, hit_strength, hit_strength);
+            alarm[0] = 5;
         } else {
             y = new_y;
         }
@@ -181,8 +210,6 @@ switch (state) {
         var current_speed = point_distance(0, 0, velocity_x, velocity_y);
         target_scale_x = 1 - min(current_speed * 0.02, 0.3);
         target_scale_y = 1 + min(current_speed * 0.03, 0.4);
-        
-        gamepad_set_vibration(gamepad_slot, 0, 0);
         
         if (current_speed < 0.5) {
             target_scale_x = 1.4;
@@ -198,8 +225,24 @@ switch (state) {
             velocity_y = 0;
             state = "idle";
         }
-		
-		// === PLAYER VS PLAYER COLLISION (WHILE MOVING) ===
+        
+        // === SPAWN CLOUD PUFFS ===
+        cloud_spawn_timer++;
+        if (cloud_spawn_timer >= cloud_spawn_rate && current_speed > 1) {
+            cloud_spawn_timer = 0;
+            
+            // Create cloud data: [x, y, scale, alpha, growth_rate]
+            var cloud_data = array_create(5);
+            cloud_data[0] = x + random_range(-8, 8);
+            cloud_data[1] = y + 55 + random_range(-3, 3);
+            cloud_data[2] = 0.3 + random(0.2);
+            cloud_data[3] = 0.7 + random(0.3);
+            cloud_data[4] = 0.02 + random(0.02);
+            
+            ds_list_add(cloud_list, cloud_data);
+        }
+        
+        // === PLAYER VS PLAYER COLLISION (WHILE MOVING) ===
         if (instance_exists(OBJ_P2) && place_meeting(x, y, OBJ_P2)) {
             var other_player = instance_nearest(x, y, OBJ_P2);
             
@@ -223,7 +266,6 @@ switch (state) {
             }
             else if (other_player.state == "aiming") {
                 other_player.state = "moving";
-                // Reset their aiming variables
                 other_player.aim_power = 0;
                 other_player.aim_power_raw = 0;
                 other_player.power_direction = 1;
@@ -238,9 +280,24 @@ switch (state) {
             
             // Effects
             shake_amount = impact_force * 0.3;
+            gamepad_set_vibration(gamepad_slot, 0.9, 0.9);
+            alarm[0] = 8;
         }
-		
+        
         break;
+}
+
+// === UPDATE CLOUD PUFFS ===
+for (var i = ds_list_size(cloud_list) - 1; i >= 0; i--) {
+    var cloud = cloud_list[| i];
+    
+    cloud[2] += cloud[4];  // Grow
+    cloud[3] -= 0.03;      // Fade out
+    
+    // Remove if fully faded
+    if (cloud[3] <= 0) {
+        ds_list_delete(cloud_list, i);
+    }
 }
 
 // === SQUASH & STRETCH INTERPOLATION ===
@@ -266,40 +323,45 @@ else if (state == "moving") {
 
 dir_to_use = (dir_to_use + 360) mod 360;
 
-if (dir_to_use > 90 && dir_to_use < 270) {
-    facing_flip = -1;
-    dir_to_use = 180 - dir_to_use;
-    if (dir_to_use < 0) dir_to_use += 360;
-} else {
-    facing_flip = 1;
-}
+facing_flip = 1;
 
-dir_to_use = (dir_to_use + 360) mod 360;
+// Determine facing frame based on direction (full 360°)
+// Frames: 0=Back, 1=Back-right, 2=Right, 3=Front-right, 4=Front, 5=Front-left, 6=Left, 7=Back-left
 
-if (dir_to_use >= 247.5 && dir_to_use < 292.5) {
-    facing_frame = 0;
+// Check cardinal directions FIRST with wider ranges
+if (dir_to_use >= 330 || dir_to_use < 30) {
+    facing_frame = 2;  // Right (0°) - 60° range
 }
-else if (dir_to_use >= 292.5 && dir_to_use < 337.5) {
-    facing_frame = 1;
+else if (dir_to_use >= 150 && dir_to_use < 210) {
+    facing_frame = 6;  // Left (180°) - 60° range
 }
-else if (dir_to_use >= 337.5 || dir_to_use < 22.5) {
-    facing_frame = 2;
+else if (dir_to_use >= 60 && dir_to_use < 120) {
+    facing_frame = 0;  // Back (90°) - 60° range
 }
-else if (dir_to_use >= 22.5 && dir_to_use < 67.5) {
-    facing_frame = 3;
+else if (dir_to_use >= 240 && dir_to_use < 300) {
+    facing_frame = 4;  // Front (270°) - 60° range
 }
-else if (dir_to_use >= 67.5 && dir_to_use < 112.5) {
-    facing_frame = 4;
+// Then diagonals with remaining ranges
+else if (dir_to_use >= 30 && dir_to_use < 60) {
+    facing_frame = 1;  // Back-right (45°)
 }
-
-facing_frame = 4 - facing_frame;
+else if (dir_to_use >= 120 && dir_to_use < 150) {
+    facing_frame = 7;  // Back-left (135°)
+}
+else if (dir_to_use >= 210 && dir_to_use < 240) {
+    facing_frame = 5;  // Front-left (225°)
+}
+else if (dir_to_use >= 300 && dir_to_use < 330) {
+    facing_frame = 3;  // Front-right (315°)
+}
 
 // === HANDS ===
 hand_bob_timer += hand_bob_speed;
 var bob = sin(hand_bob_timer) * hand_bob_amount;
 
-hand_scale_x = 1;
-hand_scale_y = 1;
+hand_scale_x = 0.9;
+hand_scale_y = 0.9;
+hand_frame = 0;
 
 if (state == "aiming") {
     var stick_x_input = 0;
@@ -312,28 +374,38 @@ if (state == "aiming") {
     var stick_dir = point_direction(0, 0, stick_x_input, stick_y_input);
     var stick_mag = point_distance(0, 0, stick_x_input, stick_y_input);
     
-    var reach_dist = hand_offset + (stick_mag * 15);
+    var reach_dist = hand_offset + 20 + (stick_mag * 20);
     
     hand1_x = lengthdir_x(reach_dist, stick_dir);
-    hand1_y = lengthdir_y(reach_dist, stick_dir) + bob + 10;
+    hand1_y = lengthdir_y(reach_dist, stick_dir) + bob + 25;
     hand1_angle = stick_dir;
     
     hand2_x = lengthdir_x(reach_dist - 5, stick_dir + 15);
-    hand2_y = lengthdir_y(reach_dist - 5, stick_dir + 15) + bob + 10;
+    hand2_y = lengthdir_y(reach_dist - 5, stick_dir + 15) + bob + 25;
     hand2_angle = stick_dir;
     
-    hand_scale_x = 1 + (stick_mag * 0.3) + (aim_power * 0.2);
-    hand_scale_y = 1 - (stick_mag * 0.1);
+    hand_scale_x = 0.9 + (stick_mag * 0.3) + (aim_power * 0.2);
+    hand_scale_y = 0.9 - (stick_mag * 0.1);
+    hand_frame = 1;
 }
 else {
     hand1_x = -hand_offset;
-    hand1_y = bob + 10;
-    hand1_angle = 180;
+    hand1_y = bob + 33;
+    hand1_angle = 0;
     
     hand2_x = hand_offset;
-    hand2_y = bob + 12;
+    hand2_y = bob + 35;
     hand2_angle = 0;
     
-    hand_scale_x = 1;
-    hand_scale_y = 1;
+    hand_scale_x = 0.9;
+    hand_scale_y = 0.9;
+    hand_frame = 0;
+}
+
+// === SCREEN WRAP ===
+if (x > room_width) {
+    x = 0;
+}
+else if (x < 0) {
+    x = room_width;
 }
