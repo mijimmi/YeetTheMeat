@@ -12,6 +12,225 @@ var stick_active = stick_magnitude > stick_deadzone;
 
 var cancel_pressed = gamepad_button_check_pressed(gamepad_slot, gp_face2);
 
+// === PICKUP / DROP / INTERACT SYSTEM ===
+// This goes RIGHT AFTER your controller input section (after cancel_pressed line)
+
+var interact_pressed = gamepad_button_check_pressed(gamepad_slot, gp_face3);  // X button for stations
+var pickup_pressed = gamepad_button_check_pressed(gamepad_slot, gp_face1);    // A button for pickup
+
+// === X BUTTON - STATION INTERACTIONS ===
+if (interact_pressed) {
+    var interacted = false;
+    
+    // --- KWEK-KWEK STORAGE ---
+    var nearest_storage = instance_nearest(x, y, OBJ_KwekKwekStorage);
+    if (nearest_storage != noone && point_distance(x, y, nearest_storage.x, nearest_storage.y) <= nearest_storage.interact_range) {
+        if (held_item == noone && nearest_storage.spawn_cooldown <= 0) {
+            // Spawn new kwek-kwek
+            var new_kwek = instance_create_depth(nearest_storage.x, nearest_storage.y, depth, OBJ_KwekKwek);
+            held_item = new_kwek;
+            new_kwek.is_held = true;
+            new_kwek.held_by = id;
+            nearest_storage.spawn_cooldown = nearest_storage.spawn_cooldown_max;
+            interacted = true;
+        }
+    }
+    
+    // --- PLATE STORAGE ---
+    if (!interacted) {
+        var nearest_plate_storage = instance_nearest(x, y, OBJ_PlateStorage);
+        if (nearest_plate_storage != noone && point_distance(x, y, nearest_plate_storage.x, nearest_plate_storage.y) <= nearest_plate_storage.interact_range) {
+            if (held_item == noone && nearest_plate_storage.spawn_cooldown <= 0) {
+                // Spawn new plate
+                var new_plate = instance_create_depth(nearest_plate_storage.x, nearest_plate_storage.y, depth, OBJ_Plate);
+                held_item = new_plate;
+                new_plate.is_held = true;
+                new_plate.held_by = id;
+                nearest_plate_storage.spawn_cooldown = nearest_plate_storage.spawn_cooldown_max;
+                interacted = true;
+            }
+        }
+    }
+    
+    // --- FRYING STATION ---
+    if (!interacted) {
+        var nearest_frying = instance_nearest(x, y, OBJ_FryingStation);
+        if (nearest_frying != noone && point_distance(x, y, nearest_frying.x, nearest_frying.y) <= nearest_frying.interact_range) {
+            
+            // Place food ON station
+            if (held_item != noone && instance_exists(held_item) && object_is_ancestor(held_item.object_index, OBJ_Food)) {
+                if (nearest_frying.food_on_station == noone) {
+                    // Place food on station
+                    nearest_frying.food_on_station = held_item;
+                    held_item.x = nearest_frying.x + nearest_frying.food_offset_x;
+                    held_item.y = nearest_frying.y + nearest_frying.food_offset_y;
+                    held_item.is_held = false;
+                    held_item.held_by = noone;
+                    held_item.is_cooking = true;
+                    held_item.cooking_station = nearest_frying;
+                    held_item.cook_timer = 0;
+                    held_item = noone;
+                    interacted = true;
+                }
+            }
+        }
+    }
+    
+    // --- SERVING COUNTER ---
+    if (!interacted) {
+        var nearest_counter = instance_nearest(x, y, OBJ_ServingCounter);
+        if (nearest_counter != noone && point_distance(x, y, nearest_counter.x, nearest_counter.y) <= nearest_counter.interact_range) {
+            if (held_item != noone && instance_exists(held_item) && held_item.object_index == OBJ_Plate) {
+                var plate = held_item;
+                // Check if plate has cooked food
+                if (plate.has_food && plate.food_on_plate != noone) {
+                    var food = plate.food_on_plate;
+                    if (food.food_type == "cooked") {
+                        // SUCCESS! Order complete
+                        nearest_counter.orders_completed++;
+                        
+                        // Destroy plate and food
+                        instance_destroy(food);
+                        instance_destroy(plate);
+                        held_item = noone;
+                        interacted = true;
+                        
+                        // TODO: Add score/feedback here
+                    }
+                    else if (food.food_type == "burnt") {
+                        // Burnt food - maybe penalty later?
+                        // For now, just reject it
+                        interacted = true;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// === A BUTTON - PICKUP ITEMS ===
+if (pickup_pressed) {
+    var picked_up = false;
+    
+    // --- PICK UP FOOD FROM FRYING STATION ---
+    var nearest_frying = instance_nearest(x, y, OBJ_FryingStation);
+    if (nearest_frying != noone && point_distance(x, y, nearest_frying.x, nearest_frying.y) <= nearest_frying.interact_range) {
+        if (held_item == noone && nearest_frying.food_on_station != noone) {
+            held_item = nearest_frying.food_on_station;
+            held_item.is_held = true;
+            held_item.held_by = id;
+            held_item.is_cooking = false;
+            held_item.cooking_station = noone;
+            nearest_frying.food_on_station = noone;
+            picked_up = true;
+        }
+    }
+    
+    // --- PLATE + FOOD INTERACTION ---
+    if (!picked_up) {
+        // If holding a PLATE and near FOOD on ground
+        if (held_item != noone && instance_exists(held_item) && held_item.object_index == OBJ_Plate) {
+            var plate = held_item;
+            if (!plate.has_food) {
+                // Find nearest food on ground
+                var nearest_food = instance_nearest(x, y, OBJ_Food);
+                if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking) {
+                    var dist = point_distance(x, y, nearest_food.x, nearest_food.y);
+                    if (dist <= interact_range) {
+                        // Put food on plate
+                        plate.food_on_plate = nearest_food;
+                        plate.has_food = true;
+                        nearest_food.is_on_plate = true;
+                        nearest_food.plate_instance = plate;
+                        picked_up = true;
+                    }
+                }
+            }
+        }
+        // If holding FOOD and near PLATE on ground
+        else if (held_item != noone && instance_exists(held_item) && object_is_ancestor(held_item.object_index, OBJ_Food)) {
+            var food = held_item;
+            var nearest_plate = instance_nearest(x, y, OBJ_Plate);
+            if (nearest_plate != noone && !nearest_plate.is_held && !nearest_plate.has_food) {
+                var dist = point_distance(x, y, nearest_plate.x, nearest_plate.y);
+                if (dist <= interact_range) {
+                    // Put food on plate and pick up plate
+                    nearest_plate.food_on_plate = food;
+                    nearest_plate.has_food = true;
+                    food.is_held = false;
+                    food.held_by = noone;
+                    food.is_on_plate = true;
+                    food.plate_instance = nearest_plate;
+                    
+                    // Now hold the plate instead
+                    held_item = nearest_plate;
+                    nearest_plate.is_held = true;
+                    nearest_plate.held_by = id;
+                    picked_up = true;
+                }
+            }
+        }
+    }
+    
+    // --- DROPPING HELD ITEM ---
+    if (!picked_up && held_item != noone && instance_exists(held_item)) {
+        // Drop the item in front of player
+        held_item.x = x;
+        held_item.y = y + 40;
+        held_item.is_held = false;
+        held_item.held_by = noone;
+        
+        // If dropping a plate with food, drop both
+        if (held_item.object_index == OBJ_Plate && held_item.has_food) {
+            var food = held_item.food_on_plate;
+            if (food != noone && instance_exists(food)) {
+                food.x = x;
+                food.y = y + 30;
+            }
+        }
+        
+        held_item = noone;
+        picked_up = true;
+    }
+    
+    // --- PICKING UP ITEMS FROM GROUND ---
+    if (!picked_up && held_item == noone) {
+        // Try to pick up plate first (priority)
+        var nearest_plate = instance_nearest(x, y, OBJ_Plate);
+        if (nearest_plate != noone && !nearest_plate.is_held) {
+            var dist = point_distance(x, y, nearest_plate.x, nearest_plate.y);
+            if (dist <= interact_range) {
+                held_item = nearest_plate;
+                nearest_plate.is_held = true;
+                nearest_plate.held_by = id;
+                picked_up = true;
+            }
+        }
+        
+        // Then try to pick up food
+        if (!picked_up) {
+            var nearest_food = instance_nearest(x, y, OBJ_Food);
+            if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking && !nearest_food.is_on_plate) {
+                var dist = point_distance(x, y, nearest_food.x, nearest_food.y);
+                if (dist <= interact_range) {
+                    held_item = nearest_food;
+                    nearest_food.is_held = true;
+                    nearest_food.held_by = id;
+                    picked_up = true;
+                }
+            }
+        }
+    }
+}
+
+// === UPDATE HELD ITEM POSITION ===
+if (held_item != noone && instance_exists(held_item)) {
+    // Keep item above player's head
+    held_item.x = x;
+    held_item.y = y - 40;
+    held_item.depth = depth - 1;
+}
+
 // === STATE MACHINE ===
 switch (state) {
     case "idle":
@@ -30,6 +249,7 @@ switch (state) {
         
         gamepad_set_vibration(gamepad_slot, 0, 0);
         
+        // Allow entering aiming from idle
         if (stick_active && !cancel_cooldown && landing_timer <= 0) {
             state = "aiming";
             aim_power = 0;
@@ -42,6 +262,10 @@ switch (state) {
         break;
         
     case "aiming":
+        // Apply friction while aiming (slows down movement)
+        velocity_x = 0;
+        velocity_y = 0;
+        
         // Update aim hold timer
         aim_hold_timer += 1 / room_speed;
         
@@ -52,6 +276,7 @@ switch (state) {
             cancel_hint_alpha = 0;
         }
         
+        // Cancel aiming
         if (cancel_pressed) {
             state = "idle";
             aim_power = 0;
@@ -86,12 +311,28 @@ switch (state) {
             
             var rumble_strength = aim_power * 0.4;
             gamepad_set_vibration(gamepad_slot, rumble_strength, rumble_strength);
+            
+            // Allow small movement adjustment while aiming
+            var move_adjust = 0.5; // How much you can adjust movement while aiming
+            if (stick_magnitude > 0.5) {
+                velocity_x += lengthdir_x(move_adjust, stick_dir);
+                velocity_y += lengthdir_y(move_adjust, stick_dir);
+                
+                // Limit adjustment speed
+                var current_speed = point_distance(0, 0, velocity_x, velocity_y);
+                var max_adjust_speed = 3;
+                if (current_speed > max_adjust_speed) {
+                    velocity_x = velocity_x / current_speed * max_adjust_speed;
+                    velocity_y = velocity_y / current_speed * max_adjust_speed;
+                }
+            }
         }
         else if (stick_held && !stick_active) {
             if (aim_power >= min_power_threshold) {
                 var launch_speed = aim_power * aim_power_max;
-                velocity_x = lengthdir_x(launch_speed, aim_dir);
-                velocity_y = lengthdir_y(launch_speed, aim_dir);
+                // Add to existing velocity for more dynamic movement
+                velocity_x += lengthdir_x(launch_speed, aim_dir);
+                velocity_y += lengthdir_y(launch_speed, aim_dir);
                 state = "moving";
                 
                 target_scale_x = 0.6;
@@ -102,7 +343,8 @@ switch (state) {
                 gamepad_set_vibration(gamepad_slot, 1, 1);
                 alarm[0] = 8;
             } else {
-                state = "idle";
+                // If no power, just continue moving with current velocity
+                state = "moving";
                 gamepad_set_vibration(gamepad_slot, 0, 0);
             }
             aim_power = 0;
@@ -112,6 +354,10 @@ switch (state) {
             aim_hold_timer = 0;
             cancel_hint_alpha = 0;
         }
+        
+        // Apply movement while aiming
+        x += velocity_x;
+        y += velocity_y;
         
         // === PLAYER VS PLAYER COLLISION (WHILE AIMING) ===
         if (instance_exists(OBJ_P2) && place_meeting(x, y, OBJ_P2)) {
@@ -168,6 +414,18 @@ switch (state) {
         break;
         
     case "moving":
+        // Allow entering aiming while moving
+        if (stick_active && !cancel_cooldown) {
+            state = "aiming";
+            aim_power = 0;
+            aim_power_raw = 0;
+            power_direction = 1;
+            stick_held = true;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
+            break;
+        }
+        
         var bounce_factor = 0.6;
         
         // X collision

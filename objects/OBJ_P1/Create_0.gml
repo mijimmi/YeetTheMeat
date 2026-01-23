@@ -68,3 +68,20 @@ cancel_hint_alpha = 0;
 cloud_list = ds_list_create();
 cloud_spawn_timer = 0;
 cloud_spawn_rate = 3;  // Spawn a cloud every X frames
+
+// === INTERACTION / CARRYING ===
+held_item = noone;           // What the player is holding
+interact_range = 100;         // How close to interact with objects
+interact_button = gp_face1;  // A button for pickup/drop/interact
+
+
+ direction_lock_timer = 0;
+ direction_lock_threshold = 0.8; // Magnitude needed to trigger lock
+ direction_lock_duration = 10;   // Frames to lock direction (10 = ~0.16s at 60fps)
+ locked_stick_x = 0;
+ locked_stick_y = 0;
+ 
+ 
+ // === COLLISION HITBOX ===
+collision_width = 40;   // Vertical rectangle width
+collision_height = 60;  // Vertical rectangle height (taller than wide)
