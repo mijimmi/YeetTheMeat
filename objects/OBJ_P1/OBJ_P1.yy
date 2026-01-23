@@ -12,8 +12,8 @@
   "name":"OBJ_P1",
   "overriddenProperties":[],
   "parent":{
-    "name":"OBJECTS",
-    "path":"folders/OBJECTS.yy",
+    "name":"Players",
+    "path":"folders/OBJECTS/Players.yy",
   },
   "parentObjectId":null,
   "persistent":false,

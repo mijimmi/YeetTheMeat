@@ -6,8 +6,8 @@
   "name":"OBJ_FoodSample",
   "overriddenProperties":[],
   "parent":{
-    "name":"OBJECTS",
-    "path":"folders/OBJECTS.yy",
+    "name":"Foods",
+    "path":"folders/OBJECTS/Foods.yy",
   },
   "parentObjectId":null,
   "persistent":false,
