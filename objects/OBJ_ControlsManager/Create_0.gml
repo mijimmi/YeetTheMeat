@@ -5,22 +5,15 @@ global.btn_drop = gp_face4;      // Y - Drop items anywhere
 
 // Stations that support TAKE action
 global.stations_take = [
-    OBJ_KwekKwekStorage,
-    OBJ_RiceDispenser,      
-    OBJ_PlateStorage,
-    OBJ_FryingStation,
-    OBJ_PotStation,         
-    OBJ_ServingCounter,
-	OBJ_Freezer
+    OBJ_FoodStorage_Parent,     // Handles: Freezer, VeggieStorage, WrapperStorage
+    OBJ_CookingStation_Parent,  // Handles: Frying, Pot, Slicing, SoySauce, Mixing
+    OBJ_ServingCounter
 ];
 
 // Stations that support PLACE action
 global.stations_place = [
-    OBJ_FryingStation,
-    OBJ_PotStation,       
-    OBJ_ServingCounter,
-	OBJ_SlicingStation,
-	OBJ_SoySauceStation
+    OBJ_CookingStation_Parent,  // Handles: Frying, Pot, Slicing, SoySauce, Mixing
+    OBJ_ServingCounter
 ];
 // === INTERACTION FUNCTIONS ===
 
@@ -42,33 +35,62 @@ function player_interact_take(player_instance) {
         }
         
         // --- PICK UP FROM GROUND (FALLBACK) ---
-        if (!interacted && held_item == noone) {
-            var nearest_plate = instance_nearest(x, y, OBJ_Plate);
-            if (nearest_plate != noone && !nearest_plate.is_held) {
-                var dist = point_distance(x, y, nearest_plate.x, nearest_plate.y);
-                if (dist <= interact_range) {
-                    held_item = nearest_plate;
-                    nearest_plate.is_held = true;
-                    nearest_plate.held_by = id;
-                    interacted = true;
-                }
-            }
-            
-            if (!interacted) {
-                var nearest_food = instance_nearest(x, y, OBJ_Food);
-                if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking && !nearest_food.is_on_plate) {
-                    var dist = point_distance(x, y, nearest_food.x, nearest_food.y);
-                    if (dist <= interact_range) {
-                        held_item = nearest_food;
-                        nearest_food.is_held = true;
-                        nearest_food.held_by = id;
-                        interacted = true;
-                    }
-                }
-            }
-        }
-    }
+		if (!interacted && held_item == noone) {
+			// Try plate first
+			var nearest_plate = instance_nearest(x, y, OBJ_Plate);
+			if (nearest_plate != noone && !nearest_plate.is_held) {
+			    var dist = point_distance(x, y, nearest_plate.x, nearest_plate.y);
+			    if (dist <= interact_range) {
+			        held_item = nearest_plate;
+			        nearest_plate.is_held = true;
+			        nearest_plate.held_by = id;
+			        interacted = true;
+			    }
+			}
     
+			// Then try food
+			if (!interacted) {
+			    var nearest_food = instance_nearest(x, y, OBJ_Food);
+			    if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking && !nearest_food.is_on_plate) {
+			        var dist = point_distance(x, y, nearest_food.x, nearest_food.y);
+			        if (dist <= interact_range) {
+			            held_item = nearest_food;
+			            nearest_food.is_held = true;
+			            nearest_food.held_by = id;
+			            interacted = true;
+			        }
+			    }
+			}
+    
+			// Then try vegetables
+			if (!interacted) {
+			    var nearest_veggie = instance_nearest(x, y, OBJ_Vegetables);
+			    if (nearest_veggie != noone && !nearest_veggie.is_held) {
+			        var dist = point_distance(x, y, nearest_veggie.x, nearest_veggie.y);
+			        if (dist <= interact_range) {
+			            held_item = nearest_veggie;
+			            nearest_veggie.is_held = true;
+			            nearest_veggie.held_by = id;
+			            interacted = true;
+			        }
+			    }
+			}
+    
+			// Then try wrapper
+			if (!interacted) {
+			    var nearest_wrapper = instance_nearest(x, y, OBJ_LumpiaWrapper);
+			    if (nearest_wrapper != noone && !nearest_wrapper.is_held) {
+			        var dist = point_distance(x, y, nearest_wrapper.x, nearest_wrapper.y);
+			        if (dist <= interact_range) {
+			            held_item = nearest_wrapper;
+			            nearest_wrapper.is_held = true;
+			            nearest_wrapper.held_by = id;
+			            interacted = true;
+			        }
+			    }
+			}
+		}
+    }
     return interacted;
 }
 

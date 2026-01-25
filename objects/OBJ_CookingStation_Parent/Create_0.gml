@@ -29,6 +29,11 @@ function interact_place(player) {
                 food.is_held = false;
                 food.held_by = noone;
                 
+                // IMPORTANT: Stop food physics on station
+                food.can_slide = false;
+                food.velocity_x = 0;
+                food.velocity_y = 0;
+                
                 if (requires_cooking) {
                     // Normal cooking station (frying, boiling)
                     food.is_cooking = true;
@@ -38,6 +43,7 @@ function interact_place(player) {
                     // Instant station (slicing, soy sauce)
                     food.food_type = output_state;
                     food.is_cooking = false;
+                    food.cooking_station = id;  // ← Added! So food knows it's on a station
                 }
                 
                 player.held_item = noone;
@@ -55,6 +61,7 @@ function interact_take(player) {
         player.held_item.held_by = player.id;
         player.held_item.is_cooking = false;
         player.held_item.cooking_station = noone;
+        player.held_item.can_slide = true;  // ← Re-enable physics when picked up
         food_on_station = noone;
         return true;
     }

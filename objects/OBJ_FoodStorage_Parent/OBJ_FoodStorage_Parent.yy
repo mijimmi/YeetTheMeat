@@ -10,8 +10,8 @@
   "name":"OBJ_FoodStorage_Parent",
   "overriddenProperties":[],
   "parent":{
-    "name":"Food Storage",
-    "path":"folders/OBJECTS/Food Storage.yy",
+    "name":"Storage",
+    "path":"folders/OBJECTS/Storage.yy",
   },
   "parentObjectId":null,
   "persistent":false,

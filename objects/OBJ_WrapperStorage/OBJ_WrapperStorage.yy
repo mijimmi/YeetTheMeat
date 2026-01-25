@@ -1,11 +1,11 @@
 {
   "$GMObject":"",
-  "%Name":"OBJ_RiceDispenser",
+  "%Name":"OBJ_WrapperStorage",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"OBJ_RiceDispenser",
+  "name":"OBJ_WrapperStorage",
   "overriddenProperties":[],
   "parent":{
     "name":"Storage",

@@ -1,19 +1,21 @@
 {
   "$GMObject":"",
-  "%Name":"OBJ_RiceDispenser",
+  "%Name":"OBJ_MixingStation",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"OBJ_RiceDispenser",
+  "name":"OBJ_MixingStation",
   "overriddenProperties":[],
   "parent":{
-    "name":"Storage",
-    "path":"folders/OBJECTS/Storage.yy",
+    "name":"Stations",
+    "path":"folders/OBJECTS/Stations.yy",
   },
   "parentObjectId":{
-    "name":"OBJ_FoodStorage_Parent",
-    "path":"objects/OBJ_FoodStorage_Parent/OBJ_FoodStorage_Parent.yy",
+    "name":"OBJ_CookingStation_Parent",
+    "path":"objects/OBJ_CookingStation_Parent/OBJ_CookingStation_Parent.yy",
   },
   "persistent":false,
   "physicsAngularDamping":0.1,

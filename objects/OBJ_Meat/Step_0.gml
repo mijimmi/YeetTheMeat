@@ -1,20 +1,27 @@
 event_inherited(); 
 
-// === CUSTOM COOKING LOGIC FOR MEAT ===
+// === CUSTOM COOKING LOGIC FOR MEAT
+// Parent already handled cook_timer++, so we just check for state transitions
 if (is_cooking && instance_exists(cooking_station)) {
     // Check which station we're on
     if (cooking_station.object_index == OBJ_FryingStation) {
         // On frying station: sliced → fried_pork
         if (food_type == "sliced" && cook_timer >= cook_time_required) {
             food_type = "fried_pork";
-            cook_timer = 0;
+            cook_timer = 0; // Reset for burn timer
+        }
+        else if (food_type == "fried_pork" && cook_timer >= burn_time) {
+            food_type = "burnt";
         }
     }
     else if (cooking_station.object_index == OBJ_PotStation) {
         // On pot station: soy_sliced → adobo
         if (food_type == "soy_sliced" && cook_timer >= cook_time_required) {
             food_type = "adobo";
-            cook_timer = 0;
+            cook_timer = 0; // Reset for burn timer
+        }
+        else if (food_type == "adobo" && cook_timer >= burn_time) {
+            food_type = "burnt";
         }
     }
 }
@@ -49,7 +56,7 @@ switch (food_type) {
         break;
 }
 
-// Bobbing animation (from parent)
+// Bobbing animation
 var current_speed = point_distance(0, 0, velocity_x, velocity_y);
 
 var on_counter = false;
