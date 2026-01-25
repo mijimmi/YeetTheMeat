@@ -67,7 +67,7 @@ cancel_hint_alpha = 0;
 // === CLOUD TRAIL ===
 cloud_list = ds_list_create();
 cloud_spawn_timer = 0;
-cloud_spawn_rate = 3;  // Spawn a cloud every X frames
+cloud_spawn_rate = 5;  // Spawn a cloud every X frames
 
 // === INTERACTION / CARRYING ===
 held_item = noone;           // What the player is holding
@@ -85,3 +85,7 @@ interact_button = gp_face1;  // A button for pickup/drop/interact
  // === COLLISION HITBOX ===
 collision_width = 40;   // Vertical rectangle width
 collision_height = 60;  // Vertical rectangle height (taller than wide)
+
+// === AIM COOLDOWN ===
+aim_cooldown = 0;
+aim_cooldown_max = 20;  // Frames of cooldown (15 = 0.25 seconds at 60fps)
