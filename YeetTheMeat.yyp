@@ -71,6 +71,7 @@
     {"id":{"name":"spr_1Hand","path":"sprites/spr_1Hand/spr_1Hand.yy",},},
     {"id":{"name":"spr_2Hand","path":"sprites/spr_2Hand/spr_2Hand.yy",},},
     {"id":{"name":"spr_adobodish","path":"sprites/spr_adobodish/spr_adobodish.yy",},},
+    {"id":{"name":"spr_BGCollision","path":"sprites/spr_BGCollision/spr_BGCollision.yy",},},
     {"id":{"name":"spr_bukojuice","path":"sprites/spr_bukojuice/spr_bukojuice.yy",},},
     {"id":{"name":"spr_burnt","path":"sprites/spr_burnt/spr_burnt.yy",},},
     {"id":{"name":"spr_collision","path":"sprites/spr_collision/spr_collision.yy",},},

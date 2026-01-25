@@ -39,6 +39,7 @@
     {"name":"OBJ_SoySauceStation","order":9,"path":"objects/OBJ_SoySauceStation/OBJ_SoySauceStation.yy",},
     {"name":"spr_1Hand","order":11,"path":"sprites/spr_1Hand/spr_1Hand.yy",},
     {"name":"spr_adobodish","order":12,"path":"sprites/spr_adobodish/spr_adobodish.yy",},
+    {"name":"spr_BGCollision","order":1,"path":"sprites/spr_BGCollision/spr_BGCollision.yy",},
     {"name":"spr_bukojuice","order":21,"path":"sprites/spr_bukojuice/spr_bukojuice.yy",},
     {"name":"spr_burnt","order":5,"path":"sprites/spr_burnt/spr_burnt.yy",},
     {"name":"spr_collision","order":4,"path":"sprites/spr_collision/spr_collision.yy",},
