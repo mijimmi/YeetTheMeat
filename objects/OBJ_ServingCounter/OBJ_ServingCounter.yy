@@ -10,8 +10,8 @@
   "name":"OBJ_ServingCounter",
   "overriddenProperties":[],
   "parent":{
-    "name":"Stations",
-    "path":"folders/OBJECTS/Stations.yy",
+    "name":"Miscellaneous",
+    "path":"folders/OBJECTS/Miscellaneous.yy",
   },
   "parentObjectId":null,
   "persistent":false,

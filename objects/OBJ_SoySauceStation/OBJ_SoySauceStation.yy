@@ -1,15 +1,20 @@
 {
   "$GMObject":"",
-  "%Name":"OBJ_FoodSample",
-  "eventList":[],
+  "%Name":"OBJ_SoySauceStation",
+  "eventList":[
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+  ],
   "managed":true,
-  "name":"OBJ_FoodSample",
+  "name":"OBJ_SoySauceStation",
   "overriddenProperties":[],
   "parent":{
-    "name":"Foods",
-    "path":"folders/OBJECTS/Foods.yy",
+    "name":"Stations",
+    "path":"folders/OBJECTS/Stations.yy",
   },
-  "parentObjectId":null,
+  "parentObjectId":{
+    "name":"OBJ_CookingStation_Parent",
+    "path":"objects/OBJ_CookingStation_Parent/OBJ_CookingStation_Parent.yy",
+  },
   "persistent":false,
   "physicsAngularDamping":0.1,
   "physicsDensity":0.5,
@@ -28,8 +33,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_rawkwek_kwek",
-    "path":"sprites/spr_rawkwek_kwek/spr_rawkwek_kwek.yy",
+    "name":"samplestation",
+    "path":"sprites/samplestation/samplestation.yy",
   },
   "spriteMaskId":null,
   "visible":true,

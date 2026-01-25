@@ -1,6 +1,11 @@
-interact_range = 60;
-food_on_station = noone;  // What food is currently being cooked
+event_inherited();
 
-// Cooking area offset (where food sits on the pan)
+station_action = "Fry Food";
+accepted_state = "";          // ← Changed! Accept ANY state (empty string)
+output_state = "";            // ← Changed! Let food decide what it becomes
+requires_cooking = true;
+
+// Visual offset (optional, parent has defaults)
 food_offset_x = 0;
 food_offset_y = -20;
+

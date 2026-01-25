@@ -1,14 +1,5 @@
 event_inherited();
 
-// Override sprite based on initial state
-switch (food_type) {
-    case "raw":
-        sprite_index = spr_rawkwek_kwek;
-        break;
-    case "cooked":
-        sprite_index = spr_cookedkwek_kwek;
-        break;
-    case "burnt":
-        sprite_index = spr_burnt;
-        break;
-}
+cook_time_required = 6 * 60;  // 6 seconds at 60 FPS (adjustable)
+burn_time = 10 * 60;           // Burns 5 seconds after done cooking
+plated_sprite = spr_takoyakidish;

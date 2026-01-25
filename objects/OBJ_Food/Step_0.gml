@@ -1,20 +1,45 @@
-// Gentle bobbing animation when stationary (not held, cooking, or moving)
 var current_speed = point_distance(0, 0, velocity_x, velocity_y);
-if (!is_held && !is_cooking && current_speed < 0.3) {
+
+// Check if food is on a plate that's on serving counter
+var on_counter = false;
+if (is_on_plate && plate_instance != noone && instance_exists(plate_instance)) {
+    with (OBJ_ServingCounter) {
+        if (plate_on_counter == other.plate_instance) {
+            on_counter = true;
+        }
+    }
+}
+
+if (!is_held && !is_cooking && current_speed < 0.3 && !on_counter) {
     bob_timer += bob_speed;
+}
+
+// === PLATING STATE TRANSITION ===
+// When food is placed on a plate, change to "plated" state
+if (is_on_plate && food_type != "plated" && food_type == "cooked") {
+    food_type = "plated";
 }
 
 // === COOKING LOGIC ===
 if (is_cooking && instance_exists(cooking_station)) {
     cook_timer++;
     
-    // Check cooking progress
-    if (food_type == "raw" && cook_timer >= cook_time_required) {
-        food_type = "cooked";
-        cook_timer = 0; // Reset for burn timer
-    }
-    else if (food_type == "cooked" && cook_timer >= burn_time) {
-        food_type = "burnt";
+    // Check if station specifies custom output state
+    if (variable_instance_exists(cooking_station, "output_state") && cooking_station.output_state != "") {
+        // Custom state transition (for porkchop, adobo, etc.)
+        if (cook_timer >= cook_time_required) {
+            food_type = cooking_station.output_state;
+            cook_timer = 0;
+        }
+    } else {
+        // Default cooking (raw → cooked → burnt)
+        if (food_type == "raw" && cook_timer >= cook_time_required) {
+            food_type = "cooked";
+            cook_timer = 0;
+        }
+        else if (food_type == "cooked" && cook_timer >= burn_time) {
+            food_type = "burnt";
+        }
     }
 }
 
