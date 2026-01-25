@@ -1,20 +1,19 @@
 {
   "$GMObject":"",
-  "%Name":"OBJ_RiceDispenser",
+  "%Name":"OBJ_Vegetables",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"OBJ_RiceDispenser",
+  "name":"OBJ_Vegetables",
   "overriddenProperties":[],
   "parent":{
-    "name":"Storage",
-    "path":"folders/OBJECTS/Storage.yy",
+    "name":"Foods",
+    "path":"folders/OBJECTS/Foods.yy",
   },
-  "parentObjectId":{
-    "name":"OBJ_FoodStorage_Parent",
-    "path":"objects/OBJ_FoodStorage_Parent/OBJ_FoodStorage_Parent.yy",
-  },
+  "parentObjectId":null,
   "persistent":false,
   "physicsAngularDamping":0.1,
   "physicsDensity":0.5,
@@ -33,8 +32,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"samplestation",
-    "path":"sprites/samplestation/samplestation.yy",
+    "name":"spr_lettuce",
+    "path":"sprites/spr_lettuce/spr_lettuce.yy",
   },
   "spriteMaskId":null,
   "visible":true,

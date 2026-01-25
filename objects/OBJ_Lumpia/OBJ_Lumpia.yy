@@ -1,19 +1,20 @@
 {
   "$GMObject":"",
-  "%Name":"OBJ_RiceDispenser",
+  "%Name":"OBJ_Lumpia",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"OBJ_RiceDispenser",
+  "name":"OBJ_Lumpia",
   "overriddenProperties":[],
   "parent":{
-    "name":"Storage",
-    "path":"folders/OBJECTS/Storage.yy",
+    "name":"Foods",
+    "path":"folders/OBJECTS/Foods.yy",
   },
   "parentObjectId":{
-    "name":"OBJ_FoodStorage_Parent",
-    "path":"objects/OBJ_FoodStorage_Parent/OBJ_FoodStorage_Parent.yy",
+    "name":"OBJ_Food",
+    "path":"objects/OBJ_Food/OBJ_Food.yy",
   },
   "persistent":false,
   "physicsAngularDamping":0.1,
@@ -33,8 +34,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"samplestation",
-    "path":"sprites/samplestation/samplestation.yy",
+    "name":"spr_rawmeatlumpia",
+    "path":"sprites/spr_rawmeatlumpia/spr_rawmeatlumpia.yy",
   },
   "spriteMaskId":null,
   "visible":true,

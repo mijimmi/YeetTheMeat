@@ -16,22 +16,28 @@ if (!is_held && !is_cooking && current_speed < 0.3 && !on_counter) {
 
 // === PLATING STATE TRANSITION ===
 // When food is placed on a plate, change to "plated" state
-if (is_on_plate && food_type != "plated" && food_type == "cooked") {
-    food_type = "plated";
+if (is_on_plate && food_type != "plated") {
+    // Check if this food has a plated sprite (meaning it's ready to be plated)
+    if (plated_sprite != noone) {
+        food_type = "plated";
+    }
 }
 
 // === COOKING LOGIC ===
 if (is_cooking && instance_exists(cooking_station)) {
     cook_timer++;
     
-    // Check if station specifies custom output state
+    // Check if station specifies custom output state (instant stations like slicing, soy sauce)
     if (variable_instance_exists(cooking_station, "output_state") && cooking_station.output_state != "") {
-        // Custom state transition (for porkchop, adobo, etc.)
+        // Custom state transition
         if (cook_timer >= cook_time_required) {
             food_type = cooking_station.output_state;
             cook_timer = 0;
         }
-    } else {
+    } 
+    // Only do default cooking if this is a simple food (Kwek, Rice, etc.)
+    // Foods with custom cooking (Meat) will handle it in their own Step event
+    else if (object_index == OBJ_KwekKwek || object_index == OBJ_Rice) {
         // Default cooking (raw → cooked → burnt)
         if (food_type == "raw" && cook_timer >= cook_time_required) {
             food_type = "cooked";
@@ -41,6 +47,7 @@ if (is_cooking && instance_exists(cooking_station)) {
             food_type = "burnt";
         }
     }
+    // For other foods (OBJ_Meat), let them handle their own cooking logic
 }
 
 // === PHYSICS - ONLY WHEN NOT HELD, NOT COOKING, NOT ON PLATE ===

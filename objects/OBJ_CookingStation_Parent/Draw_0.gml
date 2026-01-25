@@ -6,14 +6,35 @@ if (nearest_player != noone) {
     
     if (dist <= interact_range) {
         var hint_text = "";
+        var hint_color = c_white;
         
+        // Player holding something, station empty - can place
         if (nearest_player.held_item != noone && food_on_station == noone) {
-            if (instance_exists(nearest_player.held_item) && object_is_ancestor(nearest_player.held_item.object_index, OBJ_Food)) {
+            var item = nearest_player.held_item;
+            var can_place = false;
+            
+            // Check if item is valid for this station
+            if (object_is_ancestor(item.object_index, OBJ_Food)) {
+                // Check if station has state requirement
+                if (accepted_state == "" || item.food_type == accepted_state) {
+                    can_place = true;
+                }
+            }
+            else if (item.object_index == OBJ_Vegetables && variable_instance_exists(item, "veggie_state")) {
+                if (accepted_state == "" || item.veggie_state == accepted_state) {
+                    can_place = true;
+                }
+            }
+            
+            if (can_place) {
                 hint_text = "[A] " + station_action;
+                hint_color = c_white;
             }
         }
+        // Station has food, player empty-handed - can take
         else if (food_on_station != noone && nearest_player.held_item == noone) {
             hint_text = "[X] Take Food";
+            hint_color = c_lime;
         }
         
         if (hint_text != "") {
@@ -23,7 +44,7 @@ if (nearest_player != noone) {
             draw_set_color(c_black);
             draw_text(x + 1, y - 50 + 1, hint_text);
             
-            draw_set_color(c_white);
+            draw_set_color(hint_color);
             draw_text(x, y - 50, hint_text);
             
             draw_set_halign(fa_left);
