@@ -1,4 +1,4 @@
-interact_range = 60;
+event_inherited();
 
-spawn_cooldown = 0;
-spawn_cooldown_max = 15;
+stored_food = OBJ_Plate;  // Plates work as "food" for storage purposes
+storage_name = "Plate";

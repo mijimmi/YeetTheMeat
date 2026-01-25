@@ -7,12 +7,11 @@ food_type = "raw";     // "raw", "cooked", "burnt"
 is_cooking = false;           // Currently on a cooking station
 cooking_station = noone;      // Which station is cooking this
 cook_timer = 0;               // How long it's been cooking
-cook_time_required = 6 * 60;  // 6 seconds at 60 FPS (adjustable)
-burn_time = 5 * 60;           // Burns 5 seconds after done cooking
 
 // === PLATING ===
 is_on_plate = false;          // Is this food on a plate?
 plate_instance = noone;       // Reference to the plate
+plated_sprite = noone;        // Sprite to use when plated (set in child objects)
 
 // === PHYSICS  ===
 velocity_x = 0;
