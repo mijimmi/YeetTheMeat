@@ -71,7 +71,6 @@
     {"id":{"name":"OBJ_Vegetables","path":"objects/OBJ_Vegetables/OBJ_Vegetables.yy",},},
     {"id":{"name":"OBJ_VeggieStorage","path":"objects/OBJ_VeggieStorage/OBJ_VeggieStorage.yy",},},
     {"id":{"name":"OBJ_WrapperStorage","path":"objects/OBJ_WrapperStorage/OBJ_WrapperStorage.yy",},},
-    {"id":{"name":"Object8","path":"objects/Object8/Object8.yy",},},
     {"id":{"name":"game_room","path":"rooms/game_room/game_room.yy",},},
     {"id":{"name":"BG","path":"sprites/BG/BG.yy",},},
     {"id":{"name":"samplestation","path":"sprites/samplestation/samplestation.yy",},},

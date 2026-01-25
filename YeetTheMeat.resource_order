@@ -43,7 +43,6 @@
     {"name":"OBJ_Vegetables","order":6,"path":"objects/OBJ_Vegetables/OBJ_Vegetables.yy",},
     {"name":"OBJ_VeggieStorage","order":5,"path":"objects/OBJ_VeggieStorage/OBJ_VeggieStorage.yy",},
     {"name":"OBJ_WrapperStorage","order":6,"path":"objects/OBJ_WrapperStorage/OBJ_WrapperStorage.yy",},
-    {"name":"Object8","order":1,"path":"objects/Object8/Object8.yy",},
     {"name":"spr_1Hand","order":11,"path":"sprites/spr_1Hand/spr_1Hand.yy",},
     {"name":"spr_adobodish","order":12,"path":"sprites/spr_adobodish/spr_adobodish.yy",},
     {"name":"spr_BGCollisions","order":1,"path":"sprites/spr_BGCollisions/spr_BGCollisions.yy",},
