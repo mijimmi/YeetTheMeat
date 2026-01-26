@@ -1,18 +1,37 @@
 // === PLAYER INDICATOR (only after 2 seconds idle) ===
 if (idle_timer >= idle_indicator_delay) {
     var indicator_y = y - 80;
-    var indicator_alpha = 0.6;
+    var outline_alpha = 0.6;
+    var main_alpha = 0.9;
     var p1_color = make_color_rgb(180, 40, 40); // dark red
+    var outline_offset = 2;
     
-    // Draw small triangle pointing down
-    draw_set_alpha(indicator_alpha);
+    // Draw white outline for triangle
+    draw_set_alpha(outline_alpha);
+    draw_set_color(c_white);
+    draw_triangle(x - 6 - outline_offset, indicator_y - 6 - outline_offset, x + 6 + outline_offset, indicator_y - 6 - outline_offset, x, indicator_y + 3 + outline_offset, false);
+    
+    // Draw main triangle
+    draw_set_alpha(main_alpha);
     draw_set_color(p1_color);
     draw_triangle(x - 6, indicator_y - 6, x + 6, indicator_y - 6, x, indicator_y + 3, false);
     
-    // Draw P1 text above triangle
+    // Draw P1 text with white outline
     draw_set_font(fnt_winkle);
     draw_set_halign(fa_center);
     draw_set_valign(fa_bottom);
+    
+    // White outline (draw text offset in multiple directions)
+    draw_set_alpha(outline_alpha);
+    draw_set_color(c_white);
+    draw_text(x - 1, indicator_y - 8, "P1");
+    draw_text(x + 1, indicator_y - 8, "P1");
+    draw_text(x, indicator_y - 8 - 1, "P1");
+    draw_text(x, indicator_y - 8 + 1, "P1");
+    
+    // Main text
+    draw_set_alpha(main_alpha);
+    draw_set_color(p1_color);
     draw_text(x, indicator_y - 8, "P1");
     
     draw_set_halign(fa_left);

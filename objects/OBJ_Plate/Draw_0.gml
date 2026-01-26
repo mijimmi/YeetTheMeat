@@ -19,6 +19,23 @@ if (is_held) {
     draw_scale = 0.7; // 70% size when held (adjust this value)
 }
 
+// Draw shadow when not held
+if (!is_held) {
+    var shadow_y = y + 25;
+    var shadow_width = 22 * draw_scale;
+    var shadow_height = 9 * draw_scale;
+    
+    draw_set_alpha(0.15);
+    draw_set_color(c_black);
+    draw_ellipse(x - shadow_width, shadow_y - shadow_height, x + shadow_width, shadow_y + shadow_height, false);
+    
+    draw_set_alpha(0.25);
+    draw_ellipse(x - shadow_width * 0.7, shadow_y - shadow_height * 0.7, x + shadow_width * 0.7, shadow_y + shadow_height * 0.7, false);
+    
+    draw_set_alpha(1);
+    draw_set_color(c_white);
+}
+
 // Only draw plate if there's no plated food on it
 // (plated food sprite includes the plate visual)
 var should_draw_plate = true;

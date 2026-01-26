@@ -1,4 +1,3 @@
-
 // === GET CONTROLLER OR KEYBOARD INPUT ===
 var stick_x = 0;
 var stick_y = 0;
@@ -7,8 +6,7 @@ var using_keyboard = false;
 if (gamepad_is_connected(gamepad_slot)) {
     stick_x = gamepad_axis_value(gamepad_slot, gp_axislh);
     stick_y = gamepad_axis_value(gamepad_slot, gp_axislv);
-}
-else {
+} else {
     using_keyboard = true;
     if (keyboard_check(ord("A"))) stick_x -= 1;
     if (keyboard_check(ord("D"))) stick_x += 1;
@@ -31,6 +29,45 @@ if (gamepad_is_connected(gamepad_slot)) {
     cancel_pressed = keyboard_check_pressed(vk_shift) || keyboard_check_pressed(vk_escape);
 }
 
+// === AIM COOLDOWN TIMER ===
+if (aim_cooldown > 0) {
+    aim_cooldown--;
+}
+
+// === INTERACTION SYSTEM ===
+var take_pressed = false;
+var place_pressed = false;
+var drop_pressed = false;
+
+if (gamepad_is_connected(gamepad_slot)) {
+    take_pressed = gamepad_button_check_pressed(gamepad_slot, global.btn_take);
+    place_pressed = gamepad_button_check_pressed(gamepad_slot, global.btn_place);
+    drop_pressed = gamepad_button_check_pressed(gamepad_slot, global.btn_drop);
+} else {
+    take_pressed = keyboard_check_pressed(ord("E"));
+    place_pressed = keyboard_check_pressed(ord("Q"));
+    drop_pressed = keyboard_check_pressed(ord("R"));
+}
+
+if (take_pressed) {
+    OBJ_ControlsManager.player_interact_take(id);
+}
+
+if (place_pressed) {
+    OBJ_ControlsManager.player_interact_place(id);
+}
+
+if (drop_pressed) {
+    OBJ_ControlsManager.player_drop_item(id);
+}
+
+// === UPDATE HELD ITEM POSITION ===
+if (held_item != noone && instance_exists(held_item)) {
+    held_item.x = x;
+    held_item.y = y - 40;
+    held_item.depth = depth - 1;
+}
+
 // === STATE MACHINE ===
 switch (state) {
     case "idle":
@@ -51,16 +88,33 @@ switch (state) {
             gamepad_set_vibration(gamepad_slot, 0, 0);
         }
         
-        if (stick_active && !cancel_cooldown && landing_timer <= 0) {
+        if (stick_active && !cancel_cooldown && landing_timer <= 0 && aim_cooldown <= 0) {
             state = "aiming";
             aim_power = 0;
             aim_power_raw = 0;
             power_direction = 1;
             stick_held = true;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
         }
         break;
         
     case "aiming":
+        // Apply friction while sliding
+        velocity_x *= friction_rate;
+        velocity_y *= friction_rate;
+        
+        // Update aim hold timer
+        aim_hold_timer += 1 / room_speed;
+        
+        // Fade in cancel hint after delay
+        if (aim_hold_timer >= cancel_hint_delay) {
+            cancel_hint_alpha = min(cancel_hint_alpha + 0.05, 1);
+        } else {
+            cancel_hint_alpha = 0;
+        }
+        
+        // Cancel aiming
         if (cancel_pressed) {
             state = "idle";
             aim_power = 0;
@@ -68,6 +122,8 @@ switch (state) {
             power_direction = 1;
             stick_held = false;
             cancel_cooldown = true;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
             if (gamepad_is_connected(gamepad_slot)) {
                 gamepad_set_vibration(gamepad_slot, 0, 0);
             }
@@ -76,6 +132,7 @@ switch (state) {
             var stick_dir = point_direction(0, 0, stick_x, stick_y);
             aim_dir = stick_dir + 180;
             
+            // OSCILLATING POWER (ping-pong)
             aim_power_raw += charge_rate * power_direction;
             
             if (aim_power_raw >= 1) {
@@ -100,8 +157,8 @@ switch (state) {
         else if (stick_held && !stick_active) {
             if (aim_power >= min_power_threshold) {
                 var launch_speed = aim_power * aim_power_max;
-                velocity_x = lengthdir_x(launch_speed, aim_dir);
-                velocity_y = lengthdir_y(launch_speed, aim_dir);
+                velocity_x += lengthdir_x(launch_speed, aim_dir);
+                velocity_y += lengthdir_y(launch_speed, aim_dir);
                 state = "moving";
                 
                 target_scale_x = 0.6;
@@ -114,15 +171,82 @@ switch (state) {
                 }
                 alarm[0] = 8;
             } else {
-                state = "idle";
+                state = "moving";
                 if (gamepad_is_connected(gamepad_slot)) {
                     gamepad_set_vibration(gamepad_slot, 0, 0);
                 }
             }
+            
+            // Start cooldown on ANY release from aiming
+            aim_cooldown = aim_cooldown_max;
+            
             aim_power = 0;
             aim_power_raw = 0;
             power_direction = 1;
             stick_held = false;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
+        }
+        
+        // === SPAWN CLOUD PUFFS WHILE SLIDING ===
+        var current_speed = point_distance(0, 0, velocity_x, velocity_y);
+        cloud_spawn_timer++;
+        if (cloud_spawn_timer >= cloud_spawn_rate && current_speed > 1) {
+            cloud_spawn_timer = 0;
+            
+            var trail_dir = point_direction(0, 0, velocity_x, velocity_y) + 180;
+            var offset_dist = random_range(5, 15);
+            
+            var cloud_data = array_create(8);
+            cloud_data[0] = x + lengthdir_x(offset_dist, trail_dir) + random_range(-3, 3);
+            cloud_data[1] = y + 50 + random_range(-2, 2);
+            cloud_data[2] = 0.7 + random(0.3);
+            cloud_data[3] = 0.7;
+            cloud_data[4] = 0.008;
+            cloud_data[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+            cloud_data[6] = 0;
+            cloud_data[7] = 0;
+            
+            ds_list_add(cloud_list, cloud_data);
+        }
+        
+        // === COLLISION-AWARE MOVEMENT WHILE AIMING ===
+        var bounce_factor = 0.6;
+        
+        // X collision
+        var new_x = x + velocity_x;
+        if (place_meeting(new_x, y, OBJ_Collision)) {
+            while (!place_meeting(x + sign(velocity_x), y, OBJ_Collision)) {
+                x += sign(velocity_x);
+            }
+            velocity_x = -velocity_x * bounce_factor;
+            shake_amount = abs(velocity_x) * 0.5;
+            
+            if (gamepad_is_connected(gamepad_slot)) {
+                var hit_strength = min(abs(velocity_x) / 10, 1);
+                gamepad_set_vibration(gamepad_slot, hit_strength, hit_strength);
+            }
+            alarm[0] = 5;
+        } else {
+            x = new_x;
+        }
+        
+        // Y collision
+        var new_y = y + velocity_y;
+        if (place_meeting(x, new_y, OBJ_Collision)) {
+            while (!place_meeting(x, y + sign(velocity_y), OBJ_Collision)) {
+                y += sign(velocity_y);
+            }
+            velocity_y = -velocity_y * bounce_factor;
+            shake_amount = abs(velocity_y) * 0.5;
+            
+            if (gamepad_is_connected(gamepad_slot)) {
+                var hit_strength = min(abs(velocity_y) / 10, 1);
+                gamepad_set_vibration(gamepad_slot, hit_strength, hit_strength);
+            }
+            alarm[0] = 5;
+        } else {
+            y = new_y;
         }
         
         // === PLAYER VS PLAYER COLLISION (WHILE AIMING) ===
@@ -130,23 +254,19 @@ switch (state) {
             var other_player = instance_nearest(x, y, OBJ_P1);
             
             var push_dir = point_direction(other_player.x, other_player.y, x, y);
-            
             var impact_force = point_distance(0, 0, other_player.velocity_x, other_player.velocity_y);
             var bounce_strength = max(impact_force * 0.7, 2);
             
-            // Cancel aiming and go to moving state
             state = "moving";
             
             velocity_x = lengthdir_x(bounce_strength, push_dir);
             velocity_y = lengthdir_y(bounce_strength, push_dir);
             
-            // Make sure other player is in moving state
             if (other_player.state == "idle" || other_player.state == "aiming") {
                 other_player.state = "moving";
                 other_player.velocity_x = lengthdir_x(bounce_strength, push_dir + 180);
                 other_player.velocity_y = lengthdir_y(bounce_strength, push_dir + 180);
                 
-                // If other was aiming, reset their aim variables
                 if (other_player.state == "aiming") {
                     other_player.aim_power = 0;
                     other_player.aim_power_raw = 0;
@@ -155,11 +275,12 @@ switch (state) {
                 }
             }
             
-            // Reset aiming variables
             aim_power = 0;
             aim_power_raw = 0;
             power_direction = 1;
             stick_held = false;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
             
             while (place_meeting(x, y, OBJ_P1)) {
                 x += lengthdir_x(1, push_dir);
@@ -175,8 +296,21 @@ switch (state) {
         break;
         
     case "moving":
+        // Check cooldown before allowing aim while moving
+        if (stick_active && !cancel_cooldown && aim_cooldown <= 0) {
+            state = "aiming";
+            aim_power = 0;
+            aim_power_raw = 0;
+            power_direction = 1;
+            stick_held = true;
+            aim_hold_timer = 0;
+            cancel_hint_alpha = 0;
+            break;
+        }
+        
         var bounce_factor = 0.6;
         
+        // X collision
         var new_x = x + velocity_x;
         if (place_meeting(new_x, y, OBJ_Collision)) {
             while (!place_meeting(x + sign(velocity_x), y, OBJ_Collision)) {
@@ -184,10 +318,17 @@ switch (state) {
             }
             velocity_x = -velocity_x * bounce_factor;
             shake_amount = abs(velocity_x) * 0.5;
+            
+            if (gamepad_is_connected(gamepad_slot)) {
+                var hit_strength = min(abs(velocity_x) / 10, 1);
+                gamepad_set_vibration(gamepad_slot, hit_strength, hit_strength);
+            }
+            alarm[0] = 5;
         } else {
             x = new_x;
         }
         
+        // Y collision
         var new_y = y + velocity_y;
         if (place_meeting(x, new_y, OBJ_Collision)) {
             while (!place_meeting(x, y + sign(velocity_y), OBJ_Collision)) {
@@ -195,6 +336,12 @@ switch (state) {
             }
             velocity_y = -velocity_y * bounce_factor;
             shake_amount = abs(velocity_y) * 0.5;
+            
+            if (gamepad_is_connected(gamepad_slot)) {
+                var hit_strength = min(abs(velocity_y) / 10, 1);
+                gamepad_set_vibration(gamepad_slot, hit_strength, hit_strength);
+            }
+            alarm[0] = 5;
         } else {
             y = new_y;
         }
@@ -205,10 +352,6 @@ switch (state) {
         var current_speed = point_distance(0, 0, velocity_x, velocity_y);
         target_scale_x = 1 - min(current_speed * 0.02, 0.3);
         target_scale_y = 1 + min(current_speed * 0.03, 0.4);
-        
-        if (gamepad_is_connected(gamepad_slot)) {
-            gamepad_set_vibration(gamepad_slot, 0, 0);
-        }
         
         if (current_speed < 0.5) {
             target_scale_x = 1.4;
@@ -226,13 +369,33 @@ switch (state) {
             velocity_y = 0;
             state = "idle";
         }
-		
-		// === PLAYER VS PLAYER COLLISION (WHILE MOVING) ===
+        
+        // === SPAWN CLOUD PUFFS ===
+        cloud_spawn_timer++;
+        if (cloud_spawn_timer >= cloud_spawn_rate && current_speed > 1) {
+            cloud_spawn_timer = 0;
+            
+            var trail_dir = point_direction(0, 0, velocity_x, velocity_y) + 180;
+            var offset_dist = random_range(5, 15);
+            
+            var cloud_data = array_create(8);
+            cloud_data[0] = x + lengthdir_x(offset_dist, trail_dir) + random_range(-3, 3);
+            cloud_data[1] = y + 50 + random_range(-2, 2);
+            cloud_data[2] = 0.7 + random(0.3);
+            cloud_data[3] = 0.7;
+            cloud_data[4] = 0.008;
+            cloud_data[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+            cloud_data[6] = 0;
+            cloud_data[7] = 0;
+            
+            ds_list_add(cloud_list, cloud_data);
+        }
+        
+        // === PLAYER VS PLAYER COLLISION (WHILE MOVING) ===
         if (instance_exists(OBJ_P1) && place_meeting(x, y, OBJ_P1)) {
             var other_player = instance_nearest(x, y, OBJ_P1);
             
             var push_dir = point_direction(other_player.x, other_player.y, x, y);
-            
             var impact_force = point_distance(0, 0, velocity_x - other_player.velocity_x, velocity_y - other_player.velocity_y);
             var bounce_strength = max(impact_force * 0.7, 2);
             
@@ -247,7 +410,6 @@ switch (state) {
             }
             else if (other_player.state == "aiming") {
                 other_player.state = "moving";
-                // Reset their aiming variables
                 other_player.aim_power = 0;
                 other_player.aim_power_raw = 0;
                 other_player.power_direction = 1;
@@ -260,8 +422,25 @@ switch (state) {
             }
             
             shake_amount = impact_force * 0.3;
+            if (gamepad_is_connected(gamepad_slot)) {
+                gamepad_set_vibration(gamepad_slot, 0.9, 0.9);
+            }
+            alarm[0] = 8;
         }
         break;
+}
+
+// === UPDATE CLOUD PUFFS ===
+for (var i = ds_list_size(cloud_list) - 1; i >= 0; i--) {
+    var cloud = cloud_list[| i];
+    
+    cloud[2] += cloud[4];
+    cloud[3] -= 0.04;
+    cloud[6] += cloud[7];
+    
+    if (cloud[3] <= 0) {
+        ds_list_delete(cloud_list, i);
+    }
 }
 
 // === SQUASH & STRETCH INTERPOLATION ===
@@ -272,7 +451,7 @@ scale_y = lerp(scale_y, target_scale_y, 0.25);
 shake_amount *= shake_decay;
 if (shake_amount < 0.1) shake_amount = 0;
 
-// === SPRITE DIRECTION ===
+// === SPRITE DIRECTION (5 directions with mirroring) ===
 var dir_to_use = 90;
 
 if (state == "aiming") {
@@ -287,6 +466,7 @@ else if (state == "moving") {
 
 dir_to_use = (dir_to_use + 360) mod 360;
 
+// Mirror sprite for left-facing directions
 if (dir_to_use > 90 && dir_to_use < 270) {
     facing_flip = -1;
     dir_to_use = 180 - dir_to_use;
@@ -297,20 +477,21 @@ if (dir_to_use > 90 && dir_to_use < 270) {
 
 dir_to_use = (dir_to_use + 360) mod 360;
 
+// 5-direction sprite frames
 if (dir_to_use >= 247.5 && dir_to_use < 292.5) {
-    facing_frame = 0;
+    facing_frame = 0;  // Up
 }
 else if (dir_to_use >= 292.5 && dir_to_use < 337.5) {
-    facing_frame = 1;
+    facing_frame = 1;  // Up-Right
 }
 else if (dir_to_use >= 337.5 || dir_to_use < 22.5) {
-    facing_frame = 2;
+    facing_frame = 2;  // Right
 }
 else if (dir_to_use >= 22.5 && dir_to_use < 67.5) {
-    facing_frame = 3;
+    facing_frame = 3;  // Down-Right
 }
 else if (dir_to_use >= 67.5 && dir_to_use < 112.5) {
-    facing_frame = 4;
+    facing_frame = 4;  // Down
 }
 
 facing_frame = 4 - facing_frame;
@@ -319,40 +500,43 @@ facing_frame = 4 - facing_frame;
 hand_bob_timer += hand_bob_speed;
 var bob = sin(hand_bob_timer) * hand_bob_amount;
 
-hand_scale_x = 1;
-hand_scale_y = 1;
+hand_scale_x = 0.6;
+hand_scale_y = 0.6;
+hand_frame = 0;
 
 if (state == "aiming") {
-    var stick_x_input = stick_x;  // Reuse from above
+    var stick_x_input = stick_x;
     var stick_y_input = stick_y;
     
     var stick_dir = point_direction(0, 0, stick_x_input, stick_y_input);
     var stick_mag = point_distance(0, 0, stick_x_input, stick_y_input);
     
-    var reach_dist = hand_offset + (stick_mag * 15);
+    var reach_dist = hand_offset + 20 + (stick_mag * 20);
     
     hand1_x = lengthdir_x(reach_dist, stick_dir);
-    hand1_y = lengthdir_y(reach_dist, stick_dir) + bob + 10;
+    hand1_y = lengthdir_y(reach_dist, stick_dir) + bob + 25;
     hand1_angle = stick_dir;
     
     hand2_x = lengthdir_x(reach_dist - 5, stick_dir + 15);
-    hand2_y = lengthdir_y(reach_dist - 5, stick_dir + 15) + bob + 10;
+    hand2_y = lengthdir_y(reach_dist - 5, stick_dir + 15) + bob + 25;
     hand2_angle = stick_dir;
     
-    hand_scale_x = 1 + (stick_mag * 0.3) + (aim_power * 0.2);
-    hand_scale_y = 1 - (stick_mag * 0.1);
+    hand_scale_x = 0.6 + (stick_mag * 0.2) + (aim_power * 0.15);
+    hand_scale_y = 0.6 - (stick_mag * 0.05);
+    hand_frame = 1;
 }
 else {
     hand1_x = -hand_offset;
-    hand1_y = bob + 10;
-    hand1_angle = 180;
+    hand1_y = bob + 33;
+    hand1_angle = 0;
     
     hand2_x = hand_offset;
-    hand2_y = bob + 12;
+    hand2_y = bob + 35;
     hand2_angle = 0;
     
-    hand_scale_x = 1;
-    hand_scale_y = 1;
+    hand_scale_x = 0.6;
+    hand_scale_y = 0.6;
+    hand_frame = 0;
 }
 
 // === IDLE INDICATOR TIMER ===
@@ -361,4 +545,12 @@ if (player_speed < 0.5 && state == "idle") {
     idle_timer++;
 } else {
     idle_timer = 0;
+}
+
+// === SCREEN WRAP ===
+if (x > room_width) {
+    x = 0;
+}
+else if (x < 0) {
+    x = room_width;
 }

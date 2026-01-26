@@ -1,23 +1,72 @@
 // === PLAYER INDICATOR (only after 2 seconds idle) ===
 if (idle_timer >= idle_indicator_delay) {
     var indicator_y = y - 80;
-    var indicator_alpha = 0.6;
+    var outline_alpha = 0.6;
+    var main_alpha = 0.9;
     var p2_color = make_color_rgb(200, 120, 40); // dark orange
+    var outline_offset = 2;
     
-    // Draw small triangle pointing down
-    draw_set_alpha(indicator_alpha);
+    // Draw white outline for triangle
+    draw_set_alpha(outline_alpha);
+    draw_set_color(c_white);
+    draw_triangle(x - 6 - outline_offset, indicator_y - 6 - outline_offset, x + 6 + outline_offset, indicator_y - 6 - outline_offset, x, indicator_y + 3 + outline_offset, false);
+    
+    // Draw main triangle
+    draw_set_alpha(main_alpha);
     draw_set_color(p2_color);
     draw_triangle(x - 6, indicator_y - 6, x + 6, indicator_y - 6, x, indicator_y + 3, false);
     
-    // Draw P2 text above triangle
+    // Draw P2 text with white outline
     draw_set_font(fnt_winkle);
     draw_set_halign(fa_center);
     draw_set_valign(fa_bottom);
+    
+    // White outline (draw text offset in multiple directions)
+    draw_set_alpha(outline_alpha);
+    draw_set_color(c_white);
+    draw_text(x - 1, indicator_y - 8, "P2");
+    draw_text(x + 1, indicator_y - 8, "P2");
+    draw_text(x, indicator_y - 8 - 1, "P2");
+    draw_text(x, indicator_y - 8 + 1, "P2");
+    
+    // Main text
+    draw_set_alpha(main_alpha);
+    draw_set_color(p2_color);
     draw_text(x, indicator_y - 8, "P2");
     
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
     draw_set_alpha(1);
+}
+
+// === DRAW SHADOW (SOFT) ===
+var shadow_y_offset = 58;
+
+// Outer soft shadow
+draw_set_alpha(0.15);
+draw_set_color(c_black);
+draw_ellipse(x - 28 * scale_x, y + shadow_y_offset - 10, 
+             x + 28 * scale_x, y + shadow_y_offset + 10, false);
+
+// Inner darker shadow
+draw_set_alpha(0.25);
+draw_ellipse(x - 20 * scale_x, y + shadow_y_offset - 7, 
+             x + 20 * scale_x, y + shadow_y_offset + 7, false);
+
+draw_set_alpha(1);
+draw_set_color(c_white);
+
+// === DRAW CLOUD TRAIL ===
+for (var i = 0; i < ds_list_size(cloud_list); i++) {
+    var cloud = cloud_list[| i];
+    var cx = cloud[0];
+    var cy = cloud[1];
+    var cscale = cloud[2];
+    var calpha = cloud[3];
+    var csprite = cloud[5];
+    var crot = cloud[6];
+    
+    draw_sprite_ext(csprite, 0, cx, cy, cscale, cscale, crot, c_white, calpha);
 }
 
 // === AIMING UI ===
@@ -33,58 +82,106 @@ if (state == "aiming") {
     var arrow_scale = 1 + (aim_power * 0.5);
     draw_sprite_ext(spr_P2Arrow, 0, arrow_x, arrow_y, arrow_scale, arrow_scale, aim_dir - 90, power_color, 1);
     
-    // --- POWER BAR (Pixel Art Style) ---
-    var bar_x = x + 35;
-    var bar_y = y - 55;
-    var bar_width = 10;
-    var bar_height = 50;
-    var segment_count = 8;
-    var segment_height = bar_height / segment_count;
-    var segment_gap = 2;
-    
-    // Outer border (chunky pixel style)
-    draw_set_color(c_black);
-    draw_rectangle(bar_x - 3, bar_y - 3, bar_x + bar_width + 3, bar_y + bar_height + 3, false);
-    
-    // Inner border (white frame)
-    draw_set_color(c_white);
-    draw_rectangle(bar_x - 2, bar_y - 2, bar_x + bar_width + 2, bar_y + bar_height + 2, false);
-    
-    // Background
-    draw_set_color(c_dkgray);
-    draw_rectangle(bar_x, bar_y, bar_x + bar_width, bar_y + bar_height, false);
-    
-    // Segmented fill (chunky blocks)
-    var filled_segments = floor(aim_power * segment_count);
-    for (var seg = 0; seg < segment_count; seg++) {
-        var seg_y = bar_y + bar_height - ((seg + 1) * segment_height) + 1;
+    // --- POWER BAR (Hand-Drawn Style) ---
+    var bar_x = x + 50;
+    var bar_y = y - 50;
+    var bar_width = 16;
+    var bar_height = 58;
+
+    var wobble_seed = floor(current_time * 0.002);
+    random_set_seed(wobble_seed);
+
+    draw_set_color(make_color_rgb(50, 40, 35));
+
+    for (var stroke = 0; stroke < 3; stroke++) {
+        var ox = random_range(-1, 1);
+        var oy = random_range(-1, 1);
+        draw_line_width(bar_x + ox, bar_y + oy, bar_x + random_range(-1, 1), bar_y + bar_height + oy, 2);
+        draw_line_width(bar_x + bar_width + ox, bar_y + oy, bar_x + bar_width + random_range(-1, 1), bar_y + bar_height + oy, 2);
+        draw_line_width(bar_x + ox, bar_y + oy, bar_x + bar_width + ox, bar_y + random_range(-1, 1), 2);
+        draw_line_width(bar_x + ox, bar_y + bar_height + oy, bar_x + bar_width + ox, bar_y + bar_height + random_range(-1, 1), 2);
+    }
+
+    draw_set_color(make_color_rgb(240, 235, 220));
+    draw_rectangle(bar_x + 2, bar_y + 2, bar_x + bar_width - 2, bar_y + bar_height - 2, false);
+
+    draw_set_color(make_color_rgb(200, 190, 170));
+    draw_set_alpha(0.4);
+    for (var hatch = bar_y + 4; hatch < bar_y + bar_height - 2; hatch += 4) {
+        draw_line(bar_x + 3, hatch, bar_x + bar_width - 3, hatch + 3);
+    }
+    draw_set_alpha(1);
+
+    if (aim_power > 0.05) {
+        var fill_height = aim_power * (bar_height - 8);
+        var fill_bottom = bar_y + bar_height - 4;
+        var fill_top = fill_bottom - fill_height;
         
-        if (seg < filled_segments) {
-            // Filled segment - gradient from green to red
-            var seg_color = merge_color(arrow_color_weak, arrow_color_strong, seg / segment_count);
-            draw_set_color(seg_color);
-            draw_rectangle(bar_x + 1, seg_y + segment_gap, bar_x + bar_width - 1, seg_y + segment_height, false);
+        for (var fy = fill_bottom; fy > fill_top; fy -= 3) {
+            var fill_progress = (fill_bottom - fy) / (bar_height - 8);
             
-            // Highlight (cute shine on each block)
-            draw_set_color(c_white);
-            draw_set_alpha(0.5);
-            draw_rectangle(bar_x + 1, seg_y + segment_gap, bar_x + 3, seg_y + segment_height - 2, false);
-            draw_set_alpha(1);
-        } else {
-            // Empty segment (dark)
-            draw_set_color(make_color_rgb(40, 40, 50));
-            draw_rectangle(bar_x + 1, seg_y + segment_gap, bar_x + bar_width - 1, seg_y + segment_height, false);
+            var fill_color;
+            if (fill_progress < 0.5) {
+                fill_color = merge_color(make_color_rgb(100, 190, 80), make_color_rgb(230, 180, 50), fill_progress * 2);
+            } else {
+                fill_color = merge_color(make_color_rgb(230, 180, 50), make_color_rgb(210, 70, 60), (fill_progress - 0.5) * 2);
+            }
+            
+            draw_set_color(fill_color);
+            
+            var stroke_wobble = sin(fy * 0.5) * 2;
+            draw_line_width(
+                bar_x + 4 + stroke_wobble,
+                fy,
+                bar_x + bar_width - 4 + stroke_wobble * 0.5,
+                fy + random_range(-1, 1),
+                3
+            );
         }
-    }
-    
-    // Sparkle at max power
-    if (aim_power >= 0.95) {
-        var sparkle_offset = sin(current_time * 0.02) * 2;
+        
         draw_set_color(c_white);
-        draw_rectangle(bar_x + 4, bar_y - 10 + sparkle_offset, bar_x + 6, bar_y - 4 + sparkle_offset, false);
-        draw_rectangle(bar_x + 2, bar_y - 8 + sparkle_offset, bar_x + 8, bar_y - 6 + sparkle_offset, false);
+        draw_set_alpha(0.5);
+        draw_line_width(bar_x + 5, fill_top + 5, bar_x + 6, fill_bottom - 5, 2);
+        draw_set_alpha(1);
     }
-    
+
+    draw_set_color(make_color_rgb(50, 40, 35));
+    draw_line_width(bar_x - 5, bar_y + bar_height, bar_x - 2, bar_y + bar_height, 1.5);
+    draw_line_width(bar_x - 5, bar_y, bar_x - 2, bar_y, 1.5);
+
+    for (var m = 1; m < 4; m++) {
+        var mark_y = bar_y + (m * bar_height / 4);
+        draw_line(bar_x - 4, mark_y, bar_x - 1, mark_y);
+    }
+
+    if (aim_power >= 0.95) {
+        draw_set_color(make_color_rgb(210, 70, 60));
+        var scrib_time = current_time * 0.008;
+        
+        for (var line = 0; line < 5; line++) {
+            var angle = (line * 72) + sin(scrib_time + line) * 20;
+            var dist1 = 12 + sin(scrib_time * 2 + line) * 3;
+            var dist2 = 18 + sin(scrib_time * 3 + line) * 4;
+            var cx = bar_x + bar_width/2;
+            var cy = bar_y + 8;
+            
+            draw_line_width(
+                cx + lengthdir_x(dist1, angle), cy + lengthdir_y(dist1, angle),
+                cx + lengthdir_x(dist2, angle), cy + lengthdir_y(dist2, angle),
+                1.5
+            );
+        }
+        
+        draw_set_color(make_color_rgb(240, 200, 50));
+        var star_x = bar_x + bar_width + 8;
+        var star_y = bar_y + 5 + sin(scrib_time * 2) * 2;
+        draw_line_width(star_x - 4, star_y, star_x + 4, star_y, 2);
+        draw_line_width(star_x, star_y - 4, star_x, star_y + 4, 2);
+        draw_line_width(star_x - 3, star_y - 3, star_x + 3, star_y + 3, 1.5);
+        draw_line_width(star_x + 3, star_y - 3, star_x - 3, star_y + 3, 1.5);
+    }
+
+    random_set_seed(current_time);
     
     // --- TRAJECTORY PREVIEW ---
     if (aim_power > 0.1) {
@@ -109,29 +206,97 @@ if (state == "aiming") {
     }
     
     // --- CANCEL HINT ---
-    draw_set_halign(fa_center);
-    draw_set_color(c_yellow);
-    if (gamepad_is_connected(gamepad_slot)) {
-        draw_text(x, y + 50, "[B] Cancel");
-    } else {
-        draw_text(x, y + 50, "[Shift] Cancel");
+    if (cancel_hint_alpha > 0) {
+        var hint_x = x;
+        var hint_y = y + 75;
+        var hint_text = gamepad_is_connected(gamepad_slot) ? "B" : "Shift";
+        
+        var hint_bounce = sin(current_time * 0.005) * 2;
+        hint_y += hint_bounce;
+        
+        var pastel_orange = make_color_rgb(255, 200, 150);
+        var pastel_cream = make_color_rgb(255, 250, 240);
+        var sketch_brown = make_color_rgb(80, 60, 50);
+        
+        var hint_wobble_seed = floor(current_time * 0.003);
+        random_set_seed(hint_wobble_seed);
+        
+        var pill_width = 36;
+        var pill_height = 24;
+        
+        draw_set_alpha(cancel_hint_alpha * 0.9);
+        draw_set_color(pastel_cream);
+        draw_roundrect(hint_x - pill_width/2, hint_y - pill_height/2, hint_x + pill_width/2, hint_y + pill_height/2, false);
+        
+        draw_set_alpha(cancel_hint_alpha);
+        draw_set_color(sketch_brown);
+        for (var stroke = 0; stroke < 3; stroke++) {
+            var ox = random_range(-1, 1);
+            var oy = random_range(-1, 1);
+            draw_roundrect(
+                hint_x - pill_width/2 + ox, 
+                hint_y - pill_height/2 + oy, 
+                hint_x + pill_width/2 + ox, 
+                hint_y + pill_height/2 + oy, 
+                true
+            );
+        }
+        
+        draw_set_alpha(cancel_hint_alpha * 0.6);
+        draw_set_color(pastel_orange);
+        draw_circle(hint_x, hint_y, 10, false);
+        
+        draw_set_alpha(cancel_hint_alpha);
+        draw_set_color(sketch_brown);
+        for (var c = 0; c < 2; c++) {
+            draw_circle(hint_x + random_range(-0.5, 0.5), hint_y + random_range(-0.5, 0.5), 10, true);
+        }
+        
+        draw_set_alpha(cancel_hint_alpha);
+        draw_set_halign(fa_center);
+        draw_set_valign(fa_middle);
+        draw_set_color(sketch_brown);
+        draw_set_font(fnt_winkle);
+        
+        draw_text(hint_x + random_range(-0.5, 0.5), hint_y + random_range(-0.5, 0.5), hint_text);
+        
+        draw_set_alpha(cancel_hint_alpha * 0.7);
+        draw_set_color(pastel_orange);
+        draw_circle(hint_x - pill_width/2 - 6, hint_y - 2, 2, false);
+        draw_circle(hint_x + pill_width/2 + 6, hint_y + 2, 2, false);
+        
+        draw_set_color(sketch_brown);
+        draw_set_alpha(cancel_hint_alpha * 0.5);
+        var sparkle_x = hint_x + pill_width/2 + 4;
+        var sparkle_y = hint_y - pill_height/2 - 2;
+        draw_line_width(sparkle_x - 3, sparkle_y, sparkle_x + 3, sparkle_y, 1);
+        draw_line_width(sparkle_x, sparkle_y - 3, sparkle_x, sparkle_y + 3, 1);
+        
+        draw_set_halign(fa_left);
+        draw_set_valign(fa_top);
+        draw_set_font(-1);
+        draw_set_alpha(1);
+        
+        random_set_seed(current_time);
     }
-    draw_set_halign(fa_left);
 }
 
 // === RESET ===
 draw_set_color(c_white);
 draw_set_alpha(1);
 
-// === DRAW HANDS (in front of body) ===
-draw_sprite_ext(spr_2Hand, 0, x + hand1_x, y + hand1_y, hand_scale_x, hand_scale_y, hand1_angle, c_white, 1);
-draw_sprite_ext(spr_2Hand, 0, x + hand2_x, y + hand2_y, -hand_scale_x, hand_scale_y, hand2_angle, c_white, 1);
+// === DRAW HANDS ===
+draw_sprite_ext(spr_2Hand, hand_frame, x + hand1_x, y + hand1_y, hand_scale_x, hand_scale_y, hand1_angle, c_white, 1);
+draw_sprite_ext(spr_2Hand, hand_frame, x + hand2_x, y + hand2_y, -hand_scale_x, hand_scale_y, hand2_angle, c_white, 1);
 
-// === DRAW PLAYER BODY ===
+// === DRAW PLAYER BODY (5 directions with mirroring) ===
 var squish_threshold = 0.75;
 var sprite_to_use = spr_P2;
 
-if (scale_y < squish_threshold || (state == "aiming" && aim_power >= 0.85)) {
+if (state == "moving") {
+    sprite_to_use = spr_P2Dash;
+}
+else if (scale_y < squish_threshold || (state == "aiming" && aim_power >= 0.85)) {
     sprite_to_use = spr_P2Squish;
 }
 
@@ -145,5 +310,3 @@ draw_sprite_ext(
     c_white,
     1
 );
-
-

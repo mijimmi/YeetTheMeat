@@ -102,6 +102,7 @@
     {"id":{"name":"spr_P1Squish","path":"sprites/spr_P1Squish/spr_P1Squish.yy",},},
     {"id":{"name":"spr_P2","path":"sprites/spr_P2/spr_P2.yy",},},
     {"id":{"name":"spr_P2Arrow","path":"sprites/spr_P2Arrow/spr_P2Arrow.yy",},},
+    {"id":{"name":"spr_P2Dash","path":"sprites/spr_P2Dash/spr_P2Dash.yy",},},
     {"id":{"name":"spr_P2icon","path":"sprites/spr_P2icon/spr_P2icon.yy",},},
     {"id":{"name":"spr_P2Squish","path":"sprites/spr_P2Squish/spr_P2Squish.yy",},},
     {"id":{"name":"spr_pause","path":"sprites/spr_pause/spr_pause.yy",},},
