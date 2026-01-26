@@ -85,3 +85,14 @@ aim_cooldown_max = 20;  // Frames of cooldown (15 = 0.25 seconds at 60fps)
 // === IDLE INDICATOR ===
 idle_timer = 0;
 idle_indicator_delay = 120;  // 2 seconds at 60fps
+
+// === INPUT BUFFER ===
+input_buffer_frames = 8;  // How many frames to remember inputs
+take_buffer = 0;
+place_buffer = 0;
+drop_buffer = 0;
+
+// === HELD ITEM BOB ===
+held_item_bob_timer = 0;
+held_item_bob_speed = 0.08;
+held_item_bob_amount = 2;  // Very slight bob

@@ -34,37 +34,60 @@ if (aim_cooldown > 0) {
     aim_cooldown--;
 }
 
-// === INTERACTION SYSTEM ===
-var take_pressed = false;
-var place_pressed = false;
-var drop_pressed = false;
+// === INTERACTION SYSTEM (with input buffering) ===
+// Decrement buffers
+if (take_buffer > 0) take_buffer--;
+if (place_buffer > 0) place_buffer--;
+if (drop_buffer > 0) drop_buffer--;
 
+// Check for new presses and fill buffer
 if (gamepad_is_connected(gamepad_slot)) {
-    take_pressed = gamepad_button_check_pressed(gamepad_slot, global.btn_take);
-    place_pressed = gamepad_button_check_pressed(gamepad_slot, global.btn_place);
-    drop_pressed = gamepad_button_check_pressed(gamepad_slot, global.btn_drop);
+    if (gamepad_button_check_pressed(gamepad_slot, global.btn_take)) {
+        take_buffer = input_buffer_frames;
+    }
+    if (gamepad_button_check_pressed(gamepad_slot, global.btn_place)) {
+        place_buffer = input_buffer_frames;
+    }
+    if (gamepad_button_check_pressed(gamepad_slot, global.btn_drop)) {
+        drop_buffer = input_buffer_frames;
+    }
 } else {
-    take_pressed = keyboard_check_pressed(ord("E"));
-    place_pressed = keyboard_check_pressed(ord("Q"));
-    drop_pressed = keyboard_check_pressed(ord("R"));
+    if (keyboard_check_pressed(ord("E"))) {
+        take_buffer = input_buffer_frames;
+    }
+    if (keyboard_check_pressed(ord("Q"))) {
+        place_buffer = input_buffer_frames;
+    }
+    if (keyboard_check_pressed(ord("R"))) {
+        drop_buffer = input_buffer_frames;
+    }
 }
 
-if (take_pressed) {
-    OBJ_ControlsManager.player_interact_take(id);
+// Execute buffered inputs
+if (take_buffer > 0) {
+    if (OBJ_ControlsManager.player_interact_take(id)) {
+        take_buffer = 0;  // Clear buffer on success
+    }
 }
 
-if (place_pressed) {
-    OBJ_ControlsManager.player_interact_place(id);
+if (place_buffer > 0) {
+    if (OBJ_ControlsManager.player_interact_place(id)) {
+        place_buffer = 0;  // Clear buffer on success
+    }
 }
 
-if (drop_pressed) {
-    OBJ_ControlsManager.player_drop_item(id);
+if (drop_buffer > 0) {
+    if (OBJ_ControlsManager.player_drop_item(id)) {
+        drop_buffer = 0;  // Clear buffer on success
+    }
 }
 
-// === UPDATE HELD ITEM POSITION ===
+// === UPDATE HELD ITEM POSITION (with slight bob) ===
+held_item_bob_timer += held_item_bob_speed;
 if (held_item != noone && instance_exists(held_item)) {
+    var bob_offset = sin(held_item_bob_timer) * held_item_bob_amount;
     held_item.x = x;
-    held_item.y = y - 40;
+    held_item.y = y - 40 + bob_offset;
     held_item.depth = depth - 1;
 }
 
