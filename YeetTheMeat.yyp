@@ -69,6 +69,7 @@
     {"id":{"name":"OBJ_ServingCounter","path":"objects/OBJ_ServingCounter/OBJ_ServingCounter.yy",},},
     {"id":{"name":"OBJ_SlicingStation","path":"objects/OBJ_SlicingStation/OBJ_SlicingStation.yy",},},
     {"id":{"name":"OBJ_SoySauceStation","path":"objects/OBJ_SoySauceStation/OBJ_SoySauceStation.yy",},},
+    {"id":{"name":"OBJ_TimerController","path":"objects/OBJ_TimerController/OBJ_TimerController.yy",},},
     {"id":{"name":"OBJ_Vegetables","path":"objects/OBJ_Vegetables/OBJ_Vegetables.yy",},},
     {"id":{"name":"OBJ_VeggieStorage","path":"objects/OBJ_VeggieStorage/OBJ_VeggieStorage.yy",},},
     {"id":{"name":"OBJ_WrapperStorage","path":"objects/OBJ_WrapperStorage/OBJ_WrapperStorage.yy",},},

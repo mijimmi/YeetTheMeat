@@ -96,7 +96,7 @@ if (p1 != noone && instance_exists(p1)) {
     draw_set_halign(fa_center);
     draw_set_valign(fa_bottom);
     draw_set_color(make_color_rgb(180, 40, 40));
-    draw_text_transformed(box_x + box_width / 2, box_y - 8, "P1", 2.2, 2.2, 0);
+    draw_text_transformed(box_x + box_width / 2, box_y - 6, "P1", 1.6, 1.6, 0);
     
     // Draw hand-drawn box
     draw_handdrawn_box(box_x, box_y, box_width, box_height, box_color, box_alpha, box_border_color, box_border_width, wobble_amount, line_segments);
@@ -115,30 +115,30 @@ if (p1 != noone && instance_exists(p1)) {
         // Draw item name BELOW the box (with black outline)
         var item_name = get_item_name(held);
         var text_x = center_x;
-        var text_y = box_y + box_height + 5;
+        var text_y = box_y + box_height + 4;
         draw_set_font(fnt_winkle);
         draw_set_halign(fa_center);
         draw_set_valign(fa_top);
         // Draw black outline (all 8 directions)
         draw_set_color(c_black);
-        draw_text_transformed(text_x - 1, text_y - 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x + 1, text_y - 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x - 1, text_y + 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x + 1, text_y + 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x - 1, text_y, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x + 1, text_y, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x, text_y - 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x, text_y + 1, item_name, 1.4, 1.4, 0);
+        draw_text_transformed(text_x - 1, text_y - 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x + 1, text_y - 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x - 1, text_y + 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x + 1, text_y + 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x - 1, text_y, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x + 1, text_y, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x, text_y - 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x, text_y + 1, item_name, 1.8, 1.8, 0);
         // Draw main text
         draw_set_color(c_white);
-        draw_text_transformed(text_x, text_y, item_name, 1.4, 1.4, 0);
+        draw_text_transformed(text_x, text_y, item_name, 1.8, 1.8, 0);
     } else {
         // Draw "Empty" text
         draw_set_font(fnt_winkle);
         draw_set_color(c_gray);
         draw_set_halign(fa_center);
         draw_set_valign(fa_middle);
-        draw_text_transformed(box_x + box_width / 2, box_y + box_height / 2, "Empty", 1.2, 1.2, 0);
+        draw_text_transformed(box_x + box_width / 2, box_y + box_height / 2, "Empty", 1.0, 1.0, 0);
     }
 }
 
@@ -173,7 +173,7 @@ if (p2 != noone && instance_exists(p2)) {
     draw_set_halign(fa_center);
     draw_set_valign(fa_bottom);
     draw_set_color(make_color_rgb(200, 120, 40));
-    draw_text_transformed(box_x + box_width / 2, box_y - 8, "P2", 2.2, 2.2, 0);
+    draw_text_transformed(box_x + box_width / 2, box_y - 6, "P2", 1.6, 1.6, 0);
     
     // Draw hand-drawn box
     draw_handdrawn_box(box_x, box_y, box_width, box_height, box_color, box_alpha, box_border_color, box_border_width, wobble_amount, line_segments);
@@ -192,30 +192,30 @@ if (p2 != noone && instance_exists(p2)) {
         // Draw item name BELOW the box (with black outline)
         var item_name = get_item_name(held);
         var text_x = center_x;
-        var text_y = box_y + box_height + 5;
+        var text_y = box_y + box_height + 4;
         draw_set_font(fnt_winkle);
         draw_set_halign(fa_center);
         draw_set_valign(fa_top);
         // Draw black outline (all 8 directions)
         draw_set_color(c_black);
-        draw_text_transformed(text_x - 1, text_y - 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x + 1, text_y - 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x - 1, text_y + 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x + 1, text_y + 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x - 1, text_y, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x + 1, text_y, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x, text_y - 1, item_name, 1.4, 1.4, 0);
-        draw_text_transformed(text_x, text_y + 1, item_name, 1.4, 1.4, 0);
+        draw_text_transformed(text_x - 1, text_y - 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x + 1, text_y - 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x - 1, text_y + 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x + 1, text_y + 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x - 1, text_y, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x + 1, text_y, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x, text_y - 1, item_name, 1.8, 1.8, 0);
+        draw_text_transformed(text_x, text_y + 1, item_name, 1.8, 1.8, 0);
         // Draw main text
         draw_set_color(c_white);
-        draw_text_transformed(text_x, text_y, item_name, 1.4, 1.4, 0);
+        draw_text_transformed(text_x, text_y, item_name, 1.8, 1.8, 0);
     } else {
         // Draw "Empty" text
         draw_set_font(fnt_winkle);
         draw_set_color(c_gray);
         draw_set_halign(fa_center);
         draw_set_valign(fa_middle);
-        draw_text_transformed(box_x + box_width / 2, box_y + box_height / 2, "Empty", 1.2, 1.2, 0);
+        draw_text_transformed(box_x + box_width / 2, box_y + box_height / 2, "Empty", 1.0, 1.0, 0);
     }
 }
 

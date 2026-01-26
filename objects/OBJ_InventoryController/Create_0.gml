@@ -1,22 +1,22 @@
 // === INVENTORY UI SETTINGS ===
 
 // Box dimensions
-box_width = 120;
-box_height = 120;
-box_padding = 10;
+box_width = 90;
+box_height = 90;
+box_padding = 8;
 
 // Position offset from edge of screen
-ui_margin_x = 90;
-ui_margin_y = 50;
+ui_margin_x = 70;
+ui_margin_y = 40;
 
 // Spacing between icon and inventory box
-icon_spacing = 35;
+icon_spacing = 25;
 
 // Icon scale
-icon_scale = 0.85;
+icon_scale = 0.65;
 
 // Item sprite scale in the box
-item_scale = 1.2;
+item_scale = 1.3;
 
 // Hand-drawn effect settings
 wobble_amount = 3;        // How much the lines wobble
