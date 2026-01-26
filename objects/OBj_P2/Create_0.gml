@@ -57,3 +57,12 @@ hand1_angle = 0;
 hand2_angle = 0;
 hand_scale_x = 1;
 hand_scale_y = 1;
+
+// === INTERACTION / CARRYING ===
+held_item = noone;           // What the player is holding
+interact_range = 100;         // How close to interact with objects
+interact_button = gp_face1;  // A button for pickup/drop/interact
+
+// === IDLE INDICATOR ===
+idle_timer = 0;
+idle_indicator_delay = 120;  // 2 seconds at 60fps

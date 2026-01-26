@@ -489,6 +489,14 @@ else {
     hand_frame = 0;
 }
 
+// === IDLE INDICATOR TIMER ===
+var player_speed = point_distance(0, 0, velocity_x, velocity_y);
+if (player_speed < 0.5 && state == "idle") {
+    idle_timer++;
+} else {
+    idle_timer = 0;
+}
+
 // === SCREEN WRAP ===
 if (x > room_width) {
     x = 0;

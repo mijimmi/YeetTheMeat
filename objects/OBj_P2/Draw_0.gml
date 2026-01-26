@@ -1,3 +1,25 @@
+// === PLAYER INDICATOR (only after 2 seconds idle) ===
+if (idle_timer >= idle_indicator_delay) {
+    var indicator_y = y - 80;
+    var indicator_alpha = 0.6;
+    var p2_color = make_color_rgb(200, 120, 40); // dark orange
+    
+    // Draw small triangle pointing down
+    draw_set_alpha(indicator_alpha);
+    draw_set_color(p2_color);
+    draw_triangle(x - 6, indicator_y - 6, x + 6, indicator_y - 6, x, indicator_y + 3, false);
+    
+    // Draw P2 text above triangle
+    draw_set_font(fnt_winkle);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_bottom);
+    draw_text(x, indicator_y - 8, "P2");
+    
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_set_alpha(1);
+}
+
 // === AIMING UI ===
 if (state == "aiming") {
     

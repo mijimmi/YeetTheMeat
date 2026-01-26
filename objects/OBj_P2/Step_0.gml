@@ -354,3 +354,11 @@ else {
     hand_scale_x = 1;
     hand_scale_y = 1;
 }
+
+// === IDLE INDICATOR TIMER ===
+var player_speed = point_distance(0, 0, velocity_x, velocity_y);
+if (player_speed < 0.5 && state == "idle") {
+    idle_timer++;
+} else {
+    idle_timer = 0;
+}

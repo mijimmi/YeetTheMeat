@@ -125,14 +125,28 @@ if (!is_held && !is_cooking && !is_on_plate && can_slide) {
             other.velocity_x = lengthdir_x(kick_strength, push_dir);
             other.velocity_y = lengthdir_y(kick_strength, push_dir);
             
-            // Smooth separation
+            // Smooth separation (with wall collision check)
             var dist_centers = point_distance(x, y, other.x, other.y);
             var min_dist = (player_half_w + player_half_h) / 2 + half_box;
             var overlap = max(0, min_dist - dist_centers);
             
             if (overlap > 0) {
-                other.x += lengthdir_x(overlap * 0.5, push_dir);
-                other.y += lengthdir_y(overlap * 0.5, push_dir);
+                var push_x = lengthdir_x(overlap * 0.5, push_dir);
+                var push_y = lengthdir_y(overlap * 0.5, push_dir);
+                
+                // Check X push doesn't go into wall
+                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) {
+                    other.x += push_x;
+                } else {
+                    other.velocity_x = 0;
+                }
+                
+                // Check Y push doesn't go into wall
+                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) {
+                    other.y += push_y;
+                } else {
+                    other.velocity_y = 0;
+                }
             }
         }
     }

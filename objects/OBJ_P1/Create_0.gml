@@ -89,3 +89,7 @@ collision_height = 60;  // Vertical rectangle height (taller than wide)
 // === AIM COOLDOWN ===
 aim_cooldown = 0;
 aim_cooldown_max = 20;  // Frames of cooldown (15 = 0.25 seconds at 60fps)
+
+// === IDLE INDICATOR ===
+idle_timer = 0;
+idle_indicator_delay = 120;  // 2 seconds at 60fps
