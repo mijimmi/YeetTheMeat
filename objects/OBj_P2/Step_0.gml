@@ -219,6 +219,25 @@ switch (state) {
             while (!place_meeting(x + sign(velocity_x), y, OBJ_Collision)) {
                 x += sign(velocity_x);
             }
+            
+            // Spawn collision VFX
+            var impact_speed = abs(velocity_x);
+            if (impact_speed > 2) {
+                var num_particles = floor(impact_speed / 2) + 2;
+                for (var p = 0; p < num_particles; p++) {
+                    var puff = array_create(8);
+                    puff[0] = x + sign(velocity_x) * 20 + random_range(-10, 10);
+                    puff[1] = y + random_range(-30, 30);
+                    puff[2] = 0.5 + random(0.5);
+                    puff[3] = 0.9;
+                    puff[4] = 0.02;
+                    puff[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+                    puff[6] = random(360);
+                    puff[7] = random_range(-5, 5);
+                    ds_list_add(cloud_list, puff);
+                }
+            }
+            
             velocity_x = -velocity_x * bounce_factor;
             shake_amount = abs(velocity_x) * 0.5;
             
@@ -237,6 +256,25 @@ switch (state) {
             while (!place_meeting(x, y + sign(velocity_y), OBJ_Collision)) {
                 y += sign(velocity_y);
             }
+            
+            // Spawn collision VFX
+            var impact_speed = abs(velocity_y);
+            if (impact_speed > 2) {
+                var num_particles = floor(impact_speed / 2) + 2;
+                for (var p = 0; p < num_particles; p++) {
+                    var puff = array_create(8);
+                    puff[0] = x + random_range(-30, 30);
+                    puff[1] = y + sign(velocity_y) * 20 + random_range(-10, 10);
+                    puff[2] = 0.5 + random(0.5);
+                    puff[3] = 0.9;
+                    puff[4] = 0.02;
+                    puff[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+                    puff[6] = random(360);
+                    puff[7] = random_range(-5, 5);
+                    ds_list_add(cloud_list, puff);
+                }
+            }
+            
             velocity_y = -velocity_y * bounce_factor;
             shake_amount = abs(velocity_y) * 0.5;
             
@@ -256,6 +294,23 @@ switch (state) {
             var push_dir = point_direction(other_player.x, other_player.y, x, y);
             var impact_force = point_distance(0, 0, other_player.velocity_x, other_player.velocity_y);
             var bounce_strength = max(impact_force * 0.7, 2);
+            
+            // Spawn collision VFX burst at impact point
+            var impact_x = (x + other_player.x) / 2;
+            var impact_y = (y + other_player.y) / 2;
+            var num_particles = max(floor(impact_force / 2) + 3, 4);
+            for (var p = 0; p < num_particles; p++) {
+                var puff = array_create(8);
+                puff[0] = impact_x + random_range(-20, 20);
+                puff[1] = impact_y + random_range(-20, 20);
+                puff[2] = 0.6 + random(0.6);
+                puff[3] = 1.0;
+                puff[4] = 0.025;
+                puff[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+                puff[6] = random(360);
+                puff[7] = random_range(-8, 8);
+                ds_list_add(cloud_list, puff);
+            }
             
             state = "moving";
             
@@ -316,6 +371,25 @@ switch (state) {
             while (!place_meeting(x + sign(velocity_x), y, OBJ_Collision)) {
                 x += sign(velocity_x);
             }
+            
+            // Spawn collision VFX
+            var impact_speed = abs(velocity_x);
+            if (impact_speed > 2) {
+                var num_particles = floor(impact_speed / 2) + 2;
+                for (var p = 0; p < num_particles; p++) {
+                    var puff = array_create(8);
+                    puff[0] = x + sign(velocity_x) * 20 + random_range(-10, 10);
+                    puff[1] = y + random_range(-30, 30);
+                    puff[2] = 0.5 + random(0.5);
+                    puff[3] = 0.9;
+                    puff[4] = 0.02;
+                    puff[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+                    puff[6] = random(360);
+                    puff[7] = random_range(-5, 5);
+                    ds_list_add(cloud_list, puff);
+                }
+            }
+            
             velocity_x = -velocity_x * bounce_factor;
             shake_amount = abs(velocity_x) * 0.5;
             
@@ -334,6 +408,25 @@ switch (state) {
             while (!place_meeting(x, y + sign(velocity_y), OBJ_Collision)) {
                 y += sign(velocity_y);
             }
+            
+            // Spawn collision VFX
+            var impact_speed = abs(velocity_y);
+            if (impact_speed > 2) {
+                var num_particles = floor(impact_speed / 2) + 2;
+                for (var p = 0; p < num_particles; p++) {
+                    var puff = array_create(8);
+                    puff[0] = x + random_range(-30, 30);
+                    puff[1] = y + sign(velocity_y) * 20 + random_range(-10, 10);
+                    puff[2] = 0.5 + random(0.5);
+                    puff[3] = 0.9;
+                    puff[4] = 0.02;
+                    puff[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+                    puff[6] = random(360);
+                    puff[7] = random_range(-5, 5);
+                    ds_list_add(cloud_list, puff);
+                }
+            }
+            
             velocity_y = -velocity_y * bounce_factor;
             shake_amount = abs(velocity_y) * 0.5;
             
@@ -398,6 +491,23 @@ switch (state) {
             var push_dir = point_direction(other_player.x, other_player.y, x, y);
             var impact_force = point_distance(0, 0, velocity_x - other_player.velocity_x, velocity_y - other_player.velocity_y);
             var bounce_strength = max(impact_force * 0.7, 2);
+            
+            // Spawn collision VFX burst at impact point
+            var impact_x = (x + other_player.x) / 2;
+            var impact_y = (y + other_player.y) / 2;
+            var num_particles = max(floor(impact_force / 2) + 4, 5);
+            for (var p = 0; p < num_particles; p++) {
+                var puff = array_create(8);
+                puff[0] = impact_x + random_range(-25, 25);
+                puff[1] = impact_y + random_range(-25, 25);
+                puff[2] = 0.7 + random(0.7);
+                puff[3] = 1.0;
+                puff[4] = 0.03;
+                puff[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+                puff[6] = random(360);
+                puff[7] = random_range(-10, 10);
+                ds_list_add(cloud_list, puff);
+            }
             
             velocity_x = lengthdir_x(bounce_strength, push_dir);
             velocity_y = lengthdir_y(bounce_strength, push_dir);
