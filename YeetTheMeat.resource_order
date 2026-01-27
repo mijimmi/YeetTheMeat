@@ -52,7 +52,7 @@
     {"name":"spr_BGdepth","order":7,"path":"sprites/spr_BGdepth/spr_BGdepth.yy",},
     {"name":"spr_bukojuice","order":21,"path":"sprites/spr_bukojuice/spr_bukojuice.yy",},
     {"name":"spr_burnt","order":5,"path":"sprites/spr_burnt/spr_burnt.yy",},
-    {"name":"spr_collisions","order":5,"path":"sprites/spr_collisions/spr_collisions.yy",},
+    {"name":"spr_collisions","order":8,"path":"sprites/spr_collisions/spr_collisions.yy",},
     {"name":"spr_cookedkwek_kwek","order":4,"path":"sprites/spr_cookedkwek_kwek/spr_cookedkwek_kwek.yy",},
     {"name":"spr_cookedmeatlumpia","order":19,"path":"sprites/spr_cookedmeatlumpia/spr_cookedmeatlumpia.yy",},
     {"name":"spr_cookedrice","order":27,"path":"sprites/spr_cookedrice/spr_cookedrice.yy",},

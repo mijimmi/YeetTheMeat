@@ -119,8 +119,19 @@ switch (state) {
             gamepad_set_vibration(gamepad_slot, 0, 0);
         }
         else if (stick_active) {
-            var stick_dir = point_direction(0, 0, stick_x, stick_y);
-            aim_dir = stick_dir + 180;
+            // Only update aim direction when stick is well above deadzone
+            // This prevents snap-back issues when releasing the stick
+            var direction_threshold = 0.5;  // Higher threshold for direction updates
+            
+            if (stick_magnitude > direction_threshold) {
+                var stick_dir = point_direction(0, 0, stick_x, stick_y);
+                aim_dir = stick_dir + 180;
+                // Store the locked direction for when magnitude drops
+                locked_stick_x = stick_x;
+                locked_stick_y = stick_y;
+            }
+            // If magnitude is between deadzone and threshold, keep the last good direction
+            // (aim_dir stays unchanged, using the locked direction)
             
             // OSCILLATING POWER (ping-pong)
             aim_power_raw += charge_rate * power_direction;

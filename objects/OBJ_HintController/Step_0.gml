@@ -25,51 +25,114 @@ for (var p = 0; p < array_length(players); p++) {
             }
             
             if (dist <= check_range) {
-                // Only show hint if player can actually interact (has text hint)
                 var can_interact = false;
+                var held = player.held_item;
                 
-                // Check for FoodStorage_Parent (Take items)
+                // === STORAGE OBJECTS (Take items when empty-handed) ===
                 if (object_is_ancestor(nearest.object_index, OBJ_FoodStorage_Parent) || nearest.object_index == OBJ_FoodStorage_Parent) {
-                    // Can take if player empty-handed and no cooldown
-                    if (player.held_item == noone) {
-                        if (variable_instance_exists(nearest, "spawn_cooldown") && nearest.spawn_cooldown <= 0) {
-                            can_interact = true;
-                        } else if (!variable_instance_exists(nearest, "spawn_cooldown")) {
+                    if (held == noone) {
+                        if (!variable_instance_exists(nearest, "spawn_cooldown") || nearest.spawn_cooldown <= 0) {
                             can_interact = true;
                         }
                     }
                 }
-                // Check for CookingStation_Parent (Place/Take)
-                else if (object_is_ancestor(nearest.object_index, OBJ_CookingStation_Parent) || nearest.object_index == OBJ_CookingStation_Parent) {
-                    // Can place if holding something and station empty
-                    if (player.held_item != noone && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station == noone) {
-                        can_interact = true;
-                    }
+                
+                // === FRYING STATION ===
+                else if (nearest.object_index == OBJ_FryingStation) {
                     // Can take if empty-handed and station has food
-                    else if (player.held_item == noone && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station != noone) {
+                    if (held == noone && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station != noone) {
                         can_interact = true;
                     }
+                    // Can place if holding valid item and station empty
+                    else if (held != noone && instance_exists(held) && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station == noone) {
+                        // Accepts: sliced meat, raw lumpia, kwek kwek, rice
+                        if (held.object_index == OBJ_Meat && variable_instance_exists(held, "food_type") && held.food_type == "sliced") {
+                            can_interact = true;
+                        }
+                        else if (held.object_index == OBJ_Lumpia) {
+                            can_interact = true;
+                        }
+                        else if (held.object_index == OBJ_KwekKwek && variable_instance_exists(held, "food_type") && held.food_type == "raw") {
+                            can_interact = true;
+                        }
+                        else if (held.object_index == OBJ_Rice && variable_instance_exists(held, "food_type") && held.food_type == "raw") {
+                            can_interact = true;
+                        }
+                    }
                 }
-                // Check for MixingStation
+                
+                // === POT STATION ===
+                else if (nearest.object_index == OBJ_PotStation) {
+                    // Can take if empty-handed and station has food
+                    if (held == noone && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station != noone) {
+                        can_interact = true;
+                    }
+                    // Can place if holding valid item and station empty
+                    else if (held != noone && instance_exists(held) && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station == noone) {
+                        // Accepts: soy_sliced meat (for adobo), raw rice, raw kwek kwek
+                        if (held.object_index == OBJ_Meat && variable_instance_exists(held, "food_type") && held.food_type == "soy_sliced") {
+                            can_interact = true;
+                        }
+                        else if (held.object_index == OBJ_Rice && variable_instance_exists(held, "food_type") && held.food_type == "raw") {
+                            can_interact = true;
+                        }
+                        else if (held.object_index == OBJ_KwekKwek && variable_instance_exists(held, "food_type") && held.food_type == "raw") {
+                            can_interact = true;
+                        }
+                    }
+                }
+                
+                // === SLICING STATION ===
+                else if (nearest.object_index == OBJ_SlicingStation) {
+                    // Can take if empty-handed and station has food
+                    if (held == noone && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station != noone) {
+                        can_interact = true;
+                    }
+                    // Can place if holding valid item and station empty
+                    else if (held != noone && instance_exists(held) && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station == noone) {
+                        // Accepts: raw meat, raw vegetables
+                        if (held.object_index == OBJ_Meat && variable_instance_exists(held, "food_type") && held.food_type == "raw") {
+                            can_interact = true;
+                        }
+                        else if (held.object_index == OBJ_Vegetables && variable_instance_exists(held, "veggie_state") && held.veggie_state == "raw") {
+                            can_interact = true;
+                        }
+                    }
+                }
+                
+                // === SOY SAUCE STATION ===
+                else if (nearest.object_index == OBJ_SoySauceStation) {
+                    // Can take if empty-handed and station has food
+                    if (held == noone && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station != noone) {
+                        can_interact = true;
+                    }
+                    // Can place if holding valid item and station empty
+                    else if (held != noone && instance_exists(held) && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station == noone) {
+                        // Accepts: sliced meat
+                        if (held.object_index == OBJ_Meat && variable_instance_exists(held, "food_type") && held.food_type == "sliced") {
+                            can_interact = true;
+                        }
+                    }
+                }
+                
+                // === MIXING STATION ===
                 else if (nearest.object_index == OBJ_MixingStation) {
+                    // Can take if empty-handed and station has result
+                    if (held == noone && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station != noone) {
+                        can_interact = true;
+                    }
                     // Can place ingredient
-                    if (player.held_item != noone) {
-                        can_interact = true;
-                    }
-                    // Can take result
-                    else if (player.held_item == noone && variable_instance_exists(nearest, "food_on_station") && nearest.food_on_station != noone) {
-                        can_interact = true;
-                    }
-                }
-                // Check for ServingCounter
-                else if (nearest.object_index == OBJ_ServingCounter) {
-                    // Can place plate or food
-                    if (player.held_item != noone) {
-                        can_interact = true;
-                    }
-                    // Can take plate
-                    else if (player.held_item == noone && variable_instance_exists(nearest, "plate_on_counter") && nearest.plate_on_counter != noone) {
-                        can_interact = true;
+                    else if (held != noone && instance_exists(held)) {
+                        // Accepts: sliced meat, sliced vegetables, lumpia wrapper
+                        if (held.object_index == OBJ_Meat && variable_instance_exists(held, "food_type") && held.food_type == "sliced") {
+                            can_interact = true;
+                        }
+                        else if (held.object_index == OBJ_Vegetables && variable_instance_exists(held, "veggie_state") && held.veggie_state == "sliced") {
+                            can_interact = true;
+                        }
+                        else if (held.object_index == OBJ_LumpiaWrapper) {
+                            can_interact = true;
+                        }
                     }
                 }
                 
