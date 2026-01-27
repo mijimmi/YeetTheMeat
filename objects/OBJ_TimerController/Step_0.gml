@@ -1,3 +1,8 @@
+// === PAUSE IF CONTROLLER DISCONNECTED ===
+if (variable_global_exists("controller_disconnected") && global.controller_disconnected) {
+    exit;
+}
+
 // === TIMER COUNTDOWN ===
 if (timer_active && game_timer > 0) {
     game_timer--;

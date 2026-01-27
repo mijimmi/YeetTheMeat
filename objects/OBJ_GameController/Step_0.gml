@@ -1,15 +1,33 @@
-// Create Event
-paused = false;
-pause_surf = -1; // Surface to store game screenshot
+// === CHECK CONTROLLER CONNECTIONS ===
+var p1_now_connected = gamepad_is_connected(0);
+var p2_now_connected = gamepad_is_connected(1);
 
-// Button properties
-button_width = 300;
-button_height = 80;
-button_spacing = 20;
+// Check if P1 disconnected (was connected, now isn't)
+if (p1_connected && !p1_now_connected) {
+    p1_disconnected = true;
+}
+// Check if P1 reconnected
+if (p1_disconnected && p1_now_connected) {
+    p1_disconnected = false;
+}
 
-// Button positions (relative to center)
-resume_y_offset = -60;
-restart_y_offset = 60;
+// Check if P2 disconnected (was connected, now isn't)
+if (p2_connected && !p2_now_connected) {
+    p2_disconnected = true;
+}
+// Check if P2 reconnected
+if (p2_disconnected && p2_now_connected) {
+    p2_disconnected = false;
+}
 
-selected_button = 0; // 0 = resume, 1 = restart
-button_hover = -1; // -1 = none, 0 = resume, 1 = restart
+// Update connection states
+p1_connected = p1_now_connected;
+p2_connected = p2_now_connected;
+
+// Set global pause if either controller is disconnected
+global.controller_disconnected = (p1_disconnected || p2_disconnected);
+
+// Animation timer for pulsing effect
+if (global.controller_disconnected) {
+    disconnect_pulse_timer += 0.05;
+}

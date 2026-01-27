@@ -1,3 +1,8 @@
+// === CHECK FOR CONTROLLER DISCONNECT PAUSE ===
+if (variable_global_exists("controller_disconnected") && global.controller_disconnected) {
+    exit; // Stop all player logic while disconnected
+}
+
 // === GET CONTROLLER INPUT ===
 var stick_x = 0;
 var stick_y = 0;

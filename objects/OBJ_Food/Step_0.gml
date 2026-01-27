@@ -1,3 +1,8 @@
+// === PAUSE IF CONTROLLER DISCONNECTED ===
+if (variable_global_exists("controller_disconnected") && global.controller_disconnected) {
+    exit;
+}
+
 var current_speed = point_distance(0, 0, velocity_x, velocity_y);
 
 // Check if food is on a plate that's on serving counter
