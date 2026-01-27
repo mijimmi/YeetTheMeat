@@ -1,3 +1,22 @@
+// === SUBTLE GLOW (always visible) ===
+var glow_color = make_color_rgb(255, 230, 180); // light peach/orange for P2
+
+// Outer soft glow
+draw_set_alpha(0.12);
+draw_set_color(glow_color);
+draw_ellipse(x - 55, y - 30, x + 55, y + 70, false);
+
+// Middle glow
+draw_set_alpha(0.18);
+draw_ellipse(x - 40, y - 15, x + 40, y + 55, false);
+
+// Inner glow
+draw_set_alpha(0.22);
+draw_ellipse(x - 28, y - 5, x + 28, y + 45, false);
+
+draw_set_alpha(1);
+draw_set_color(c_white);
+
 // === PLAYER INDICATOR (only after 2 seconds idle) ===
 if (idle_timer >= idle_indicator_delay) {
     var indicator_y = y - 80;
