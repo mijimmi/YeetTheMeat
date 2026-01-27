@@ -33,6 +33,34 @@ box_border_width = 2;
 function get_item_name(item) {
     if (item == noone || !instance_exists(item)) return "Empty";
     
+    // Special case: Plate with food - show the dish name
+    if (item.object_index == OBJ_Plate && variable_instance_exists(item, "has_food") && item.has_food) {
+        if (variable_instance_exists(item, "food_on_plate") && item.food_on_plate != noone && instance_exists(item.food_on_plate)) {
+            var food = item.food_on_plate;
+            var food_name = object_get_name(food.object_index);
+            
+            // Remove "OBJ_" prefix
+            if (string_pos("OBJ_", food_name) == 1) {
+                food_name = string_delete(food_name, 1, 4);
+            }
+            
+            // Get dish name based on food type
+            if (variable_instance_exists(food, "food_type")) {
+                switch (food.food_type) {
+                    case "cooked": return "Cooked " + food_name + " Dish"; break;
+                    case "fried_pork": return "Fried Pork Dish"; break;
+                    case "adobo": return "Adobo Dish"; break;
+                    case "cooked_meat_lumpia": return "Meat Lumpia Dish"; break;
+                    case "cooked_veggie_lumpia": return "Veggie Lumpia Dish"; break;
+                    case "burnt": return "Burnt Dish"; break;
+                    default: return food_name + " Dish"; break;
+                }
+            }
+            return food_name + " Dish";
+        }
+        return "Plated Dish";
+    }
+    
     // Get object name and format it
     var obj_name = object_get_name(item.object_index);
     
@@ -47,6 +75,14 @@ function get_item_name(item) {
             case "raw": obj_name = "Raw " + obj_name; break;
             case "cooked": obj_name = "Cooked " + obj_name; break;
             case "burnt": obj_name = "Burnt " + obj_name; break;
+            case "sliced": obj_name = "Sliced " + obj_name; break;
+            case "soy_sliced": obj_name = "Marinated " + obj_name; break;
+            case "fried_pork": obj_name = "Fried Pork"; break;
+            case "adobo": obj_name = "Adobo"; break;
+            case "cooked_meat_lumpia": obj_name = "Meat Lumpia"; break;
+            case "cooked_veggie_lumpia": obj_name = "Veggie Lumpia"; break;
+            case "raw_meat_lumpia": obj_name = "Raw Meat Lumpia"; break;
+            case "raw_veggie_lumpia": obj_name = "Raw Veggie Lumpia"; break;
         }
     }
     

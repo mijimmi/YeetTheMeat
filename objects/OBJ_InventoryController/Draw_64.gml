@@ -110,6 +110,14 @@ if (p1 != noone && instance_exists(p1)) {
         var center_x = box_x + box_width / 2;
         var center_y = box_y + box_height / 2;
         
+        // Special case: Plate with food - show the food/dish sprite instead
+        if (held.object_index == OBJ_Plate && variable_instance_exists(held, "has_food") && held.has_food) {
+            if (variable_instance_exists(held, "food_on_plate") && held.food_on_plate != noone && instance_exists(held.food_on_plate)) {
+                item_spr = held.food_on_plate.sprite_index;
+                item_frame = held.food_on_plate.image_index;
+            }
+        }
+        
         draw_sprite_ext(item_spr, item_frame, center_x, center_y, item_scale, item_scale, 0, c_white, 1);
         
         // Draw item name BELOW the box (with black outline)
@@ -186,6 +194,14 @@ if (p2 != noone && instance_exists(p2)) {
         var item_frame = held.image_index;
         var center_x = box_x + box_width / 2;
         var center_y = box_y + box_height / 2;
+        
+        // Special case: Plate with food - show the food/dish sprite instead
+        if (held.object_index == OBJ_Plate && variable_instance_exists(held, "has_food") && held.has_food) {
+            if (variable_instance_exists(held, "food_on_plate") && held.food_on_plate != noone && instance_exists(held.food_on_plate)) {
+                item_spr = held.food_on_plate.sprite_index;
+                item_frame = held.food_on_plate.image_index;
+            }
+        }
         
         draw_sprite_ext(item_spr, item_frame, center_x, center_y, item_scale, item_scale, 0, c_white, 1);
         
