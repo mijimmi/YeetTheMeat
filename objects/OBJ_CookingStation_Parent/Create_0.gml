@@ -43,7 +43,7 @@ function interact_place(player) {
                     // Instant station (slicing, soy sauce)
                     food.food_type = output_state;
                     food.is_cooking = false;
-                    food.cooking_station = id;  // ← Added! So food knows it's on a station
+                    food.cooking_station = id;  
                 }
                 
                 player.held_item = noone;

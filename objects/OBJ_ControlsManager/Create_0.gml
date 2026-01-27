@@ -13,7 +13,8 @@ global.stations_take = [
 // Stations that support PLACE action
 global.stations_place = [
     OBJ_CookingStation_Parent,  // Handles: Frying, Pot, Slicing, SoySauce, Mixing
-    OBJ_ServingCounter
+    OBJ_ServingCounter,
+	OBJ_TrashCan
 ];
 // === INTERACTION FUNCTIONS ===
 
@@ -99,6 +100,35 @@ function player_interact_place(player_instance) {
     var interacted = false;
     
     with (player_instance) {
+		// --- TRASH CAN (PRIORITY - CHECK FIRST) ---
+        var nearest_trash = instance_nearest(x, y, OBJ_TrashCan);
+        if (nearest_trash != noone && point_distance(x, y, nearest_trash.x, nearest_trash.y) <= nearest_trash.interact_range) {
+            if (held_item != noone && instance_exists(held_item)) {
+                // Destroy the held item completely
+                var item_to_trash = held_item;
+                
+                // If trashing a plate with food, destroy the food too
+                if (item_to_trash.object_index == OBJ_Plate && item_to_trash.has_food) {
+                    if (item_to_trash.food_on_plate != noone && instance_exists(item_to_trash.food_on_plate)) {
+                        instance_destroy(item_to_trash.food_on_plate);
+                    }
+                }
+                
+                // Destroy the item
+                instance_destroy(item_to_trash);
+                held_item = noone;
+                
+                // Animate trash can
+                nearest_trash.target_scale = 1.2;
+                nearest_trash.trash_timer = 10; // 10 frames animation
+                
+                interacted = true;
+            }
+        }
+        
+        if (interacted) {
+            return true; // Exit early if trashed
+        }
         // Check all station types that support PLACE
         for (var i = 0; i < array_length(global.stations_place); i++) {
             if (interacted) break;
