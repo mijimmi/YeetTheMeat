@@ -24,6 +24,14 @@ ds_map_add(hint_map, OBJ_RiceDispenser, spr_RiceHint);
 ds_map_add(hint_map, OBJ_PlateStorage, spr_PlateHint);
 ds_map_add(hint_map, OBJ_VeggieStorage, spr_VegetableHint);
 ds_map_add(hint_map, OBJ_WrapperStorage, spr_WrapperHint);
+ds_map_add(hint_map, OBJ_CupStorage, spr_CupHint);
+
+// Dispensers
+ds_map_add(hint_map, OBJ_GulamanDispenser, spr_GulamanHint);
+ds_map_add(hint_map, OBJ_BukoDispenser, spr_BukoHint);
+
+// Trash
+ds_map_add(hint_map, OBJ_TrashCan, spr_TrashHint);
 
 // ServingCounter hint removed - no hint for placing plates
 

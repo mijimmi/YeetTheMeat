@@ -102,5 +102,14 @@ function get_item_name(item) {
         }
     }
     
+    // For drinks
+    if (variable_instance_exists(item, "drink_type")) {
+        switch (item.drink_type) {
+            case "empty": obj_name = "Empty Cup"; break;
+            case "buko": obj_name = "Buko Juice"; break;
+            case "gulaman": obj_name = "Gulaman"; break;
+        }
+    }
+    
     return obj_name;
 }

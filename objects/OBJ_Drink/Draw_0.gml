@@ -5,6 +5,13 @@ if (!is_held && current_speed < 0.3) {
     bob_offset = sin(bob_timer) * bob_amount;
 }
 
+// Draw shadow when not held
+if (!is_held) {
+    draw_set_alpha(0.3);
+    draw_ellipse_color(x - 20, y + 15, x + 20, y + 25, c_black, c_black, false);
+    draw_set_alpha(1);
+}
+
 // Scale when held
 var draw_scale = 1;
 if (is_held) {

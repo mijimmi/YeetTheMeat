@@ -52,7 +52,7 @@ if (!is_held && can_slide) {
         velocity_y = 0;
     }
     
-    // Player collision (gets kicked)
+    // Player collision (gets kicked) - check P1
     with (OBJ_P1) {
         var half_box = other.collision_box_size / 2;
         var item_left = other.x - half_box;
@@ -85,10 +85,83 @@ if (!is_held && can_slide) {
             var min_dist = (player_half_w + player_half_h) / 2 + half_box;
             var overlap = max(0, min_dist - dist_centers);
             
+            // Wall-aware separation
             if (overlap > 0) {
-                other.x += lengthdir_x(overlap * 0.5, push_dir);
-                other.y += lengthdir_y(overlap * 0.5, push_dir);
+                var push_x = lengthdir_x(overlap * 0.5, push_dir);
+                var push_y = lengthdir_y(overlap * 0.5, push_dir);
+                
+                // Check X push doesn't go into wall
+                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) {
+                    other.x += push_x;
+                } else {
+                    other.velocity_x = 0;
+                }
+                
+                // Check Y push doesn't go into wall
+                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) {
+                    other.y += push_y;
+                } else {
+                    other.velocity_y = 0;
+                }
+            }
+        }
+    }
+    
+    // Player collision (gets kicked) - check P2
+    with (OBJ_P2) {
+        var half_box = other.collision_box_size / 2;
+        var item_left = other.x - half_box;
+        var item_right = other.x + half_box;
+        var item_top = other.y - half_box;
+        var item_bottom = other.y + half_box;
+        
+        var player_half_w = collision_width / 2;
+        var player_half_h = collision_height / 2;
+        var player_left = x - player_half_w;
+        var player_right = x + player_half_w;
+        var player_top = y - player_half_h;
+        var player_bottom = y + player_half_h;
+        
+        var colliding = !(item_right < player_left || 
+                         item_left > player_right || 
+                         item_bottom < player_top || 
+                         item_top > player_bottom);
+        
+        if (colliding && other.id != held_item) {
+            var push_dir = point_direction(x, y, other.x, other.y);
+            var player_speed = point_distance(0, 0, velocity_x, velocity_y);
+            var impact_force = point_distance(0, 0, velocity_x - other.velocity_x, velocity_y - other.velocity_y);
+            var kick_strength = max(impact_force * 0.6, player_speed * 0.4, 1.5);
+            
+            other.velocity_x = lengthdir_x(kick_strength, push_dir);
+            other.velocity_y = lengthdir_y(kick_strength, push_dir);
+            
+            var dist_centers = point_distance(x, y, other.x, other.y);
+            var min_dist = (player_half_w + player_half_h) / 2 + half_box;
+            var overlap = max(0, min_dist - dist_centers);
+            
+            // Wall-aware separation
+            if (overlap > 0) {
+                var push_x = lengthdir_x(overlap * 0.5, push_dir);
+                var push_y = lengthdir_y(overlap * 0.5, push_dir);
+                
+                // Check X push doesn't go into wall
+                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) {
+                    other.x += push_x;
+                } else {
+                    other.velocity_x = 0;
+                }
+                
+                // Check Y push doesn't go into wall
+                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) {
+                    other.y += push_y;
+                } else {
+                    other.velocity_y = 0;
+                }
             }
         }
     }
 }
+
+// Y-based depth sorting
+depth = -y;

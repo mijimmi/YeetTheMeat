@@ -14,130 +14,188 @@ global.stations_take = [
 global.stations_place = [
     OBJ_CookingStation_Parent,  // Handles: Frying, Pot, Slicing, SoySauce, Mixing
     OBJ_ServingCounter,
-	OBJ_TrashCan
+	OBJ_TrashCan,
+	OBJ_GulamanDispenser,
+	OBJ_BukoDispenser
 ];
+
+// All interactable station types (for finding the closest)
+global.all_stations = [
+    OBJ_FoodStorage_Parent,
+    OBJ_CookingStation_Parent,
+    OBJ_ServingCounter,
+    OBJ_TrashCan,
+    OBJ_GulamanDispenser,
+    OBJ_BukoDispenser
+];
+
+// Track the closest station for each player (used by station Draw events for hints)
+global.p1_closest_station = noone;
+global.p2_closest_station = noone;
+
+// === HELPER FUNCTION: Find the closest station to a player ===
+function find_closest_station(player_x, player_y) {
+    var closest = noone;
+    var closest_dist = 999999;
+    
+    for (var i = 0; i < array_length(global.all_stations); i++) {
+        var station_type = global.all_stations[i];
+        var nearest = instance_nearest(player_x, player_y, station_type);
+        
+        if (nearest != noone && instance_exists(nearest)) {
+            var dist = point_distance(player_x, player_y, nearest.x, nearest.y);
+            if (variable_instance_exists(nearest, "interact_range") && dist <= nearest.interact_range) {
+                if (dist < closest_dist) {
+                    closest_dist = dist;
+                    closest = nearest;
+                }
+            }
+        }
+    }
+    
+    return closest;
+}
+
 // === INTERACTION FUNCTIONS ===
 
 function player_interact_take(player_instance) {
-    // X BUTTON - TAKE FROM STATIONS
+    // X BUTTON - TAKE FROM STATIONS OR GROUND (whichever is closest)
     var interacted = false;
     
     with (player_instance) {
-        // Check all station types that support TAKE
-        for (var i = 0; i < array_length(global.stations_take); i++) {
-            if (interacted) break;
+        // Find the absolute closest station
+        var closest_station = OBJ_ControlsManager.find_closest_station(x, y);
+        var station_dist = 999999;
+        if (closest_station != noone) {
+            station_dist = point_distance(x, y, closest_station.x, closest_station.y);
+        }
+        
+        // Find closest ground item (only if empty-handed)
+        var closest_ground_item = noone;
+        var ground_item_dist = 999999;
+        
+        if (held_item == noone) {
+            // Check plates
+            var nearest_plate = instance_nearest(x, y, OBJ_Plate);
+            if (nearest_plate != noone && !nearest_plate.is_held) {
+                var d = point_distance(x, y, nearest_plate.x, nearest_plate.y);
+                if (d <= interact_range && d < ground_item_dist) {
+                    ground_item_dist = d;
+                    closest_ground_item = nearest_plate;
+                }
+            }
             
-            var nearest_station = instance_nearest(x, y, global.stations_take[i]);
-            if (nearest_station != noone && point_distance(x, y, nearest_station.x, nearest_station.y) <= nearest_station.interact_range) {
-                if (variable_instance_exists(nearest_station, "interact_take")) {
-                    interacted = nearest_station.interact_take(id);
+            // Check food
+            var nearest_food = instance_nearest(x, y, OBJ_Food);
+            if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking && !nearest_food.is_on_plate) {
+                var d = point_distance(x, y, nearest_food.x, nearest_food.y);
+                if (d <= interact_range && d < ground_item_dist) {
+                    ground_item_dist = d;
+                    closest_ground_item = nearest_food;
+                }
+            }
+            
+            // Check vegetables
+            var nearest_veggie = instance_nearest(x, y, OBJ_Vegetables);
+            if (nearest_veggie != noone && !nearest_veggie.is_held) {
+                var d = point_distance(x, y, nearest_veggie.x, nearest_veggie.y);
+                if (d <= interact_range && d < ground_item_dist) {
+                    ground_item_dist = d;
+                    closest_ground_item = nearest_veggie;
+                }
+            }
+            
+            // Check wrappers
+            var nearest_wrapper = instance_nearest(x, y, OBJ_LumpiaWrapper);
+            if (nearest_wrapper != noone && !nearest_wrapper.is_held) {
+                var d = point_distance(x, y, nearest_wrapper.x, nearest_wrapper.y);
+                if (d <= interact_range && d < ground_item_dist) {
+                    ground_item_dist = d;
+                    closest_ground_item = nearest_wrapper;
+                }
+            }
+            
+            // Check drinks
+            var nearest_drink = instance_nearest(x, y, OBJ_Drink);
+            if (nearest_drink != noone && !nearest_drink.is_held) {
+                var d = point_distance(x, y, nearest_drink.x, nearest_drink.y);
+                if (d <= interact_range && d < ground_item_dist) {
+                    ground_item_dist = d;
+                    closest_ground_item = nearest_drink;
                 }
             }
         }
         
-        // --- PICK UP FROM GROUND (FALLBACK) ---
-		if (!interacted && held_item == noone) {
-			// Try plate first
-			var nearest_plate = instance_nearest(x, y, OBJ_Plate);
-			if (nearest_plate != noone && !nearest_plate.is_held) {
-			    var dist = point_distance(x, y, nearest_plate.x, nearest_plate.y);
-			    if (dist <= interact_range) {
-			        held_item = nearest_plate;
-			        nearest_plate.is_held = true;
-			        nearest_plate.held_by = id;
-			        interacted = true;
-			    }
-			}
-    
-			// Then try food
-			if (!interacted) {
-			    var nearest_food = instance_nearest(x, y, OBJ_Food);
-			    if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking && !nearest_food.is_on_plate) {
-			        var dist = point_distance(x, y, nearest_food.x, nearest_food.y);
-			        if (dist <= interact_range) {
-			            held_item = nearest_food;
-			            nearest_food.is_held = true;
-			            nearest_food.held_by = id;
-			            interacted = true;
-			        }
-			    }
-			}
-    
-			// Then try vegetables
-			if (!interacted) {
-			    var nearest_veggie = instance_nearest(x, y, OBJ_Vegetables);
-			    if (nearest_veggie != noone && !nearest_veggie.is_held) {
-			        var dist = point_distance(x, y, nearest_veggie.x, nearest_veggie.y);
-			        if (dist <= interact_range) {
-			            held_item = nearest_veggie;
-			            nearest_veggie.is_held = true;
-			            nearest_veggie.held_by = id;
-			            interacted = true;
-			        }
-			    }
-			}
-    
-			// Then try wrapper
-			if (!interacted) {
-			    var nearest_wrapper = instance_nearest(x, y, OBJ_LumpiaWrapper);
-			    if (nearest_wrapper != noone && !nearest_wrapper.is_held) {
-			        var dist = point_distance(x, y, nearest_wrapper.x, nearest_wrapper.y);
-			        if (dist <= interact_range) {
-			            held_item = nearest_wrapper;
-			            nearest_wrapper.is_held = true;
-			            nearest_wrapper.held_by = id;
-			            interacted = true;
-			        }
-			    }
-			}
-		}
+        // Decide: pick up ground item if it's closer than station, otherwise try station
+        if (closest_ground_item != noone && ground_item_dist < station_dist) {
+            // Ground item is closer - pick it up
+            held_item = closest_ground_item;
+            closest_ground_item.is_held = true;
+            closest_ground_item.held_by = id;
+            interacted = true;
+        }
+        else if (closest_station != noone) {
+            // Station is closer (or no ground item) - try station
+            if (variable_instance_exists(closest_station, "interact_take")) {
+                interacted = closest_station.interact_take(id);
+            }
+            
+            // If station didn't work, try ground item as fallback
+            if (!interacted && closest_ground_item != noone) {
+                held_item = closest_ground_item;
+                closest_ground_item.is_held = true;
+                closest_ground_item.held_by = id;
+                interacted = true;
+            }
+        }
+        else if (closest_ground_item != noone) {
+            // No station nearby, just pick up ground item
+            held_item = closest_ground_item;
+            closest_ground_item.is_held = true;
+            closest_ground_item.held_by = id;
+            interacted = true;
+        }
     }
     return interacted;
 }
 
 function player_interact_place(player_instance) {
-    // A BUTTON - PLACE ON STATIONS
+    // A BUTTON - PLACE ON STATIONS (only the closest station)
     var interacted = false;
     
     with (player_instance) {
-		// --- TRASH CAN (PRIORITY - CHECK FIRST) ---
-        var nearest_trash = instance_nearest(x, y, OBJ_TrashCan);
-        if (nearest_trash != noone && point_distance(x, y, nearest_trash.x, nearest_trash.y) <= nearest_trash.interact_range) {
-            if (held_item != noone && instance_exists(held_item)) {
-                // Destroy the held item completely
-                var item_to_trash = held_item;
-                
-                // If trashing a plate with food, destroy the food too
-                if (item_to_trash.object_index == OBJ_Plate && item_to_trash.has_food) {
-                    if (item_to_trash.food_on_plate != noone && instance_exists(item_to_trash.food_on_plate)) {
-                        instance_destroy(item_to_trash.food_on_plate);
-                    }
-                }
-                
-                // Destroy the item
-                instance_destroy(item_to_trash);
-                held_item = noone;
-                
-                // Animate trash can
-                nearest_trash.target_scale = 1.2;
-                nearest_trash.trash_timer = 10; // 10 frames animation
-                
-                interacted = true;
-            }
-        }
+        // Find the absolute closest station
+        var closest_station = OBJ_ControlsManager.find_closest_station(x, y);
         
-        if (interacted) {
-            return true; // Exit early if trashed
-        }
-        // Check all station types that support PLACE
-        for (var i = 0; i < array_length(global.stations_place); i++) {
-            if (interacted) break;
-            
-            var nearest_station = instance_nearest(x, y, global.stations_place[i]);
-            if (nearest_station != noone && point_distance(x, y, nearest_station.x, nearest_station.y) <= nearest_station.interact_range) {
-                if (variable_instance_exists(nearest_station, "interact_place")) {
-                    interacted = nearest_station.interact_place(id);
+        // Only interact with the closest station if it supports PLACE
+        if (closest_station != noone) {
+            // Special handling for trash can
+            if (closest_station.object_index == OBJ_TrashCan) {
+                if (held_item != noone && instance_exists(held_item)) {
+                    // Destroy the held item completely
+                    var item_to_trash = held_item;
+                    
+                    // If trashing a plate with food, destroy the food too
+                    if (item_to_trash.object_index == OBJ_Plate && item_to_trash.has_food) {
+                        if (item_to_trash.food_on_plate != noone && instance_exists(item_to_trash.food_on_plate)) {
+                            instance_destroy(item_to_trash.food_on_plate);
+                        }
+                    }
+                    
+                    // Destroy the item
+                    instance_destroy(item_to_trash);
+                    held_item = noone;
+                    
+                    // Animate trash can
+                    closest_station.target_scale = 1.2;
+                    closest_station.trash_timer = 10;
+                    
+                    interacted = true;
                 }
+            }
+            // Regular station place
+            else if (variable_instance_exists(closest_station, "interact_place")) {
+                interacted = closest_station.interact_place(id);
             }
         }
         
@@ -201,6 +259,10 @@ function player_drop_item(player_instance) {
                 held_item.velocity_y = velocity_y * 0.5;
             }
             else if (held_item.object_index == OBJ_Plate) {
+                held_item.velocity_x = velocity_x * 0.5;
+                held_item.velocity_y = velocity_y * 0.5;
+            }
+            else if (held_item.object_index == OBJ_Drink) {
                 held_item.velocity_x = velocity_x * 0.5;
                 held_item.velocity_y = velocity_y * 0.5;
             }

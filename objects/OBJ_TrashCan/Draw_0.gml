@@ -1,19 +1,15 @@
-// Draw trash can with scale animation
-draw_sprite_ext(sprite_index, 0, x, y, trash_scale, trash_scale, 0, c_white, 1);
+// Station sprite is invisible - only show interaction hints
 
-// Show interaction hint
-var nearest_player = instance_nearest(x, y, OBJ_P1);
-if (nearest_player != noone) {
-    var dist = point_distance(x, y, nearest_player.x, nearest_player.y);
-    
-    if (dist <= interact_range && nearest_player.held_item != noone) {
-        var hint_text = "A - Trash Item";
-        var hint_color = c_red;
+// Check P1 hint - only if this is P1's closest station
+var p1 = instance_find(OBJ_P1, 0);
+if (p1 != noone && global.p1_closest_station == id) {
+    var dist = point_distance(x, y, p1.x, p1.y);
+    if (dist <= interact_range && p1.held_item != noone) {
+        var hint_text = "A  Trash Item";
+        var player_color = make_color_rgb(200, 60, 60);
         
         draw_set_halign(fa_center);
         draw_set_valign(fa_middle);
-        
-        // Thick outline
         draw_set_color(c_black);
         for (var xx = -2; xx <= 2; xx++) {
             for (var yy = -2; yy <= 2; yy++) {
@@ -22,10 +18,39 @@ if (nearest_player != noone) {
                 }
             }
         }
-        
-        draw_set_color(hint_color);
+        draw_set_color(player_color);
         draw_text(x, y - 50, hint_text);
+        draw_set_halign(fa_left);
+        draw_set_valign(fa_top);
+    }
+}
+
+// Check P2 hint - only if this is P2's closest station
+var p2 = instance_find(OBJ_P2, 0);
+if (p2 != noone && global.p2_closest_station == id) {
+    var dist = point_distance(x, y, p2.x, p2.y);
+    if (dist <= interact_range && p2.held_item != noone) {
+        var hint_text = "A  Trash Item";
+        var player_color = make_color_rgb(220, 140, 40);
+        var y_offset = -50;
         
+        // Check if P1 also showing hint here
+        if (p1 != noone && global.p1_closest_station == id && p1.held_item != noone) {
+            y_offset = -70;
+        }
+        
+        draw_set_halign(fa_center);
+        draw_set_valign(fa_middle);
+        draw_set_color(c_black);
+        for (var xx = -2; xx <= 2; xx++) {
+            for (var yy = -2; yy <= 2; yy++) {
+                if (xx != 0 || yy != 0) {
+                    draw_text(x + xx, y + y_offset + yy, hint_text);
+                }
+            }
+        }
+        draw_set_color(player_color);
+        draw_text(x, y + y_offset, hint_text);
         draw_set_halign(fa_left);
         draw_set_valign(fa_top);
     }
