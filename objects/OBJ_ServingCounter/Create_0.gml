@@ -1,4 +1,4 @@
-interact_range = 60;
+interact_range = 85;
 
 // Counter holds ONE plate at a time (for assembly)
 plate_on_counter = noone;

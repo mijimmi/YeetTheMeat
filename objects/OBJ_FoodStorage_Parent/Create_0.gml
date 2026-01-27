@@ -1,5 +1,5 @@
 // === PARENT FOR ALL FOOD STORAGES ===
-interact_range = 60;
+interact_range = 85;
 stored_food = noone;  // CHILD MUST SET THIS (e.g., OBJ_Meat, OBJ_Rice)
 
 // Cooldown
