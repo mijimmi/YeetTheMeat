@@ -1,4 +1,4 @@
-draw_sprite_ext(sprite_index, 0, x, y, 1, 1, 0, c_white, 1);
+// Station sprite is invisible - only show interaction hints
 
 // Find nearest player from both P1 and P2
 var nearest_player = noone;

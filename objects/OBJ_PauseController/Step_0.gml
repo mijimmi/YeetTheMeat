@@ -34,13 +34,13 @@ if (paused) {
         
         // When animation is done, actually unpause
         if (pause_anim_y > 350) {
-            paused = false;
+        paused = false;
             unpausing = false;
-            instance_activate_all();
-            if (surface_exists(pause_surf)) {
-                surface_free(pause_surf);
-            }
+        instance_activate_all();
+        if (surface_exists(pause_surf)) {
+            surface_free(pause_surf);
         }
+    }
     } else {
         // Slide up animation
         pause_anim_y = lerp(pause_anim_y, 0, pause_anim_speed);
@@ -71,12 +71,12 @@ if (paused && !unpausing) {
         var axis_v1 = gamepad_axis_value(1, gp_axislv);
         
         if (axis_v0 < -0.5 || axis_v1 < -0.5 ||
-            gamepad_button_check_pressed(0, gp_padu) || gamepad_button_check_pressed(1, gp_padu)) {
+        gamepad_button_check_pressed(0, gp_padu) || gamepad_button_check_pressed(1, gp_padu)) {
             selected_button = max(0, selected_button - 1);
             nav_cooldown = nav_cooldown_max;
-        }
+    }
         if (axis_v0 > 0.5 || axis_v1 > 0.5 ||
-            gamepad_button_check_pressed(0, gp_padd) || gamepad_button_check_pressed(1, gp_padd)) {
+        gamepad_button_check_pressed(0, gp_padd) || gamepad_button_check_pressed(1, gp_padd)) {
             selected_button = min(2, selected_button + 1);
             nav_cooldown = nav_cooldown_max;
         }

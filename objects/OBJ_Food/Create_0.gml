@@ -24,6 +24,11 @@ bob_timer = 0;
 bob_speed = 0.08;
 bob_amount = 2;
 
+// === COOKING SMOKE ===
+smoke_list = ds_list_create();
+smoke_spawn_timer = 0;
+smoke_spawn_rate = 15;  // Frames between smoke puffs (lower = more smoke)
+
 // === COLLISION MASK ===
 // Create a small centered square hitbox (consistent for all foods)
 mask_index = -1; // We'll use a precise collision shape instead

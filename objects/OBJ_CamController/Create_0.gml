@@ -9,7 +9,7 @@ base_height = 1080;
 
 // Zoom settings
 min_zoom = 1.0;
-max_zoom = 1.25;
+max_zoom = 1.15;
 zoom_speed = 0.05;
 current_zoom = 2.0;
 

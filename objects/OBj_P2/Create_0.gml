@@ -20,6 +20,10 @@ stick_held = false;
 stick_deadzone = 0.3;
 cancel_cooldown = false;
 
+// === DIRECTION LOCK (prevents snap-back on stick release) ===
+locked_stick_x = 0;
+locked_stick_y = 0;
+
 // === SQUASH & STRETCH ===
 scale_x = 1;
 scale_y = 1;

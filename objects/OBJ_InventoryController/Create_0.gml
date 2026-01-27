@@ -37,26 +37,35 @@ function get_item_name(item) {
     if (item.object_index == OBJ_Plate && variable_instance_exists(item, "has_food") && item.has_food) {
         if (variable_instance_exists(item, "food_on_plate") && item.food_on_plate != noone && instance_exists(item.food_on_plate)) {
             var food = item.food_on_plate;
-            var food_name = object_get_name(food.object_index);
             
-            // Remove "OBJ_" prefix
+            // Check the sprite to determine the actual dish name
+            var food_spr = food.sprite_index;
+            
+            // Match dish sprite to dish name
+            if (food_spr == spr_porkchopdish) return "Fried Pork";
+            if (food_spr == spr_adobodish) return "Adobo";
+            if (food_spr == spr_meatlumpiadish) return "Meat Lumpia";
+            if (food_spr == spr_veggielumpiadish) return "Veggie Lumpia";
+            if (food_spr == spr_ricedish) return "Rice";
+            if (food_spr == spr_takoyakidish) return "Kwek Kwek";
+            
+            // Fallback: check plated_sprite if food_type is "plated"
+            if (variable_instance_exists(food, "plated_sprite") && food.plated_sprite != noone) {
+                var plated_spr = food.plated_sprite;
+                if (plated_spr == spr_porkchopdish) return "Fried Pork";
+                if (plated_spr == spr_adobodish) return "Adobo";
+                if (plated_spr == spr_meatlumpiadish) return "Meat Lumpia";
+                if (plated_spr == spr_veggielumpiadish) return "Veggie Lumpia";
+                if (plated_spr == spr_ricedish) return "Rice";
+                if (plated_spr == spr_takoyakidish) return "Kwek Kwek";
+            }
+            
+            // Final fallback: use object name
+            var food_name = object_get_name(food.object_index);
             if (string_pos("OBJ_", food_name) == 1) {
                 food_name = string_delete(food_name, 1, 4);
             }
-            
-            // Get dish name based on food type
-            if (variable_instance_exists(food, "food_type")) {
-                switch (food.food_type) {
-                    case "cooked": return "Cooked " + food_name + " Dish"; break;
-                    case "fried_pork": return "Fried Pork Dish"; break;
-                    case "adobo": return "Adobo Dish"; break;
-                    case "cooked_meat_lumpia": return "Meat Lumpia Dish"; break;
-                    case "cooked_veggie_lumpia": return "Veggie Lumpia Dish"; break;
-                    case "burnt": return "Burnt Dish"; break;
-                    default: return food_name + " Dish"; break;
-                }
-            }
-            return food_name + " Dish";
+            return food_name;
         }
         return "Plated Dish";
     }

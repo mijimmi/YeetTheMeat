@@ -102,7 +102,7 @@ if (paused) {
             }
         }
         // White text
-        draw_set_color(c_white);
+    draw_set_color(c_white);
         for (var i = 0; i < restart_len; i++) {
             var letter = string_char_at(restart_text, i + 1);
             draw_text_transformed(restart_start_x + (i * letter_spacing), restart_y, letter, text_scale, text_scale, 0);

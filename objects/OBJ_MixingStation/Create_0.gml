@@ -21,12 +21,14 @@ function interact_place(player) {
         // Check if this is a valid mixing ingredient
         var is_valid = false;
         
-        // Valid ingredients: Meat (sliced), Vegetables, Lumpia Wrapper
+        // Valid ingredients: Meat (sliced), Vegetables (sliced), Lumpia Wrapper
         if (object_is_ancestor(item.object_index, OBJ_Food)) {
             if (item.object_index == OBJ_Meat && item.food_type == "sliced") {
                 is_valid = true;
             }
-        } else if (item.object_index == OBJ_Vegetables || item.object_index == OBJ_LumpiaWrapper) {
+        } else if (item.object_index == OBJ_Vegetables && item.veggie_state == "sliced") {
+            is_valid = true;
+        } else if (item.object_index == OBJ_LumpiaWrapper) {
             is_valid = true;
         }
         
