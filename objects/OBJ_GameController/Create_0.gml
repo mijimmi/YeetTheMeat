@@ -8,10 +8,9 @@ pause_buffer = 0;
 global.game_font = fnt_winkle;
 
 // === CONTROLLER DISCONNECT TRACKING ===
+// P1 requires a controller, P2 can use keyboard as fallback
 p1_connected = gamepad_is_connected(0);
-p2_connected = gamepad_is_connected(1);
 p1_disconnected = false;
-p2_disconnected = false;
 global.controller_disconnected = false;
 
 // Animation for disconnect message

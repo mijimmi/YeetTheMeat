@@ -1,4 +1,5 @@
 // === DRAW CONTROLLER DISCONNECT WARNING ===
+// Only shows for P1 - P2 can use keyboard as fallback
 if (global.controller_disconnected) {
     var gui_width = display_get_gui_width();
     var gui_height = display_get_gui_height();
@@ -13,15 +14,7 @@ if (global.controller_disconnected) {
     var pulse = 0.8 + sin(disconnect_pulse_timer) * 0.2;
     var text_scale = 3.0 * pulse;
     
-    // Determine which player(s) disconnected
-    var disconnect_text = "";
-    if (p1_disconnected && p2_disconnected) {
-        disconnect_text = "P1 & P2 DISCONNECTED";
-    } else if (p1_disconnected) {
-        disconnect_text = "P1 DISCONNECTED";
-    } else if (p2_disconnected) {
-        disconnect_text = "P2 DISCONNECTED";
-    }
+    var disconnect_text = "P1 DISCONNECTED";
     
     var center_x = gui_width / 2;
     var center_y = gui_height / 2 - 40;
@@ -42,15 +35,8 @@ if (global.controller_disconnected) {
         }
     }
     
-    // Main text in red/orange based on which player
-    var text_color = c_red;
-    if (p2_disconnected && !p1_disconnected) {
-        text_color = make_color_rgb(255, 140, 40); // Orange for P2
-    } else if (p1_disconnected && p2_disconnected) {
-        text_color = c_yellow;
-    }
-    
-    draw_set_color(text_color);
+    // Main text in red for P1
+    draw_set_color(c_red);
     draw_text_transformed(center_x, center_y, disconnect_text, text_scale, text_scale, 0);
     
     // Sub-text instruction

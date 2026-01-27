@@ -1,6 +1,6 @@
 // === CHECK CONTROLLER CONNECTIONS ===
+// Only P1 requires a controller - P2 can use keyboard as fallback
 var p1_now_connected = gamepad_is_connected(0);
-var p2_now_connected = gamepad_is_connected(1);
 
 // Check if P1 disconnected (was connected, now isn't)
 if (p1_connected && !p1_now_connected) {
@@ -11,21 +11,12 @@ if (p1_disconnected && p1_now_connected) {
     p1_disconnected = false;
 }
 
-// Check if P2 disconnected (was connected, now isn't)
-if (p2_connected && !p2_now_connected) {
-    p2_disconnected = true;
-}
-// Check if P2 reconnected
-if (p2_disconnected && p2_now_connected) {
-    p2_disconnected = false;
-}
-
-// Update connection states
+// Update connection state
 p1_connected = p1_now_connected;
-p2_connected = p2_now_connected;
 
-// Set global pause if either controller is disconnected
-global.controller_disconnected = (p1_disconnected || p2_disconnected);
+// Set global pause only if P1 controller is disconnected
+// P2 is always fine since they can use keyboard
+global.controller_disconnected = p1_disconnected;
 
 // Animation timer for pulsing effect
 if (global.controller_disconnected) {
