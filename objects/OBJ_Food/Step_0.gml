@@ -48,6 +48,89 @@ if (is_cooking && instance_exists(cooking_station)) {
         }
     }
     // For other foods (OBJ_Meat), let them handle their own cooking logic
+    
+    // === SPAWN COOKING SMOKE ===
+    smoke_spawn_timer++;
+    
+    // Calculate smoke intensity based on cooking progress
+    var smoke_progress = 0;
+    var is_burning = (food_type == "burnt");
+    
+    // Determine if we're in "cooking" phase or "about to burn" phase
+    var is_pre_burn_state = (food_type == "cooked" || food_type == "fried_pork" || food_type == "adobo" || 
+                             food_type == "cooked_meat_lumpia" || food_type == "cooked_veggie_lumpia");
+    
+    if (variable_instance_exists(id, "cook_time_required") && cook_time_required > 0) {
+        if (is_pre_burn_state && variable_instance_exists(id, "burn_time") && burn_time > 0) {
+            // About to burn - darker smoke
+            smoke_progress = 0.5 + (clamp(cook_timer / burn_time, 0, 1) * 0.5);
+        } else if (!is_burning) {
+            // Still cooking - lighter smoke
+            smoke_progress = clamp(cook_timer / cook_time_required, 0, 1) * 0.5;
+        }
+    }
+    if (is_burning) smoke_progress = 1;
+    
+    // Spawn rate increases as cooking progresses
+    var current_spawn_rate = smoke_spawn_rate - floor(smoke_progress * 10);
+    if (is_burning) current_spawn_rate = 5; // Fast smoke when burning
+    
+    if (smoke_spawn_timer >= current_spawn_rate) {
+        smoke_spawn_timer = 0;
+        
+        // Pick random cloud sprite
+        var smoke_sprites = [spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4];
+        var smoke_spr = smoke_sprites[irandom(3)];
+        
+        // Calculate smoke color based on progress
+        // Light gray (200,200,200) -> Medium gray (120,120,120) -> Dark/Black (40,40,40)
+        var gray_value;
+        if (smoke_progress < 0.5) {
+            gray_value = lerp(220, 160, smoke_progress * 2);
+        } else {
+            gray_value = lerp(160, 30, (smoke_progress - 0.5) * 2);
+        }
+        var smoke_color = make_color_rgb(gray_value, gray_value, gray_value);
+        
+        // Create smoke particle [x, y, scale, alpha, life, sprite, rotation, vx, vy, color]
+        var smoke_x = x + random_range(-15, 15);
+        var smoke_y = y - 10 + random_range(-5, 5);
+        var smoke_scale = random_range(0.3, 0.5) + (smoke_progress * 0.3);
+        var smoke_vx = random_range(-0.3, 0.3);
+        var smoke_vy = random_range(-0.8, -1.5) - (smoke_progress * 0.5);
+        var smoke_rot = random(360);
+        
+        ds_list_add(smoke_list, [smoke_x, smoke_y, smoke_scale, 0.7, 60, smoke_spr, smoke_rot, smoke_vx, smoke_vy, smoke_color]);
+    }
+}
+
+// === UPDATE SMOKE PARTICLES ===
+for (var i = ds_list_size(smoke_list) - 1; i >= 0; i--) {
+    var smoke = smoke_list[| i];
+    
+    // Update position
+    smoke[0] += smoke[7]; // x += vx
+    smoke[1] += smoke[8]; // y += vy
+    smoke[8] *= 0.98;     // slow down vertical movement
+    
+    // Update scale (grow slightly)
+    smoke[2] += 0.008;
+    
+    // Update alpha (fade out)
+    smoke[3] -= 0.012;
+    
+    // Update rotation
+    smoke[6] += random_range(-1, 1);
+    
+    // Update life
+    smoke[4]--;
+    
+    // Remove dead particles
+    if (smoke[4] <= 0 || smoke[3] <= 0) {
+        ds_list_delete(smoke_list, i);
+    } else {
+        smoke_list[| i] = smoke;
+    }
 }
 
 // === PHYSICS - ONLY WHEN NOT HELD, NOT COOKING, NOT ON PLATE ===

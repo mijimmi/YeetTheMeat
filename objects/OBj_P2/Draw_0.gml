@@ -104,7 +104,7 @@ if (state == "aiming") {
 
     draw_set_color(make_color_rgb(240, 235, 220));
     draw_rectangle(bar_x + 2, bar_y + 2, bar_x + bar_width - 2, bar_y + bar_height - 2, false);
-
+    
     draw_set_color(make_color_rgb(200, 190, 170));
     draw_set_alpha(0.4);
     for (var hatch = bar_y + 4; hatch < bar_y + bar_height - 2; hatch += 4) {
@@ -139,10 +139,10 @@ if (state == "aiming") {
             );
         }
         
-        draw_set_color(c_white);
-        draw_set_alpha(0.5);
+            draw_set_color(c_white);
+            draw_set_alpha(0.5);
         draw_line_width(bar_x + 5, fill_top + 5, bar_x + 6, fill_bottom - 5, 2);
-        draw_set_alpha(1);
+            draw_set_alpha(1);
     }
 
     draw_set_color(make_color_rgb(50, 40, 35));
@@ -180,7 +180,7 @@ if (state == "aiming") {
         draw_line_width(star_x - 3, star_y - 3, star_x + 3, star_y + 3, 1.5);
         draw_line_width(star_x + 3, star_y - 3, star_x - 3, star_y + 3, 1.5);
     }
-
+    
     random_set_seed(current_time);
     
     // --- TRAJECTORY PREVIEW ---
@@ -253,7 +253,7 @@ if (state == "aiming") {
         }
         
         draw_set_alpha(cancel_hint_alpha);
-        draw_set_halign(fa_center);
+    draw_set_halign(fa_center);
         draw_set_valign(fa_middle);
         draw_set_color(sketch_brown);
         draw_set_font(fnt_winkle);
@@ -272,7 +272,7 @@ if (state == "aiming") {
         draw_line_width(sparkle_x - 3, sparkle_y, sparkle_x + 3, sparkle_y, 1);
         draw_line_width(sparkle_x, sparkle_y - 3, sparkle_x, sparkle_y + 3, 1);
         
-        draw_set_halign(fa_left);
+    draw_set_halign(fa_left);
         draw_set_valign(fa_top);
         draw_set_font(-1);
         draw_set_alpha(1);

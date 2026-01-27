@@ -43,3 +43,18 @@ if (!is_held) {
 
 // Children will override sprite_index based on food_type
 draw_sprite_ext(sprite_index, 0, x, y + bob_offset, draw_scale, draw_scale, 0, c_white, 1);
+
+// === DRAW COOKING SMOKE ===
+for (var i = 0; i < ds_list_size(smoke_list); i++) {
+    var smoke = smoke_list[| i];
+    var sx = smoke[0];
+    var sy = smoke[1];
+    var sscale = smoke[2];
+    var salpha = smoke[3];
+    var slife = smoke[4];
+    var sspr = smoke[5];
+    var srot = smoke[6];
+    var scolor = smoke[9];
+    
+    draw_sprite_ext(sspr, 0, sx, sy, sscale, sscale, srot, scolor, salpha);
+}

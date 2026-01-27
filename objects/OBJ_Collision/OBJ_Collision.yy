@@ -28,8 +28,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"spr_BGCollisions",
-    "path":"sprites/spr_BGCollisions/spr_BGCollisions.yy",
+    "name":"spr_collisions",
+    "path":"sprites/spr_collisions/spr_collisions.yy",
   },
   "spriteMaskId":null,
   "visible":false,
