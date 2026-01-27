@@ -1,5 +1,5 @@
 // === PARENT FOR ALL COOKING STATIONS ===
-interact_range = 60;
+interact_range = 85;
 food_on_station = noone;
 
 // Visual offset

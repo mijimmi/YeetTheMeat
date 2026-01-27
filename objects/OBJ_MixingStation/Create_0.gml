@@ -1,4 +1,8 @@
 event_inherited();
+food_offset_x = 15;
+food_offset_y = -20;
+
+
 
 station_action = "Mix";
 accepted_state = "";        // Accept any state

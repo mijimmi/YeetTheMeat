@@ -27,23 +27,56 @@ if (nearest_player != noone) {
             }
             
             if (can_place) {
-                hint_text = "[A] " + station_action;
-                hint_color = c_white;
+                hint_text = "A - " + station_action;
+                hint_color = c_yellow;
             }
         }
-        // Station has food, player empty-handed - can take
+        // Station has food, player empty-handed - check if done cooking
         else if (food_on_station != noone && nearest_player.held_item == noone) {
-            hint_text = "[X] Take Food";
-            hint_color = c_lime;
+            // Only show hint if food is done cooking (or instant station)
+            var is_done = false;
+            
+            if (requires_cooking) {
+                // For cooking stations, check if food finished cooking
+                if (instance_exists(food_on_station)) {
+                    var food = food_on_station;
+                    
+                    // Check if food changed state (no longer raw/sliced)
+                    if (food.food_type == "cooked" ||
+                        food.food_type == "fried_pork" ||
+                        food.food_type == "adobo" ||
+                        food.food_type == "cooked_meat_lumpia" ||
+                        food.food_type == "cooked_veggie_lumpia" ||
+                        food.food_type == "burnt") {
+                        is_done = true;
+                    }
+                }
+            } else {
+                // Instant stations (slicing, soy sauce) - always done
+                is_done = true;
+            }
+            
+            if (is_done) {
+                hint_text = "X - Take Food";
+                hint_color = c_lime;
+            }
         }
         
         if (hint_text != "") {
             draw_set_halign(fa_center);
             draw_set_valign(fa_middle);
             
+            // Draw thick black outline (8-directional)
             draw_set_color(c_black);
-            draw_text(x + 1, y - 50 + 1, hint_text);
+            for (var xx = -2; xx <= 2; xx++) {
+                for (var yy = -2; yy <= 2; yy++) {
+                    if (xx != 0 || yy != 0) {
+                        draw_text(x + xx, y - 50 + yy, hint_text);
+                    }
+                }
+            }
             
+            // Draw colored text on top
             draw_set_color(hint_color);
             draw_text(x, y - 50, hint_text);
             
