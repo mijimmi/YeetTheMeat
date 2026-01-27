@@ -1,5 +1,8 @@
 event_inherited();
 
+// More forgiving interact range
+interact_range = 110;
+
 station_action = "Fill Buko";
 accepted_state = "empty";     // Only accepts empty cups
 output_state = "";            // We handle manually

@@ -1,5 +1,8 @@
 event_inherited();
 
+// More forgiving interact range
+interact_range = 110;
+
 station_action = "Fill Gulaman";
 accepted_state = "empty";
 output_state = "";
