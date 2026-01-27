@@ -16,7 +16,7 @@ if (nearest_player != noone) {
             // Holding plate (with or without food)
             if (item.object_index == OBJ_Plate) {
                 if (plate_on_counter == noone) {
-                    hint_text = "[A] Place Plate";
+                    hint_text = "(A) Place Plate";
                     hint_color = c_white;
                 }
             }
@@ -29,7 +29,7 @@ if (nearest_player != noone) {
                         item.food_type == "cooked_veggie_lumpia" ||
                         item.food_type == "fried_pork" ||
                         item.food_type == "adobo") {
-                        hint_text = "[A] Plate Food";
+                        hint_text = "(A) Plate Food";
                         hint_color = c_yellow;
                     }
                 }
@@ -38,10 +38,10 @@ if (nearest_player != noone) {
         // Player empty-handed, counter has plate
         else if (nearest_player.held_item == noone && plate_on_counter != noone) {
             if (plate_on_counter.has_food) {
-                hint_text = "[X] Take Plated Dish";
+                hint_text = "(X) Take Plated Dish";
                 hint_color = c_lime;
             } else {
-                hint_text = "[X] Take Plate";
+                hint_text = "(X) Take Plate";
                 hint_color = c_white;
             }
         }

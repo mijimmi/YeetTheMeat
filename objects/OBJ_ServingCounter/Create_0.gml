@@ -1,10 +1,10 @@
-interact_range = 60;
+interact_range = 85;
 
 // Counter holds ONE plate at a time (for assembly)
 plate_on_counter = noone;
 
 // Visual positioning
-counter_offset_y = -20; // Height where plate sits on counter
+counter_offset_y = 0; // Height where plate sits on counter
 
 // === INTERACTION FUNCTIONS ===
 function interact_place(player) {
@@ -26,25 +26,35 @@ function interact_place(player) {
         }
     }
     // Plate food on counter
-    else if (player.held_item != noone && instance_exists(player.held_item) && object_is_ancestor(player.held_item.object_index, OBJ_Food)) {
-        if (plate_on_counter != noone && !plate_on_counter.has_food) {
-            var food = player.held_item;
-            var plate = plate_on_counter;
+    // Plate food on counter
+	else if (player.held_item != noone && instance_exists(player.held_item) && object_is_ancestor(player.held_item.object_index, OBJ_Food)) {
+	    if (plate_on_counter != noone && !plate_on_counter.has_food) {
+	        var food = player.held_item;
+	        var plate = plate_on_counter;
+        
+	        // Check if food is ready to be plated (any cooked state)
+	        var is_ready_to_plate = (
+	            food.food_type == "cooked" ||
+	            food.food_type == "fried_pork" ||
+	            food.food_type == "adobo" ||
+	            food.food_type == "cooked_meat_lumpia" ||
+	            food.food_type == "cooked_veggie_lumpia"
+	        );
+        
+	        if (is_ready_to_plate) {
+	            plate.food_on_plate = food;
+	            plate.has_food = true;
+	            food.is_held = false;
+	            food.held_by = noone;
+	            food.is_on_plate = true;
+	            food.plate_instance = plate;
+	            food.can_slide = false;
             
-            if (food.food_type == "cooked") {
-                plate.food_on_plate = food;
-                plate.has_food = true;
-                food.is_held = false;
-                food.held_by = noone;
-                food.is_on_plate = true;
-                food.plate_instance = plate;
-                food.can_slide = false;
-                
-                player.held_item = noone;
-                return true;
-            }
-        }
-    }
+	            player.held_item = noone; // ← This clears the held item
+	            return true;
+	        }
+	    }
+	}
     return false;
 }
 
