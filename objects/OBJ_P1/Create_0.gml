@@ -104,3 +104,11 @@ drop_buffer = 0;
 held_item_bob_timer = 0;
 held_item_bob_speed = 0.08;
 held_item_bob_amount = 2;  // Very slight bob
+
+// === IDLE BLINK ===
+blink_timer = 0;
+blink_duration = 8;  // How long the blink lasts (frames)
+blink_cooldown = 0;
+blink_cooldown_min = 300;  // Minimum frames between blinks (5 seconds)
+blink_cooldown_max = 600;  // Maximum frames between blinks (10 seconds)
+is_blinking = false;

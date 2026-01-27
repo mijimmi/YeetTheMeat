@@ -308,6 +308,27 @@ draw_set_alpha(1);
 draw_sprite_ext(spr_2Hand, hand_frame, x + hand1_x, y + hand1_y, hand_scale_x, hand_scale_y, hand1_angle, c_white, 1);
 draw_sprite_ext(spr_2Hand, hand_frame, x + hand2_x, y + hand2_y, -hand_scale_x, hand_scale_y, hand2_angle, c_white, 1);
 
+// === IDLE BLINK LOGIC ===
+if (state == "idle") {
+    if (blink_cooldown > 0) {
+        blink_cooldown--;
+    } else if (!is_blinking) {
+        // Random chance to start blinking
+        is_blinking = true;
+        blink_timer = blink_duration;
+        blink_cooldown = irandom_range(blink_cooldown_min, blink_cooldown_max);
+    }
+    
+    if (is_blinking) {
+        blink_timer--;
+        if (blink_timer <= 0) {
+            is_blinking = false;
+        }
+    }
+} else {
+    is_blinking = false;
+}
+
 // === DRAW PLAYER BODY (5 directions with mirroring) ===
 var squish_threshold = 0.75;
 var sprite_to_use = spr_P2;
@@ -317,6 +338,9 @@ if (state == "moving") {
 }
 else if (scale_y < squish_threshold || (state == "aiming" && aim_power >= 0.85)) {
     sprite_to_use = spr_P2Squish;
+}
+else if (is_blinking && state == "idle") {
+    sprite_to_use = spr_P2Squish;  // Use squish sprite for blinking
 }
 
 draw_sprite_ext(
