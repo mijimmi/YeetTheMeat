@@ -250,6 +250,211 @@ if (p2 != noone && instance_exists(p2)) {
     }
 }
 
+// === RECIPE BOOK (Fullscreen when open) ===
+if (recipe_book_open && recipe_anim_progress > 0) {
+    // Get current page sprite
+    var page_sprite = spr_recipepg1;
+    switch (recipe_current_page) {
+        case 1: page_sprite = spr_recipepg1; break;
+        case 2: page_sprite = spr_recipepg2; break;
+        case 3: page_sprite = spr_recipepg3; break;
+        case 4: page_sprite = spr_recipepg4; break;
+    }
+    
+    // Animation: scale and alpha
+    var anim_scale = recipe_anim_progress;
+    var anim_alpha = recipe_anim_progress;
+    
+    // Slight bounce effect at the end of opening
+    if (recipe_opening && recipe_anim_progress > 0.8) {
+        anim_scale = 0.8 + (recipe_anim_progress - 0.8) * 1.5;
+    }
+    
+    // Draw fullscreen recipe with animation
+    if (sprite_exists(page_sprite)) {
+        var base_scale_x = gui_width / sprite_get_width(page_sprite);
+        var base_scale_y = gui_height / sprite_get_height(page_sprite);
+        var final_scale_x = base_scale_x * anim_scale;
+        var final_scale_y = base_scale_y * anim_scale;
+        
+        draw_sprite_ext(page_sprite, 0, gui_width / 2, gui_height / 2, final_scale_x, final_scale_y, 0, c_white, anim_alpha);
+    }
+    
+    // Only draw UI elements when fully open
+    if (recipe_anim_progress >= 1) {
+        draw_set_font(fnt_winkle);
+        
+        // === PAGE INDICATOR (Top Center) ===
+        var page_text = "Page " + string(recipe_current_page) + " of " + string(recipe_total_pages);
+        var page_y = 30;
+        
+        draw_set_halign(fa_center);
+        draw_set_valign(fa_top);
+        
+        // Black outline
+        draw_set_color(c_black);
+        for (var ox = -2; ox <= 2; ox++) {
+            for (var oy = -2; oy <= 2; oy++) {
+                if (ox != 0 || oy != 0) {
+                    draw_text_transformed(gui_width / 2 + ox, page_y + oy, page_text, 1.2, 1.2, 0);
+                }
+            }
+        }
+        draw_set_color(c_white);
+        draw_text_transformed(gui_width / 2, page_y, page_text, 1.2, 1.2, 0);
+        
+        // === NAVIGATION HINTS (Left and Right) ===
+        var nav_y = gui_height / 2;
+        var nav_scale = 1.4;  // Bigger text
+        var arrow_size = 16;  // Arrow triangle size
+        
+        // Left arrow (LB / Q) - Previous page
+        if (recipe_current_page > 1) {
+            var left_x = 180;  // More padding from edge
+            
+            draw_set_halign(fa_center);
+            draw_set_valign(fa_middle);
+            
+            // Draw arrow triangle (pointing left)
+            var arrow_x = left_x - 50;
+            draw_set_color(c_black);
+            draw_triangle(arrow_x + arrow_size + 2, nav_y - arrow_size - 2, 
+                          arrow_x + arrow_size + 2, nav_y + arrow_size + 2, 
+                          arrow_x - 2, nav_y, false);
+            draw_set_color(c_white);
+            draw_triangle(arrow_x + arrow_size, nav_y - arrow_size, 
+                          arrow_x + arrow_size, nav_y + arrow_size, 
+                          arrow_x, nav_y, false);
+            
+            // Draw "LB" text
+            draw_set_color(c_black);
+            for (var ox = -2; ox <= 2; ox++) {
+                for (var oy = -2; oy <= 2; oy++) {
+                    if (ox != 0 || oy != 0) {
+                        draw_text_transformed(left_x + ox, nav_y - 20 + oy, "LB", nav_scale, nav_scale, 0);
+                    }
+                }
+            }
+            draw_set_color(c_white);
+            draw_text_transformed(left_x, nav_y - 20, "LB", nav_scale, nav_scale, 0);
+            
+            // Draw "Previous Page" below
+            draw_set_color(c_black);
+            for (var ox = -2; ox <= 2; ox++) {
+                for (var oy = -2; oy <= 2; oy++) {
+                    if (ox != 0 || oy != 0) {
+                        draw_text_transformed(left_x + ox, nav_y + 15 + oy, "Previous Page", nav_scale * 0.7, nav_scale * 0.7, 0);
+                    }
+                }
+            }
+            draw_set_color(c_white);
+            draw_text_transformed(left_x, nav_y + 15, "Previous Page", nav_scale * 0.7, nav_scale * 0.7, 0);
+        }
+        
+        // Right arrow (RB / E) - Next page
+        if (recipe_current_page < recipe_total_pages) {
+            var right_x = gui_width - 180;  // More padding from edge
+            
+            draw_set_halign(fa_center);
+            draw_set_valign(fa_middle);
+            
+            // Draw arrow triangle (pointing right)
+            var arrow_x = right_x + 50;
+            draw_set_color(c_black);
+            draw_triangle(arrow_x - arrow_size - 2, nav_y - arrow_size - 2, 
+                          arrow_x - arrow_size - 2, nav_y + arrow_size + 2, 
+                          arrow_x + 2, nav_y, false);
+            draw_set_color(c_white);
+            draw_triangle(arrow_x - arrow_size, nav_y - arrow_size, 
+                          arrow_x - arrow_size, nav_y + arrow_size, 
+                          arrow_x, nav_y, false);
+            
+            // Draw "RB" text
+            draw_set_color(c_black);
+            for (var ox = -2; ox <= 2; ox++) {
+                for (var oy = -2; oy <= 2; oy++) {
+                    if (ox != 0 || oy != 0) {
+                        draw_text_transformed(right_x + ox, nav_y - 20 + oy, "RB", nav_scale, nav_scale, 0);
+                    }
+                }
+            }
+            draw_set_color(c_white);
+            draw_text_transformed(right_x, nav_y - 20, "RB", nav_scale, nav_scale, 0);
+            
+            // Draw "Next Page" below
+            draw_set_color(c_black);
+            for (var ox = -2; ox <= 2; ox++) {
+                for (var oy = -2; oy <= 2; oy++) {
+                    if (ox != 0 || oy != 0) {
+                        draw_text_transformed(right_x + ox, nav_y + 15 + oy, "Next Page", nav_scale * 0.7, nav_scale * 0.7, 0);
+                    }
+                }
+            }
+            draw_set_color(c_white);
+            draw_text_transformed(right_x, nav_y + 15, "Next Page", nav_scale * 0.7, nav_scale * 0.7, 0);
+        }
+        
+        // === CLOSE HINT (Bottom Center) ===
+        var close_text = "SELECT to close";
+        var close_y = gui_height - 25;
+        
+        draw_set_halign(fa_center);
+        draw_set_valign(fa_bottom);
+        
+        // Black outline
+        draw_set_color(c_black);
+        for (var ox = -2; ox <= 2; ox++) {
+            for (var oy = -2; oy <= 2; oy++) {
+                if (ox != 0 || oy != 0) {
+                    draw_text_transformed(gui_width / 2 + ox, close_y + oy, close_text, 1.0, 1.0, 0);
+                }
+            }
+        }
+        draw_set_color(c_white);
+        draw_text_transformed(gui_width / 2, close_y, close_text, 1.0, 1.0, 0);
+    }
+}
+// === RECIPE BOOK HINT (Bottom Center - only when book is closed) ===
+else if (sprite_exists(spr_recipeicon)) {
+    var hint_x = gui_width / 2;
+    var icon_alpha = 0.7 + sin(anim_timer * 0.03) * 0.1; // Subtle pulse for icon
+    var text_alpha = 0.9; // More opaque text
+    var hint_scale = 0.25;  // Small icon
+    
+    // Calculate icon height for proper spacing
+    var icon_height = sprite_get_height(spr_recipeicon) * hint_scale;
+    
+    // Draw recipe icon at bottom (lower)
+    var icon_y = gui_height - 4;
+    draw_set_alpha(icon_alpha);
+    draw_sprite_ext(spr_recipeicon, 0, hint_x, icon_y, hint_scale, hint_scale, 0, c_white, icon_alpha);
+    
+    // Draw "SELECT" text stacked on top of icon (no overlap)
+    draw_set_font(fnt_winkle);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_bottom);
+    
+    var text_scale = 1.3;  // Bigger text
+    var text_y = icon_y - icon_height / 2 + 2;  // Lower (closer to icon)
+    
+    // Black outline (bigger)
+    draw_set_alpha(text_alpha);
+    draw_set_color(c_black);
+    for (var ox = -2; ox <= 2; ox++) {
+        for (var oy = -2; oy <= 2; oy++) {
+            if (ox != 0 || oy != 0) {
+                draw_text_transformed(hint_x + ox, text_y + oy, "SELECT", text_scale, text_scale, 0);
+            }
+        }
+    }
+    
+    // White text
+    draw_set_color(c_white);
+    draw_text_transformed(hint_x, text_y, "SELECT", text_scale, text_scale, 0);
+    
+    draw_set_alpha(1);
+}
+
 // Reset draw settings
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);

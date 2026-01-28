@@ -138,8 +138,29 @@ function player_interact_take(player_instance) {
             }
         }
         
-        // Decide: pick up ground item if it's closer than station, otherwise try station
-        if (closest_ground_item != noone && ground_item_dist < station_dist) {
+        // === SPECIAL CASE: Check for serving counters with plates ===
+        // If empty-handed, prioritize serving counters that have a plate
+        var serving_counter_with_plate = noone;
+        var serving_counter_dist = 999999;
+        
+        if (held_item == noone) {
+            with (OBJ_ServingCounter) {
+                if (plate_on_counter != noone && instance_exists(plate_on_counter)) {
+                    var d = point_distance(other.x, other.y, x, y);
+                    if (d <= interact_range && d < serving_counter_dist) {
+                        serving_counter_dist = d;
+                        serving_counter_with_plate = id;
+                    }
+                }
+            }
+        }
+        
+        // Decide: prioritize serving counter with plate, then ground item, then closest station
+        if (serving_counter_with_plate != noone && serving_counter_dist <= station_dist + 20) {
+            // Serving counter with plate is close enough - use it
+            interacted = serving_counter_with_plate.interact_take(id);
+        }
+        else if (closest_ground_item != noone && ground_item_dist < station_dist) {
             // Ground item is closer - pick it up
             held_item = closest_ground_item;
             closest_ground_item.is_held = true;
@@ -152,7 +173,12 @@ function player_interact_take(player_instance) {
                 interacted = closest_station.interact_take(id);
             }
             
-            // If station didn't work, try ground item as fallback
+            // If station didn't work, try serving counter with plate as fallback
+            if (!interacted && serving_counter_with_plate != noone) {
+                interacted = serving_counter_with_plate.interact_take(id);
+            }
+            
+            // If still nothing, try ground item as fallback
             if (!interacted && closest_ground_item != noone) {
                 held_item = closest_ground_item;
                 closest_ground_item.is_held = true;

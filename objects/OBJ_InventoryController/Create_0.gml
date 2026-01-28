@@ -36,6 +36,15 @@ anim_bob_amount = 2;        // Pixels of vertical float
 anim_breathe_speed = 0.04;  // Speed of item scale breathing
 anim_breathe_amount = 0.04; // Scale variation (very subtle)
 
+// === RECIPE BOOK ===
+recipe_book_open = false;
+recipe_current_page = 1;
+recipe_total_pages = 4;
+recipe_anim_progress = 0;  // 0 = closed, 1 = fully open
+recipe_anim_speed = 0.12;  // Animation speed
+recipe_opening = false;    // Is currently opening
+recipe_closing = false;    // Is currently closing
+
 // Function to get item display name from object type
 function get_item_name(item) {
     if (item == noone || !instance_exists(item)) return "Empty";
