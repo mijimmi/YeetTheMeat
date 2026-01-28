@@ -17,6 +17,7 @@ function interact_place(player) {
         if (item.object_index == OBJ_Drink && item.drink_type == "empty") {
             // Fill with gulaman (cup stays in player's hands)
             item.drink_type = "gulaman";
+			item.food_type = "gulaman";
             return true;
         }
     }

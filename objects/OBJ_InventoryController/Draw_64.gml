@@ -331,12 +331,12 @@ if (recipe_book_open && recipe_anim_progress > 0) {
             for (var ox = -2; ox <= 2; ox++) {
                 for (var oy = -2; oy <= 2; oy++) {
                     if (ox != 0 || oy != 0) {
-                        draw_text_transformed(left_x + ox, nav_y - 20 + oy, "LB", nav_scale, nav_scale, 0);
+                        draw_text_transformed(left_x + ox, nav_y - 20 + oy, "LT", nav_scale, nav_scale, 0);
                     }
                 }
             }
             draw_set_color(c_white);
-            draw_text_transformed(left_x, nav_y - 20, "LB", nav_scale, nav_scale, 0);
+            draw_text_transformed(left_x, nav_y - 20, "LT", nav_scale, nav_scale, 0);
             
             // Draw "Previous Page" below
             draw_set_color(c_black);
@@ -374,12 +374,12 @@ if (recipe_book_open && recipe_anim_progress > 0) {
             for (var ox = -2; ox <= 2; ox++) {
                 for (var oy = -2; oy <= 2; oy++) {
                     if (ox != 0 || oy != 0) {
-                        draw_text_transformed(right_x + ox, nav_y - 20 + oy, "RB", nav_scale, nav_scale, 0);
+                        draw_text_transformed(right_x + ox, nav_y - 20 + oy, "RT", nav_scale, nav_scale, 0);
                     }
                 }
             }
             draw_set_color(c_white);
-            draw_text_transformed(right_x, nav_y - 20, "RB", nav_scale, nav_scale, 0);
+            draw_text_transformed(right_x, nav_y - 20, "RT", nav_scale, nav_scale, 0);
             
             // Draw "Next Page" below
             draw_set_color(c_black);

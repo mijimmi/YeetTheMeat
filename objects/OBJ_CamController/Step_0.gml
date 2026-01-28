@@ -1,4 +1,3 @@
-// Step Event
 var p1 = instance_find(OBJ_P1, 0);
 var p2 = instance_find(OBJ_P2, 0);
 
@@ -32,15 +31,27 @@ var view_w = base_width / current_zoom;
 var view_h = base_height / current_zoom;
 
 if (p1 != noone && p2 != noone) {
-    // Calculate midpoint between both players
-    var mid_x = (p1.x + p2.x) / 2;
-    var mid_y = (p1.y + p2.y) / 2;
+    // === FIND ALL IMPORTANT OBJECTS (players + customers) ===
+    var min_x = min(p1.x, p2.x);
+    var max_x = max(p1.x, p2.x);
+    var min_y = min(p1.y, p2.y);
+    var max_y = max(p1.y, p2.y);
     
-    // Calculate distance between players
-    var dist_x = abs(p1.x - p2.x);
-    var dist_y = abs(p1.y - p2.y);
+    // Include all customers in the bounds
+    with (OBJ_Customer) {
+        min_x = min(min_x, x);
+        max_x = max(max_x, x);
+        min_y = min(min_y, y);
+        max_y = max(max_y, y);
+    }
     
-    // Calculate required zoom to fit both players
+    // Calculate midpoint and distance
+    var mid_x = (min_x + max_x) / 2;
+    var mid_y = (min_y + max_y) / 2;
+    var dist_x = max_x - min_x;
+    var dist_y = max_y - min_y;
+    
+    // Calculate required zoom to fit everything
     var required_width = dist_x + padding * 2;
     var required_height = dist_y + padding * 2;
     

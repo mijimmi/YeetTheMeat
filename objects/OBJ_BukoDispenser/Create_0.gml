@@ -17,6 +17,7 @@ function interact_place(player) {
         if (item.object_index == OBJ_Drink && item.drink_type == "empty") {
             // Fill with buko (cup stays in player's hands)
             item.drink_type = "buko";
+			item.food_type = "buko";
             return true;
         }
     }

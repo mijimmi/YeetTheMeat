@@ -198,19 +198,47 @@ function player_interact_take(player_instance) {
 }
 
 function player_interact_place(player_instance) {
-    // A BUTTON - PLACE ON STATIONS (only the closest station)
+    // A BUTTON - PLACE ON STATIONS
     var interacted = false;
     
     with (player_instance) {
-        // Find the absolute closest station
+        // --- SERVE CUSTOMER (CHECK FIRST - HIGH PRIORITY) ---
+        var nearest_customer = instance_nearest(x, y, OBJ_Customer);
+        if (nearest_customer != noone && point_distance(x, y, nearest_customer.x, nearest_customer.y) <= interact_range) {
+            if (held_item != noone && instance_exists(held_item)) {
+                // Check if holding a plate with food
+                if (held_item.object_index == OBJ_Plate && held_item.has_food) {
+                    var food = held_item.food_on_plate;
+                    
+                    // Try to serve
+                    if (nearest_customer.serve_food(food)) {
+                        // Success! Destroy plate too
+                        instance_destroy(held_item);
+                        held_item = noone;
+                        interacted = true;
+                    }
+                }
+                // Also allow serving drinks directly
+                else if (held_item.object_index == OBJ_Drink) {
+                    if (nearest_customer.serve_food(held_item)) {
+                        held_item = noone;
+                        interacted = true;
+                    }
+                }
+            }
+        }
+        
+        if (interacted) {
+            return true; // Exit early if served customer
+        }
+        
+        // --- TRASH CAN ---
         var closest_station = OBJ_ControlsManager.find_closest_station(x, y);
         
-        // Only interact with the closest station if it supports PLACE
         if (closest_station != noone) {
             // Special handling for trash can
             if (closest_station.object_index == OBJ_TrashCan) {
                 if (held_item != noone && instance_exists(held_item)) {
-                    // Destroy the held item completely
                     var item_to_trash = held_item;
                     
                     // If trashing a plate with food, destroy the food too
@@ -237,42 +265,44 @@ function player_interact_place(player_instance) {
             }
         }
         
+        if (interacted) {
+            return true; // Exit early if used station
+        }
+        
         // --- COMBINE PLATE + FOOD ON GROUND (FALLBACK) ---
-        if (!interacted) {
-            if (held_item != noone && instance_exists(held_item) && held_item.object_index == OBJ_Plate) {
-                var plate = held_item;
-                if (!plate.has_food) {
-                    var nearest_food = instance_nearest(x, y, OBJ_Food);
-                    if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking) {
-                        var dist = point_distance(x, y, nearest_food.x, nearest_food.y);
-                        if (dist <= interact_range) {
-                            plate.food_on_plate = nearest_food;
-                            plate.has_food = true;
-                            nearest_food.is_on_plate = true;
-                            nearest_food.plate_instance = plate;
-                            interacted = true;
-                        }
+        if (held_item != noone && instance_exists(held_item) && held_item.object_index == OBJ_Plate) {
+            var plate = held_item;
+            if (!plate.has_food) {
+                var nearest_food = instance_nearest(x, y, OBJ_Food);
+                if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking) {
+                    var dist = point_distance(x, y, nearest_food.x, nearest_food.y);
+                    if (dist <= interact_range) {
+                        plate.food_on_plate = nearest_food;
+                        plate.has_food = true;
+                        nearest_food.is_on_plate = true;
+                        nearest_food.plate_instance = plate;
+                        interacted = true;
                     }
                 }
             }
-            else if (held_item != noone && instance_exists(held_item) && object_is_ancestor(held_item.object_index, OBJ_Food)) {
-                var food = held_item;
-                var nearest_plate = instance_nearest(x, y, OBJ_Plate);
-                if (nearest_plate != noone && !nearest_plate.is_held && !nearest_plate.has_food) {
-                    var dist = point_distance(x, y, nearest_plate.x, nearest_plate.y);
-                    if (dist <= interact_range) {
-                        nearest_plate.food_on_plate = food;
-                        nearest_plate.has_food = true;
-                        food.is_held = false;
-                        food.held_by = noone;
-                        food.is_on_plate = true;
-                        food.plate_instance = nearest_plate;
-                        
-                        held_item = nearest_plate;
-                        nearest_plate.is_held = true;
-                        nearest_plate.held_by = id;
-                        interacted = true;
-                    }
+        }
+        else if (held_item != noone && instance_exists(held_item) && object_is_ancestor(held_item.object_index, OBJ_Food)) {
+            var food = held_item;
+            var nearest_plate = instance_nearest(x, y, OBJ_Plate);
+            if (nearest_plate != noone && !nearest_plate.is_held && !nearest_plate.has_food) {
+                var dist = point_distance(x, y, nearest_plate.x, nearest_plate.y);
+                if (dist <= interact_range) {
+                    nearest_plate.food_on_plate = food;
+                    nearest_plate.has_food = true;
+                    food.is_held = false;
+                    food.held_by = noone;
+                    food.is_on_plate = true;
+                    food.plate_instance = nearest_plate;
+                    
+                    held_item = nearest_plate;
+                    nearest_plate.is_held = true;
+                    nearest_plate.held_by = id;
+                    interacted = true;
                 }
             }
         }
