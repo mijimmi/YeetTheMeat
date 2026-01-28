@@ -17,12 +17,17 @@ wait_timer = 0;
 max_wait_time = 60 * 60;   // 30 seconds (adjustable)
 eat_time = 60 * 5;         // 5 seconds eating
 
-// === MOVEMENT (Grid-based: only X and Y, no diagonals) ===
+// === PATHFINDING ===
+my_path = path_add(); // Create a path for this customer
 target_x = x;
 target_y = y;
 move_speed = 2;
-path_to_target = [];       // Array of [x, y] waypoints
-current_waypoint = 0;
+path_position = 0;
+has_path = false;
+
+// === COLLISION (add these lines) ===
+collision_width = 40;   // Adjust to match your customer sprite width
+collision_height = 40;  // Adjust to match your customer sprite height
 
 
 // === INTERACTION ===
@@ -46,80 +51,111 @@ function choose_order() {
     }
 }
 
-function move_towards_target_grid() {
-    // Grid-based movement with SOFT collision avoidance
-    // Prefers to avoid OBJ_Collision but can pass through if needed
-    var dx = target_x - x;
-    var dy = target_y - y;
+function create_path_to_target() {
+    // Get pathfinding grid
+    if (!instance_exists(OBJ_PathfindingGrid)) return false;
     
-    // Check distance - if close enough, snap to target
-    if (abs(dx) <= move_speed && abs(dy) <= move_speed) {
-        x = target_x;
-        y = target_y;
-        return;
+    var grid = OBJ_PathfindingGrid.path_grid;
+    
+    // Clear old path
+    path_clear_points(my_path);
+    
+    // Find path using A*
+    var path_found = mp_grid_path(grid, my_path, x, y, target_x, target_y, false);
+    
+    if (path_found) {
+        has_path = true;
+        path_position = 0;
+        path_start(my_path, move_speed, path_action_stop, false);
+        return true;
     }
     
-    // Look-ahead distance for detecting collisions earlier
-    var look_ahead = 32;
+    has_path = false;
+    return false;
+}
+
+function follow_path() {
+    // Follow the path if we have one
+    if (!has_path) {
+        create_path_to_target();
+    }
     
-    // Calculate possible moves
-    var horizontal_dir = sign(dx);
-    var vertical_dir = sign(dy);
+    // Collision with players while walking
+    handle_player_collision();
     
-    // Check if going horizontal would lead into a collision (look ahead further)
-    var horizontal_blocked = false;
-    if (horizontal_dir != 0) {
-        for (var i = move_speed; i <= look_ahead; i += move_speed) {
-            if (check_collision_at(x + horizontal_dir * i, y)) {
-                horizontal_blocked = true;
-                break;
+    // Collision with food
+    handle_food_collision();
+}
+
+function handle_player_collision() {
+    with (OBJ_P1) {
+        var cust_half_w = other.collision_width / 2;
+        var cust_half_h = other.collision_height / 2;
+        var cust_left = other.x - cust_half_w;
+        var cust_right = other.x + cust_half_w;
+        var cust_top = other.y - cust_half_h;
+        var cust_bottom = other.y + cust_half_h;
+        
+        var player_half_w = collision_width / 2;
+        var player_half_h = collision_height / 2;
+        var player_left = x - player_half_w;
+        var player_right = x + player_half_w;
+        var player_top = y - player_half_h;
+        var player_bottom = y + player_half_h;
+        
+        var colliding = !(cust_right < player_left || 
+                         cust_left > player_right || 
+                         cust_bottom < player_top || 
+                         cust_top > player_bottom);
+        
+        if (colliding) {
+            var push_dir = point_direction(x, y, other.x, other.y);
+            var dist_centers = point_distance(x, y, other.x, other.y);
+            var min_dist = (player_half_w + player_half_h + cust_half_w + cust_half_h) / 2;
+            var overlap = max(0, min_dist - dist_centers);
+            
+            if (overlap > 0) {
+                var push_x = lengthdir_x(overlap * 0.5, push_dir);
+                var push_y = lengthdir_y(overlap * 0.5, push_dir);
+                
+                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) {
+                    other.x += push_x;
+                }
+                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) {
+                    other.y += push_y;
+                }
             }
         }
     }
-    
-    // Check if going vertical would lead into a collision
-    var vertical_blocked = false;
-    if (vertical_dir != 0) {
-        for (var i = move_speed; i <= look_ahead; i += move_speed) {
-            if (check_collision_at(x, y + vertical_dir * i)) {
-                vertical_blocked = true;
-                break;
+}
+
+function handle_food_collision() {
+    with (OBJ_Food) {
+        if (!is_held && !is_cooking && !is_on_plate && can_slide) {
+            var half_box = collision_box_size / 2;
+            var food_left = x - half_box;
+            var food_right = x + half_box;
+            var food_top = y - half_box;
+            var food_bottom = y + half_box;
+            
+            var cust_half_w = other.collision_width / 2;
+            var cust_half_h = other.collision_height / 2;
+            var cust_left = other.x - cust_half_w;
+            var cust_right = other.x + cust_half_w;
+            var cust_top = other.y - cust_half_h;
+            var cust_bottom = other.y + cust_half_h;
+            
+            var colliding = !(food_right < cust_left || 
+                             food_left > cust_right || 
+                             food_bottom < cust_top || 
+                             food_top > cust_bottom);
+            
+            if (colliding) {
+                var push_dir = point_direction(other.x, other.y, x, y);
+                velocity_x = lengthdir_x(1.5, push_dir);
+                velocity_y = lengthdir_y(1.5, push_dir);
             }
         }
-    }
-    
-    // SOFT AVOIDANCE: Prefer clear paths
-    
-    // If horizontal is clear and we need to go that way, go horizontal
-    if (abs(dx) > move_speed && !horizontal_blocked) {
-        x += horizontal_dir * move_speed;
-        return;
-    }
-    
-    // If vertical is clear and we need to go that way, go vertical
-    if (abs(dy) > move_speed && !vertical_blocked) {
-        y += vertical_dir * move_speed;
-        return;
-    }
-    
-    // Primary direction blocked - try the other direction as detour
-    if (horizontal_blocked && abs(dy) > 0) {
-        // Go vertical instead to get around
-        y += vertical_dir * move_speed;
-        return;
-    }
-    
-    if (vertical_blocked && abs(dx) > 0) {
-        // Go horizontal instead to get around
-        x += horizontal_dir * move_speed;
-        return;
-    }
-    
-    // Both blocked or at edge - just move towards target (soft avoidance, can pass through)
-    if (abs(dx) > move_speed) {
-        x += horizontal_dir * move_speed;
-    } else if (abs(dy) > move_speed) {
-        y += vertical_dir * move_speed;
     }
 }
 

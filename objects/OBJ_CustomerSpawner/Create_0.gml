@@ -1,6 +1,6 @@
 // === SPAWNING CONFIGURATION ===
 spawn_x = 100;            // Where customers spawn (adjust to your room entrance)
-spawn_y = 300;
+spawn_y = 500;
 exit_x = 100;             // Where customers exit
 exit_y = 300;
 
@@ -107,7 +107,7 @@ function find_available_table(group_size) {
     return noone; // No tables available
 }
 
-function spawn_customer_group(group_size, target_table) {  // CHANGED: table -> target_table
+function spawn_customer_group(group_size, target_table) {
     // SAFETY CHECK - validate table exists
     if (target_table == noone || !instance_exists(target_table)) {
         show_debug_message("ERROR: Invalid table passed to spawn_customer_group!");
@@ -141,9 +141,12 @@ function spawn_customer_group(group_size, target_table) {  // CHANGED: table -> 
         customer.my_chair_index = i;
         
         // Set target position to specific chair at table
-        var chair_pos = target_table.chair_positions[i];
-        customer.target_x = target_table.x + chair_pos[0];
-        customer.target_y = target_table.y + chair_pos[1];
+        var chair_pos = target_table.chair_positions[i];  // CHANGED: table → target_table
+        customer.target_x = target_table.x + chair_pos[0];  // CHANGED: table → target_table
+        customer.target_y = target_table.y + chair_pos[1];  // CHANGED: table → target_table
+
+        // Create initial path
+        customer.create_path_to_target();
         
         // Random order for this customer
         customer.choose_order();

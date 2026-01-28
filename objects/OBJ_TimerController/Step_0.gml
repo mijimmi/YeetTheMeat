@@ -13,7 +13,9 @@ if (timer_active && game_timer > 0) {
         game_finished = true;
         timer_active = false;
         
-        // TODO: Trigger game over / results screen
-        // You can add your game end logic here
+        // Show results screen
+        if (instance_exists(OBJ_Scoring)) {
+            OBJ_Scoring.show_results = true;
+        }
     }
 }
