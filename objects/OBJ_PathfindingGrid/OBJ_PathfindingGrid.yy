@@ -1,18 +1,17 @@
 {
   "$GMObject":"",
-  "%Name":"OBJ_Customer",
+  "%Name":"OBJ_PathfindingGrid",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
-    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":12,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"OBJ_Customer",
+  "name":"OBJ_PathfindingGrid",
   "overriddenProperties":[],
   "parent":{
-    "name":"Customer System",
-    "path":"folders/OBJECTS/Miscellaneous/Customer System.yy",
+    "name":"Controllers",
+    "path":"folders/OBJECTS/Controllers.yy",
   },
   "parentObjectId":null,
   "persistent":false,
@@ -32,10 +31,7 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":{
-    "name":"spr_placeholder",
-    "path":"sprites/spr_placeholder/spr_placeholder.yy",
-  },
+  "spriteId":null,
   "spriteMaskId":null,
   "visible":true,
 }

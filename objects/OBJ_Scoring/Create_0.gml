@@ -1,5 +1,3 @@
-// Make this object persistent across rooms
-persistent = true;
 
 // === SCORE ===
 total_score = 0;
@@ -7,11 +5,15 @@ orders_completed = 0;
 orders_failed = 0;
 
 // === POINT VALUES (ADJUSTABLE HERE) ===
-points_easy = 10;      // Rice, Kwek-kwek, Gulaman, Buko
-points_medium = 20;    // Lumpia (veggie/meat), Adobo
-points_hard = 30;      // Caldereta
-points_penalty = -5;   // Points lost when customer leaves without being served
+points_easy = 10;      
+points_medium = 20;    
+points_hard = 30;      
+points_penalty = -5;   
 
+// === RESULTS SCREEN ===
+show_results = false;  // ADD THIS LINE
+
+// ... rest of your functions stay the same ...
 // === FOOD TYPE TO POINTS MAPPING ===
 function get_food_points(food_type) {
     switch (food_type) {
