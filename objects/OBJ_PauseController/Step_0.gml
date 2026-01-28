@@ -1,6 +1,7 @@
 // Step Event
-// Check for pause input
-if (keyboard_check_pressed(vk_escape) || gamepad_button_check_pressed(0, gp_start) || gamepad_button_check_pressed(1, gp_start)) {
+// Check for pause input (but not during cutscene)
+if ((keyboard_check_pressed(vk_escape) || gamepad_button_check_pressed(0, gp_start) || gamepad_button_check_pressed(1, gp_start)) 
+    && !instance_exists(OBJ_CutsceneController)) {
     if (!paused && !unpausing) {
         // Pause the game
         paused = true;

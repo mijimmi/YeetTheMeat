@@ -6,6 +6,10 @@ if (!variable_global_exists("game_mode")) {
 // Global pause state
 global.game_paused = false;
 
+// === CREATE CUTSCENE CONTROLLER ===
+// This will check if cutscene should play and handle it
+instance_create_depth(0, 0, -9999, OBJ_CutsceneController);
+
 // Input buffer to prevent instant unpause
 pause_buffer = 0;
 

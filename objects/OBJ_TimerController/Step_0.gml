@@ -1,5 +1,10 @@
-// === PAUSE IF CONTROLLER DISCONNECTED ===
+// === PAUSE IF CONTROLLER DISCONNECTED OR GAME PAUSED ===
 if (variable_global_exists("controller_disconnected") && global.controller_disconnected) {
+    exit;
+}
+
+// Don't update timer when game is paused (e.g., recipe book open)
+if (global.game_paused) {
     exit;
 }
 

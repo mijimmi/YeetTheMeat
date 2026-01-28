@@ -3,6 +3,11 @@ if (variable_global_exists("controller_disconnected") && global.controller_disco
     exit; // Stop all player logic while disconnected
 }
 
+// === CHECK FOR GAME PAUSE (recipe book, etc.) ===
+if (global.game_paused) {
+    exit; // Stop all player logic while paused
+}
+
 // === GET CONTROLLER OR KEYBOARD INPUT ===
 var stick_x = 0;
 var stick_y = 0;

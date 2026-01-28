@@ -1,3 +1,8 @@
+// Don't update customer when game is paused (e.g., recipe book open)
+if (global.game_paused) {
+    exit;
+}
+
 switch (customer_state) {
     case "walking":
         // Follow pathfinding
@@ -7,7 +12,6 @@ switch (customer_state) {
         if (point_distance(x, y, target_x, target_y) < 10) {
             x = target_x;
             y = target_y;
-            path_end(); // Stop following path
             has_path = false;
             customer_state = "sitting";
         }
@@ -31,6 +35,9 @@ switch (customer_state) {
             }
             
             cleanup_table();
+            
+            // Reset path so a new one is created to the exit
+            has_path = false;
         }
         break;
         
@@ -41,18 +48,32 @@ switch (customer_state) {
         if (wait_timer >= eat_time) {
             customer_state = "leaving";
             cleanup_table();
+            
+            // Reset path so a new one is created to the exit
+            has_path = false;
         }
         break;
         
     case "leaving":
-        // Create path to exit
+        // Set exit as target
         target_x = spawner.exit_x;
         target_y = spawner.exit_y;
         
+        // Follow path to exit
         follow_path();
         
+        // Fallback: if path complete or no path, move directly toward exit
+        if (!has_path || path_progress >= 0.99) {
+            var dir = point_direction(x, y, target_x, target_y);
+            var dist = point_distance(x, y, target_x, target_y);
+            if (dist > move_speed) {
+                x += lengthdir_x(move_speed, dir);
+                y += lengthdir_y(move_speed, dir);
+            }
+        }
+        
         // Destroy when reached exit
-        if (point_distance(x, y, target_x, target_y) < 10) {
+        if (point_distance(x, y, target_x, target_y) < 20) {
             path_delete(my_path);
             instance_destroy();
         }

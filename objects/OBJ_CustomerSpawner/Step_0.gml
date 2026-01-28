@@ -1,3 +1,8 @@
+// Don't spawn customers when game is paused (e.g., recipe book open)
+if (global.game_paused) {
+    exit;
+}
+
 spawn_timer++;
 game_timer++;
 

@@ -127,10 +127,12 @@ else if (menu_state == "mode_select") {
         switch (selected_mode) {
             case 0: // Singleplayer
                 global.game_mode = "singleplayer";
+                global.show_cutscene = true;  // Trigger intro cutscene
                 room_goto(game_room);
                 break;
             case 1: // Multiplayer
                 global.game_mode = "multiplayer";
+                global.show_cutscene = true;  // Trigger intro cutscene
                 room_goto(game_room);
                 break;
             case 2: // Go Back

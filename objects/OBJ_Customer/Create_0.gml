@@ -22,7 +22,7 @@ my_path = path_add(); // Create a path for this customer
 target_x = x;
 target_y = y;
 move_speed = 2;
-path_position = 0;
+path_progress = 0;  // Manual path progress tracking (0 to 1)
 has_path = false;
 
 // === COLLISION (add these lines) ===
@@ -65,8 +65,7 @@ function create_path_to_target() {
     
     if (path_found) {
         has_path = true;
-        path_position = 0;
-        path_start(my_path, move_speed, path_action_stop, false);
+        path_progress = 0;
         return true;
     }
     
@@ -75,9 +74,32 @@ function create_path_to_target() {
 }
 
 function follow_path() {
-    // Follow the path if we have one
+    // Create path if we don't have one
     if (!has_path) {
         create_path_to_target();
+    }
+    
+    // Manually move along the path
+    if (has_path && path_get_number(my_path) > 0) {
+        var path_len = path_get_length(my_path);
+        if (path_len > 0) {
+            // Get target position on path
+            var next_x = path_get_x(my_path, path_progress);
+            var next_y = path_get_y(my_path, path_progress);
+            
+            // Move toward the next point
+            var dir = point_direction(x, y, next_x, next_y);
+            var dist = point_distance(x, y, next_x, next_y);
+            
+            if (dist > move_speed) {
+                x += lengthdir_x(move_speed, dir);
+                y += lengthdir_y(move_speed, dir);
+            } else {
+                // Reached this point, advance along path
+                path_progress += move_speed / path_len;
+                path_progress = min(path_progress, 1);
+            }
+        }
     }
     
     // Collision with players while walking
@@ -199,6 +221,9 @@ function serve_food(food_item) {
                 OBJ_Scoring.add_score(points);
             }
             
+            // Spawn confetti!
+            spawn_confetti();
+            
             // Destroy the drink
             instance_destroy(food_item);
             return true;
@@ -219,6 +244,9 @@ function serve_food(food_item) {
                 OBJ_Scoring.add_score(points);
             }
             
+            // Spawn confetti!
+            spawn_confetti();
+            
             // Destroy the food
             instance_destroy(food_item);
             return true;
@@ -226,4 +254,17 @@ function serve_food(food_item) {
     }
     
     return false; // Wrong food/drink
+}
+
+function spawn_confetti() {
+    // Spawn confetti particles above customer
+    var confetti_count = 15;
+    for (var i = 0; i < confetti_count; i++) {
+        var confetti = instance_create_depth(
+            x + random_range(-20, 20),
+            y - 40,
+            depth - 100,
+            OBJ_Confetti
+        );
+    }
 }
