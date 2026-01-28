@@ -351,6 +351,24 @@ switch (state) {
                 ds_list_add(cloud_list, puff);
             }
             
+            // === DROP HELD ITEMS ON PLAYER COLLISION ===
+            // Drop P2's held item
+            if (held_item != noone && instance_exists(held_item)) {
+                held_item.is_held = false;
+                held_item.held_by = noone;
+                held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + random_range(-30, 30));
+                held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + random_range(-30, 30));
+                held_item = noone;
+            }
+            // Drop P1's held item
+            if (other_player.held_item != noone && instance_exists(other_player.held_item)) {
+                other_player.held_item.is_held = false;
+                other_player.held_item.held_by = noone;
+                other_player.held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
+                other_player.held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
+                other_player.held_item = noone;
+            }
+            
             state = "moving";
             
             velocity_x = lengthdir_x(bounce_strength, push_dir);
@@ -548,6 +566,24 @@ switch (state) {
                 ds_list_add(cloud_list, puff);
             }
             
+            // === DROP HELD ITEMS ON PLAYER COLLISION ===
+            // Drop P2's held item
+            if (held_item != noone && instance_exists(held_item)) {
+                held_item.is_held = false;
+                held_item.held_by = noone;
+                held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + random_range(-30, 30));
+                held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + random_range(-30, 30));
+                held_item = noone;
+            }
+            // Drop P1's held item
+            if (other_player.held_item != noone && instance_exists(other_player.held_item)) {
+                other_player.held_item.is_held = false;
+                other_player.held_item.held_by = noone;
+                other_player.held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
+                other_player.held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
+                other_player.held_item = noone;
+            }
+            
             velocity_x = lengthdir_x(bounce_strength, push_dir);
             velocity_y = lengthdir_y(bounce_strength, push_dir);
             
@@ -702,4 +738,35 @@ if (x > room_width) {
 }
 else if (x < 0) {
     x = room_width;
+}
+
+// === FINAL PLAYER COLLISION CHECK FOR ITEM DROP (runs after all movement) ===
+if (instance_exists(OBJ_P1) && place_meeting(x, y, OBJ_P1)) {
+    var other_player = instance_nearest(x, y, OBJ_P1);
+    var my_speed = point_distance(0, 0, velocity_x, velocity_y);
+    var other_speed = point_distance(0, 0, other_player.velocity_x, other_player.velocity_y);
+    
+    // Only trigger drop if one of us is actually moving
+    if (my_speed > 1 || other_speed > 1) {
+        var push_dir = point_direction(other_player.x, other_player.y, x, y);
+        var impact_force = point_distance(0, 0, velocity_x - other_player.velocity_x, velocity_y - other_player.velocity_y);
+        var bounce_strength = max(impact_force * 0.7, 2);
+        
+        // Drop P2's held item
+        if (held_item != noone && instance_exists(held_item)) {
+            held_item.is_held = false;
+            held_item.held_by = noone;
+            held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + random_range(-30, 30));
+            held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + random_range(-30, 30));
+            held_item = noone;
+        }
+        // Drop P1's held item
+        if (other_player.held_item != noone && instance_exists(other_player.held_item)) {
+            other_player.held_item.is_held = false;
+            other_player.held_item.held_by = noone;
+            other_player.held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
+            other_player.held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
+            other_player.held_item = noone;
+        }
+    }
 }
