@@ -1,8 +1,8 @@
-
 // === ITEM STATE ===
 is_held = false;
 held_by = noone;
-drink_type = "empty"; 
+drink_type = "empty";
+food_type = "empty";  
 
 // === PHYSICS ===
 velocity_x = 0;
