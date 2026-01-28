@@ -75,13 +75,25 @@ function player_interact_take(player_instance) {
         var ground_item_dist = 999999;
         
         if (held_item == noone) {
-            // Check plates
+            // Check plates (but exclude plates on serving counters)
             var nearest_plate = instance_nearest(x, y, OBJ_Plate);
             if (nearest_plate != noone && !nearest_plate.is_held) {
-                var d = point_distance(x, y, nearest_plate.x, nearest_plate.y);
-                if (d <= interact_range && d < ground_item_dist) {
-                    ground_item_dist = d;
-                    closest_ground_item = nearest_plate;
+                // Check if this plate is on a serving counter
+                var is_on_serving_counter = false;
+                with (OBJ_ServingCounter) {
+                    if (plate_on_counter == nearest_plate) {
+                        is_on_serving_counter = true;
+                        break;
+                    }
+                }
+                
+                // Only pick up if NOT on a counter (let station handle counter plates)
+                if (!is_on_serving_counter) {
+                    var d = point_distance(x, y, nearest_plate.x, nearest_plate.y);
+                    if (d <= interact_range && d < ground_item_dist) {
+                        ground_item_dist = d;
+                        closest_ground_item = nearest_plate;
+                    }
                 }
             }
             
