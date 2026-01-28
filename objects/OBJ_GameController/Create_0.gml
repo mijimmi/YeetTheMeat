@@ -1,3 +1,8 @@
+// === GAME MODE (set by menu, default to multiplayer for testing) ===
+if (!variable_global_exists("game_mode")) {
+    global.game_mode = "multiplayer";
+}
+
 // Global pause state
 global.game_paused = false;
 

@@ -6,13 +6,25 @@ exit_y = 300;
 
 // === TIMING ===
 spawn_timer = 0;
-spawn_delay_min = 5 * 60;   // Minimum 5 seconds between groups
-spawn_delay_max = 10 * 60;  // Maximum 10 seconds between groups
+
+// Starting spawn delays (slow at first)
+spawn_delay_min = 18 * 60;   // Start: Minimum 18 seconds between groups
+spawn_delay_max = 25 * 60;   // Start: Maximum 25 seconds between groups
+
+// Target spawn delays (after ramping up)
+spawn_delay_min_target = 8 * 60;   // End: Minimum 8 seconds between groups
+spawn_delay_max_target = 12 * 60;  // End: Maximum 12 seconds between groups
+
+// Difficulty ramping
+game_timer = 0;                    // Tracks total game time in frames
+ramp_duration = 180 * 60;          // 3 minutes (180 seconds) to reach max difficulty
+
 next_spawn_time = 0;
 
 // === STATE ===
 can_spawn = true;
 active_groups = [];       // List of all active customer groups
+first_customer_spawned = false;  // Track if first customer has appeared (to start timer)
 
 // === AVAILABLE DISHES (What customers can order) ===
 // Format: [food_type, order_sprite, display_name]
@@ -31,12 +43,23 @@ available_orders = [
     // Hard dishes
     ["plated", spr_calderetadish, "Caldereta"]
 ];
-// Set initial spawn time
-next_spawn_time = spawn_delay_min;
+// Set initial spawn time (use slow starting delay)
+next_spawn_time = irandom_range(spawn_delay_min, spawn_delay_max);
 
 function attempt_spawn_group() {
-    // Determine group size (1-4 random)
-    var group_size = irandom_range(1, 4);
+    // Determine group size with weighted probability
+    // 1-2 customers are more common, 3-4 are less frequent
+    var roll = irandom(99);
+    var group_size;
+    if (roll < 40) {
+        group_size = 1;      // 40% chance
+    } else if (roll < 75) {
+        group_size = 2;      // 35% chance
+    } else if (roll < 90) {
+        group_size = 3;      // 15% chance
+    } else {
+        group_size = 4;      // 10% chance
+    }
     
     // Find available table for this group size
     var available_table = find_available_table(group_size);
@@ -90,6 +113,14 @@ function spawn_customer_group(group_size, target_table) {  // CHANGED: table -> 
         show_debug_message("ERROR: Invalid table passed to spawn_customer_group!");
         can_spawn = true;
         return;
+    }
+    
+    // Start the timer when first customer appears
+    if (!first_customer_spawned) {
+        first_customer_spawned = true;
+        if (instance_exists(OBJ_TimerController)) {
+            OBJ_TimerController.start_timer();
+        }
     }
     
     // Create group management object

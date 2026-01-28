@@ -109,19 +109,61 @@ if (paused) {
         }
     }
     
-    // Exit button (lower right)
-    var exit_selected = (selected_button == 2);
+    // Menu button (lower right, above exit)
+    var menu_selected = (selected_button == 2);
+    var menu_text = "MENU";
+    var menu_x = gui_width - 120;
+    var menu_y = gui_height - 120 + anim_offset;
+    var menu_scale = 3.5;
+    var menu_scale_selected = 4.0;
+    var menu_len = string_length(menu_text);
+    var menu_letter_spacing = 30;
+    var menu_start_x = menu_x - ((menu_len - 1) * menu_letter_spacing) / 2;
+    
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    
+    if (menu_selected) {
+        // Per-letter wave animation in orange
+        draw_set_color(c_orange);
+        for (var i = 0; i < menu_len; i++) {
+            var letter = string_char_at(menu_text, i + 1);
+            var wave_offset = sin((current_time * 0.008) + (i * 0.8)) * 5;
+            var scale_pulse = menu_scale_selected + sin((current_time * 0.006) + (i * 0.5)) * 0.15;
+            draw_text_transformed(menu_start_x + (i * menu_letter_spacing), menu_y + wave_offset, letter, scale_pulse, scale_pulse, 0);
+        }
+    } else {
+        // Black outline (thick)
+        draw_set_color(c_black);
+        for (var i = 0; i < menu_len; i++) {
+            var letter = string_char_at(menu_text, i + 1);
+            var lx = menu_start_x + (i * menu_letter_spacing);
+            for (var ox = -3; ox <= 3; ox += 2) {
+                for (var oy = -3; oy <= 3; oy += 2) {
+                    if (ox != 0 || oy != 0) {
+                        draw_text_transformed(lx + ox, menu_y + oy, letter, menu_scale, menu_scale, 0);
+                    }
+                }
+            }
+        }
+        // White text
+        draw_set_color(c_white);
+        for (var i = 0; i < menu_len; i++) {
+            var letter = string_char_at(menu_text, i + 1);
+            draw_text_transformed(menu_start_x + (i * menu_letter_spacing), menu_y, letter, menu_scale, menu_scale, 0);
+        }
+    }
+    
+    // Exit button (lower right, below menu)
+    var exit_selected = (selected_button == 3);
     var exit_text = "EXIT";
     var exit_x = gui_width - 120;
-    var exit_y = gui_height - 60 + anim_offset;
+    var exit_y = gui_height - 50 + anim_offset;
     var exit_scale = 3.5;
     var exit_scale_selected = 4.0;
     var exit_len = string_length(exit_text);
     var exit_letter_spacing = 30;
     var exit_start_x = exit_x - ((exit_len - 1) * exit_letter_spacing) / 2;
-    
-    draw_set_halign(fa_center);
-    draw_set_valign(fa_middle);
     
     if (exit_selected) {
         // Per-letter wave animation in red

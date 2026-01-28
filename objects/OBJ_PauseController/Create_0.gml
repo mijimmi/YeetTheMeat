@@ -11,7 +11,7 @@ button_spacing = 20;
 resume_y_offset = 40;
 restart_y_offset = 120;
 
-selected_button = 0; // 0 = resume, 1 = restart, 2 = exit
+selected_button = 0; // 0 = resume, 1 = restart, 2 = menu, 3 = exit
 button_hover = -1; // -1 = none, 0 = resume, 1 = restart
 
 // Navigation cooldown to prevent rapid switching

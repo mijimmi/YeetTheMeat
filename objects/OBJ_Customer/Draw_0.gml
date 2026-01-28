@@ -3,20 +3,21 @@ draw_sprite_ext(sprite_index, 0, x, y, 1, 1, 0, c_white, 1);
 
 // Draw thought bubble with order
 if (customer_state == "waiting" && thought_bubble_alpha > 0) {
-    // Bubble background
+    // Bubble background (larger)
     var bubble_x = x;
-    var bubble_y = y - 60;
+    var bubble_y = y - 90;
+    var bubble_radius = 50;
     
     draw_set_alpha(thought_bubble_alpha * 0.8);
     draw_set_color(c_white);
-    draw_circle(bubble_x, bubble_y, 25, false);
+    draw_circle(bubble_x, bubble_y, bubble_radius, false);
     draw_set_color(c_black);
-    draw_circle(bubble_x, bubble_y, 25, true);
+    draw_circle(bubble_x, bubble_y, bubble_radius, true);
     draw_set_alpha(1);
     
-    // Order sprite
+    // Order sprite (bigger)
     if (order_sprite != noone) {
-        draw_sprite_ext(order_sprite, 0, bubble_x, bubble_y, 0.5, 0.5, 0, c_white, thought_bubble_alpha);
+        draw_sprite_ext(order_sprite, 0, bubble_x, bubble_y, 1.2, 1.2, 0, c_white, thought_bubble_alpha);
     }
 }
 

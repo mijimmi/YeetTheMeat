@@ -61,7 +61,7 @@ if (paused && !unpausing) {
         nav_cooldown = nav_cooldown_max;
     }
     if (keyboard_check_pressed(vk_down) || keyboard_check_pressed(ord("S"))) {
-        selected_button = min(2, selected_button + 1);
+        selected_button = min(3, selected_button + 1);
         nav_cooldown = nav_cooldown_max;
     }
     
@@ -77,7 +77,7 @@ if (paused && !unpausing) {
     }
         if (axis_v0 > 0.5 || axis_v1 > 0.5 ||
         gamepad_button_check_pressed(0, gp_padd) || gamepad_button_check_pressed(1, gp_padd)) {
-            selected_button = min(2, selected_button + 1);
+            selected_button = min(3, selected_button + 1);
             nav_cooldown = nav_cooldown_max;
         }
     }
@@ -98,6 +98,14 @@ if (paused && !unpausing) {
             }
             room_restart();
         } else if (selected_button == 2) {
+            // Back to Menu
+            paused = false;
+            instance_activate_all();
+            if (surface_exists(pause_surf)) {
+                surface_free(pause_surf);
+            }
+            room_goto(menu_room);
+        } else if (selected_button == 3) {
             // Exit game
             game_end();
         }

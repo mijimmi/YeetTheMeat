@@ -1,3 +1,10 @@
+// === CHECK GAME MODE ===
+// If singleplayer, destroy P2
+if (variable_global_exists("game_mode") && global.game_mode == "singleplayer") {
+    instance_destroy();
+    exit;
+}
+
 // === MOVEMENT STATE ===
 state = "idle";
 velocity_x = 0;
