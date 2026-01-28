@@ -87,9 +87,7 @@ function check_can_interact(player, station) {
             else if (held.object_index == OBJ_KwekKwek && variable_instance_exists(held, "food_type") && held.food_type == "raw") {
                 return true;
             }
-            else if (held.object_index == OBJ_Rice && variable_instance_exists(held, "food_type") && held.food_type == "raw") {
-                return true;
-            }
+            // Rice should NOT be fried - it cooks in the pot only
         }
     }
     

@@ -14,6 +14,12 @@ function interact_place(player) {
     if (player.held_item != noone && instance_exists(player.held_item)) {
         if (food_on_station == noone) {
             var item = player.held_item;
+            
+            // Rice should NEVER be fried - reject immediately
+            if (item.object_index == OBJ_Rice) {
+                return false;
+            }
+            
             var can_cook = false;
             
             // Check what items can be fried
@@ -33,12 +39,6 @@ function interact_place(player) {
             }
             else if (item.object_index == OBJ_KwekKwek && variable_instance_exists(item, "food_type")) {
                 // Raw kwek kwek can be fried
-                if (item.food_type == "raw") {
-                    can_cook = true;
-                }
-            }
-            else if (item.object_index == OBJ_Rice && variable_instance_exists(item, "food_type")) {
-                // Raw rice can be fried
                 if (item.food_type == "raw") {
                     can_cook = true;
                 }

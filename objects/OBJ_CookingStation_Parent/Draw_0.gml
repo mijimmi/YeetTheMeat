@@ -15,9 +15,7 @@ function can_item_be_placed(item) {
         if (item.object_index == OBJ_KwekKwek && variable_instance_exists(item, "food_type") && item.food_type == "raw") {
             return true;
         }
-        if (item.object_index == OBJ_Rice && variable_instance_exists(item, "food_type") && item.food_type == "raw") {
-            return true;
-        }
+        // Rice should NOT be fried - it cooks in the pot only
         return false;
     }
     
