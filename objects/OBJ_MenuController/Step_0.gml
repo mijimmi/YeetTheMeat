@@ -12,6 +12,9 @@ if (menu_state == "main") {
         var target = (i == selected_mode) ? button_target_scale : button_normal_scale;
         mode_button_scales[i] += (target - mode_button_scales[i]) * button_scale_speed;
     }
+} else if (menu_state == "leaderboard") {
+    var target = button_target_scale;
+    leaderboard_back_scale += (target - leaderboard_back_scale) * button_scale_speed;
 }
 
 // === INPUT HANDLING ===
@@ -87,7 +90,8 @@ if (menu_state == "main") {
                 mode_button_scales = [1, 1, 1];
                 break;
             case 1: // Leaderboard
-                // TODO: Implement leaderboard
+                menu_state = "leaderboard";
+                leaderboard_back_scale = 1;
                 break;
             case 2: // Exit
                 game_end();
@@ -133,5 +137,12 @@ else if (menu_state == "mode_select") {
                 menu_state = "main";
                 break;
         }
+    }
+}
+// === LEADERBOARD STATE ===
+else if (menu_state == "leaderboard") {
+    // Go back with B/Escape or confirm
+    if (go_back || confirm) {
+        menu_state = "main";
     }
 }

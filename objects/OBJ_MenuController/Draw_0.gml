@@ -138,3 +138,87 @@ else if (menu_state == "mode_select") {
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
 }
+// === LEADERBOARD ===
+else if (menu_state == "leaderboard") {
+    // Draw background
+    draw_sprite(spr_menuBG2, 0, cx, cy);
+    
+    draw_set_font(fnt_winkle);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    
+    // Draw title "LEADERBOARD"
+    var title_text = "LEADERBOARD";
+    var title_y = 120;
+    var title_scale = 4;
+    
+    // Black outline
+    draw_set_color(c_black);
+    for (var ox = -4; ox <= 4; ox += 4) {
+        for (var oy = -4; oy <= 4; oy += 4) {
+            if (ox != 0 || oy != 0) {
+                draw_text_transformed(cx + ox, title_y + oy, title_text, title_scale, title_scale, 0);
+            }
+        }
+    }
+    // Yellow text
+    draw_set_color(c_yellow);
+    draw_text_transformed(cx, title_y, title_text, title_scale, title_scale, 0);
+    
+    // Draw leaderboard entries
+    var entry_start_y = 250;
+    var entry_spacing = 65;
+    var entry_scale = 2;
+    var rank_x = cx - 300;
+    var name_x = cx;
+    var score_x = cx + 300;
+    
+    for (var i = 0; i < array_length(leaderboard_entries); i++) {
+        var entry = leaderboard_entries[i];
+        var entry_name = entry[0];
+        var entry_score = string(entry[1]);
+        var entry_y = entry_start_y + (i * entry_spacing);
+        var rank_text = string(i + 1) + ".";
+        
+        // Alternate colors for readability
+        var entry_color = (i % 2 == 0) ? c_white : c_ltgray;
+        
+        // Draw rank
+        draw_set_halign(fa_right);
+        draw_set_color(c_black);
+        draw_text_transformed(rank_x + 2, entry_y + 2, rank_text, entry_scale, entry_scale, 0);
+        draw_set_color(entry_color);
+        draw_text_transformed(rank_x, entry_y, rank_text, entry_scale, entry_scale, 0);
+        
+        // Draw name
+        draw_set_halign(fa_center);
+        draw_set_color(c_black);
+        draw_text_transformed(name_x + 2, entry_y + 2, entry_name, entry_scale, entry_scale, 0);
+        draw_set_color(entry_color);
+        draw_text_transformed(name_x, entry_y, entry_name, entry_scale, entry_scale, 0);
+        
+        // Draw score
+        draw_set_halign(fa_left);
+        draw_set_color(c_black);
+        draw_text_transformed(score_x + 2, entry_y + 2, entry_score, entry_scale, entry_scale, 0);
+        draw_set_color(entry_color);
+        draw_text_transformed(score_x, entry_y, entry_score, entry_scale, entry_scale, 0);
+    }
+    
+    // Draw Go Back button (with limited scale)
+    var back_scale = 1 + (leaderboard_back_scale - 1) * 0.3;
+    
+    // Draw outline (always shown since it's the only button)
+    for (var ox = -outline_thickness; ox <= outline_thickness; ox += outline_thickness) {
+        for (var oy = -outline_thickness; oy <= outline_thickness; oy += outline_thickness) {
+            if (ox != 0 || oy != 0) {
+                draw_sprite_ext(spr_goback, 0, cx + ox, cy + oy, back_scale, back_scale, 0, outline_color, 1);
+            }
+        }
+    }
+    draw_sprite_ext(spr_goback, 0, cx, cy, back_scale, back_scale, 0, c_white, 1);
+    
+    // Reset draw settings
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+}

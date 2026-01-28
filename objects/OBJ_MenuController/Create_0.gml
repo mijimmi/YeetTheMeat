@@ -1,6 +1,6 @@
 // === MENU CONTROLLER ===
 
-// Menu state: "main" or "mode_select"
+// Menu state: "main", "mode_select", or "leaderboard"
 menu_state = "main";
 
 // === MAIN MENU ===
@@ -13,6 +13,22 @@ total_buttons = 3;
 selected_mode = 0;
 total_mode_buttons = 3;
 mode_button_scales = [1, 1, 1];
+
+// === LEADERBOARD ===
+leaderboard_back_scale = 1;
+// Placeholder leaderboard data
+leaderboard_entries = [
+    ["AAA", 9999],
+    ["BBB", 7500],
+    ["CCC", 5000],
+    ["DDD", 3500],
+    ["EEE", 2000],
+    ["FFF", 1500],
+    ["GGG", 1000],
+    ["HHH", 500],
+    ["III", 250],
+    ["JJJ", 100]
+];
 
 // Global game mode (will be checked by game_room)
 global.game_mode = "singleplayer";
