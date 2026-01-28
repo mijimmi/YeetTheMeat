@@ -25,8 +25,8 @@ if (is_processing && active_player != noone) {
             progress_current++;
             
             if (progress_current >= progress_max) {
-                // Complete the slicing!
-                complete_slicing();
+                // Complete the saucing!
+                complete_saucing();
             }
         }
     }
@@ -39,14 +39,10 @@ function cancel_processing() {
     // Item stays on station but not processed
 }
 
-function complete_slicing() {
+function complete_saucing() {
     if (item_being_processed != noone && instance_exists(item_being_processed)) {
-        // Transform the item
-        if (object_is_ancestor(item_being_processed.object_index, OBJ_Food)) {
-            item_being_processed.food_type = "sliced";
-        } else if (item_being_processed.object_index == OBJ_Vegetables) {
-            item_being_processed.veggie_state = "sliced";
-        }
+        // Transform the item to soy_sliced
+        item_being_processed.food_type = "soy_sliced";
     }
     
     is_processing = false;

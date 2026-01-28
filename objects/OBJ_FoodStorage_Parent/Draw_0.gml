@@ -27,7 +27,7 @@ var p1 = instance_find(OBJ_P1, 0);
 if (p1 != noone && global.p1_closest_station == id) {
     var dist = point_distance(x, y, p1.x, p1.y);
     if (dist <= interact_range && p1.held_item == noone) {
-        draw_storage_hint(p1.x, p1.y, make_color_rgb(200, 60, 60), -40);
+        draw_storage_hint(p1.x, p1.y, make_color_rgb(255, 100, 100), -40);
     }
 }
 

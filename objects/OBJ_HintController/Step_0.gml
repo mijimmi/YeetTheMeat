@@ -108,11 +108,19 @@ function check_can_interact(player, station) {
             else if (held.object_index == OBJ_KwekKwek && variable_instance_exists(held, "food_type") && held.food_type == "raw") {
                 return true;
             }
+            // Raw caldereta (check food_type directly for reliability)
+            else if (variable_instance_exists(held, "food_type") && held.food_type == "raw_caldereta") {
+                return true;
+            }
         }
     }
     
     // === SLICING STATION ===
     else if (obj == OBJ_SlicingStation) {
+        // Don't show hints while processing
+        if (variable_instance_exists(station, "is_processing") && station.is_processing) {
+            return false;
+        }
         if (held == noone && variable_instance_exists(station, "food_on_station") && station.food_on_station != noone) {
             return true;
         }
@@ -128,6 +136,10 @@ function check_can_interact(player, station) {
     
     // === SOY SAUCE STATION ===
     else if (obj == OBJ_SoySauceStation) {
+        // Don't show hints while processing
+        if (variable_instance_exists(station, "is_processing") && station.is_processing) {
+            return false;
+        }
         if (held == noone && variable_instance_exists(station, "food_on_station") && station.food_on_station != noone) {
             return true;
         }
@@ -144,14 +156,48 @@ function check_can_interact(player, station) {
             return true;
         }
         else if (held != noone && instance_exists(held)) {
-            if (held.object_index == OBJ_Meat && variable_instance_exists(held, "food_type") && held.food_type == "sliced") {
+            // Get held item type
+            var item_type = "none";
+            if (held.object_index == OBJ_LumpiaWrapper) {
+                item_type = "wrapper";
+            } else if (held.object_index == OBJ_Meat && variable_instance_exists(held, "food_type") && held.food_type == "sliced") {
+                item_type = "sliced_meat";
+            } else if (held.object_index == OBJ_Meat && variable_instance_exists(held, "food_type") && held.food_type == "soy_sliced") {
+                item_type = "soy_meat";
+            } else if (held.object_index == OBJ_Vegetables && variable_instance_exists(held, "veggie_state") && held.veggie_state == "sliced") {
+                item_type = "sliced_veggie";
+            }
+            
+            if (item_type == "none") return false;
+            
+            // First ingredient - any valid item is fine
+            if (!variable_instance_exists(station, "ingredient1") || station.ingredient1 == noone) {
                 return true;
             }
-            else if (held.object_index == OBJ_Vegetables && variable_instance_exists(held, "veggie_state") && held.veggie_state == "sliced") {
-                return true;
-            }
-            else if (held.object_index == OBJ_LumpiaWrapper) {
-                return true;
+            // Second ingredient - check valid combo
+            else if (variable_instance_exists(station, "ingredient2") && station.ingredient2 == noone) {
+                var ing1 = station.ingredient1;
+                var ing1_type = "none";
+                if (ing1.object_index == OBJ_LumpiaWrapper) {
+                    ing1_type = "wrapper";
+                } else if (ing1.object_index == OBJ_Meat && variable_instance_exists(ing1, "food_type") && ing1.food_type == "sliced") {
+                    ing1_type = "sliced_meat";
+                } else if (ing1.object_index == OBJ_Meat && variable_instance_exists(ing1, "food_type") && ing1.food_type == "soy_sliced") {
+                    ing1_type = "soy_meat";
+                } else if (ing1.object_index == OBJ_Vegetables && variable_instance_exists(ing1, "veggie_state") && ing1.veggie_state == "sliced") {
+                    ing1_type = "sliced_veggie";
+                }
+                
+                // Valid combos
+                if (ing1_type == "wrapper" && (item_type == "sliced_meat" || item_type == "sliced_veggie")) {
+                    return true;
+                } else if (ing1_type == "sliced_meat" && item_type == "wrapper") {
+                    return true;
+                } else if (ing1_type == "sliced_veggie" && (item_type == "wrapper" || item_type == "soy_meat")) {
+                    return true;
+                } else if (ing1_type == "soy_meat" && item_type == "sliced_veggie") {
+                    return true;
+                }
             }
         }
     }

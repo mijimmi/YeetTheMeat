@@ -21,6 +21,7 @@ function get_serving_hint(player) {
                 if (item.food_type == "cooked" || 
                     item.food_type == "cooked_meat_lumpia" || 
                     item.food_type == "cooked_veggie_lumpia" ||
+                    item.food_type == "cooked_caldereta" ||
                     item.food_type == "fried_pork" ||
                     item.food_type == "adobo") {
                     hint_text = "A  Plate Food";
@@ -47,7 +48,7 @@ if (p1 != noone && global.p1_closest_station == id) {
     if (dist <= interact_range) {
         var hint_text = get_serving_hint(p1);
         if (hint_text != "") {
-            var player_color = make_color_rgb(200, 60, 60);
+            var player_color = make_color_rgb(255, 100, 100);
             
             draw_set_halign(fa_center);
             draw_set_valign(fa_middle);

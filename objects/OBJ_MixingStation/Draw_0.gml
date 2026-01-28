@@ -6,34 +6,58 @@ function get_mixing_hint(player) {
     
     if (player.held_item != noone && instance_exists(player.held_item)) {
         var item = player.held_item;
-        var is_valid_ingredient = false;
         
-        // Check if holding valid mixing ingredient
-        if (object_is_ancestor(item.object_index, OBJ_Food)) {
-            if (item.object_index == OBJ_Meat && item.food_type == "sliced") {
-                is_valid_ingredient = true;
-            }
-        } 
-        else if (item.object_index == OBJ_Vegetables && item.veggie_state == "sliced") {
-            is_valid_ingredient = true;
-        }
-        else if (item.object_index == OBJ_LumpiaWrapper) {
-            is_valid_ingredient = true;
+        // Get item type
+        var item_type = "none";
+        if (item.object_index == OBJ_LumpiaWrapper) {
+            item_type = "wrapper";
+        } else if (item.object_index == OBJ_Meat && item.food_type == "sliced") {
+            item_type = "sliced_meat";
+        } else if (item.object_index == OBJ_Meat && item.food_type == "soy_sliced") {
+            item_type = "soy_meat";
+        } else if (item.object_index == OBJ_Vegetables && item.veggie_state == "sliced") {
+            item_type = "sliced_veggie";
         }
         
         // Show hint based on station state
-        if (is_valid_ingredient) {
+        if (item_type != "none") {
             if (ingredient1 == noone) {
                 hint_text = "A  Place Ingredient 1";
             }
             else if (ingredient2 == noone && food_on_station == noone) {
-                hint_text = "A  Place Ingredient 2";
+                // Check if this would be a valid combination
+                var ing1_type = "none";
+                if (ingredient1.object_index == OBJ_LumpiaWrapper) {
+                    ing1_type = "wrapper";
+                } else if (ingredient1.object_index == OBJ_Meat && ingredient1.food_type == "sliced") {
+                    ing1_type = "sliced_meat";
+                } else if (ingredient1.object_index == OBJ_Meat && ingredient1.food_type == "soy_sliced") {
+                    ing1_type = "soy_meat";
+                } else if (ingredient1.object_index == OBJ_Vegetables && ingredient1.veggie_state == "sliced") {
+                    ing1_type = "sliced_veggie";
+                }
+                
+                // Valid combos: wrapper+sliced_meat, wrapper+sliced_veggie, soy_meat+sliced_veggie
+                var valid_combo = false;
+                if (ing1_type == "wrapper" && (item_type == "sliced_meat" || item_type == "sliced_veggie")) {
+                    valid_combo = true;
+                } else if (ing1_type == "sliced_meat" && item_type == "wrapper") {
+                    valid_combo = true;
+                } else if (ing1_type == "sliced_veggie" && (item_type == "wrapper" || item_type == "soy_meat")) {
+                    valid_combo = true;
+                } else if (ing1_type == "soy_meat" && item_type == "sliced_veggie") {
+                    valid_combo = true;
+                }
+                
+                if (valid_combo) {
+                    hint_text = "A  Place Ingredient 2";
+                }
             }
         }
     }
     // Player empty-handed, result ready
     else if (player.held_item == noone && food_on_station != noone) {
-        hint_text = "X  Take Lumpia";
+        hint_text = "X  Take Food";
     }
     
     return hint_text;
@@ -46,7 +70,7 @@ if (p1 != noone && global.p1_closest_station == id) {
     if (dist <= interact_range) {
         var hint_text = get_mixing_hint(p1);
         if (hint_text != "") {
-            var player_color = make_color_rgb(200, 60, 60);
+            var player_color = make_color_rgb(255, 100, 100);
             
             draw_set_halign(fa_center);
             draw_set_valign(fa_middle);

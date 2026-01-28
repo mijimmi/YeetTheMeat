@@ -85,9 +85,9 @@ function player_interact_take(player_instance) {
                 }
             }
             
-            // Check food
+            // Check food (exclude food on stations)
             var nearest_food = instance_nearest(x, y, OBJ_Food);
-            if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking && !nearest_food.is_on_plate) {
+            if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking && !nearest_food.is_on_plate && nearest_food.cooking_station == noone) {
                 var d = point_distance(x, y, nearest_food.x, nearest_food.y);
                 if (d <= interact_range && d < ground_item_dist) {
                     ground_item_dist = d;
@@ -95,9 +95,9 @@ function player_interact_take(player_instance) {
                 }
             }
             
-            // Check vegetables
+            // Check vegetables (exclude if on station - can_slide is false when on station)
             var nearest_veggie = instance_nearest(x, y, OBJ_Vegetables);
-            if (nearest_veggie != noone && !nearest_veggie.is_held) {
+            if (nearest_veggie != noone && !nearest_veggie.is_held && nearest_veggie.can_slide) {
                 var d = point_distance(x, y, nearest_veggie.x, nearest_veggie.y);
                 if (d <= interact_range && d < ground_item_dist) {
                     ground_item_dist = d;
@@ -105,9 +105,9 @@ function player_interact_take(player_instance) {
                 }
             }
             
-            // Check wrappers
+            // Check wrappers (exclude if on station - can_slide is false when on station)
             var nearest_wrapper = instance_nearest(x, y, OBJ_LumpiaWrapper);
-            if (nearest_wrapper != noone && !nearest_wrapper.is_held) {
+            if (nearest_wrapper != noone && !nearest_wrapper.is_held && nearest_wrapper.can_slide) {
                 var d = point_distance(x, y, nearest_wrapper.x, nearest_wrapper.y);
                 if (d <= interact_range && d < ground_item_dist) {
                     ground_item_dist = d;

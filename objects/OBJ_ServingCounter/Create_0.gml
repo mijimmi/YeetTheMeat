@@ -38,7 +38,8 @@ function interact_place(player) {
 	            food.food_type == "fried_pork" ||
 	            food.food_type == "adobo" ||
 	            food.food_type == "cooked_meat_lumpia" ||
-	            food.food_type == "cooked_veggie_lumpia"
+	            food.food_type == "cooked_veggie_lumpia" ||
+	            food.food_type == "cooked_caldereta"
 	        );
         
 	        if (is_ready_to_plate) {

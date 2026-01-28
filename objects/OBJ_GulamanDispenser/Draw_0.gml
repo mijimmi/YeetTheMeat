@@ -8,7 +8,7 @@ if (p1 != noone && global.p1_closest_station == id) {
         var item = p1.held_item;
         if (item.object_index == OBJ_Drink && item.drink_type == "empty") {
             var hint_text = "A  Fill Gulaman";
-            var player_color = make_color_rgb(200, 60, 60);
+            var player_color = make_color_rgb(255, 100, 100);
             
             draw_set_halign(fa_center);
             draw_set_valign(fa_middle);

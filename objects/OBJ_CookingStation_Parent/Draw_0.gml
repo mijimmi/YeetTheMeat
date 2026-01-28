@@ -32,6 +32,10 @@ function can_item_be_placed(item) {
         if (item.object_index == OBJ_KwekKwek && variable_instance_exists(item, "food_type") && item.food_type == "raw") {
             return true;
         }
+        // Caldereta (raw_caldereta can be cooked in pot)
+        if (variable_instance_exists(item, "food_type") && item.food_type == "raw_caldereta") {
+            return true;
+        }
         return false;
     }
     
@@ -74,7 +78,7 @@ if (p1 != noone && global.p1_closest_station == id) {
     var dist = point_distance(x, y, p1.x, p1.y);
     if (dist <= interact_range) {
         var hint_text = "";
-        var player_color = make_color_rgb(200, 60, 60);
+        var player_color = make_color_rgb(255, 100, 100);
         
         // Player holding something, station empty - can place
         if (p1.held_item != noone && food_on_station == noone) {
@@ -96,6 +100,7 @@ if (p1 != noone && global.p1_closest_station == id) {
                         food.food_type == "adobo" ||
                         food.food_type == "cooked_meat_lumpia" ||
                         food.food_type == "cooked_veggie_lumpia" ||
+                        food.food_type == "cooked_caldereta" ||
                         food.food_type == "burnt") {
                         is_done = true;
                     }
@@ -156,6 +161,7 @@ if (p2 != noone && global.p2_closest_station == id) {
                         food.food_type == "adobo" ||
                         food.food_type == "cooked_meat_lumpia" ||
                         food.food_type == "cooked_veggie_lumpia" ||
+                        food.food_type == "cooked_caldereta" ||
                         food.food_type == "burnt") {
                         is_done = true;
                     }

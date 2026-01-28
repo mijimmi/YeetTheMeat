@@ -1,21 +1,21 @@
 {
   "$GMObject":"",
-  "%Name":"OBJ_SoySauceStation",
+  "%Name":"OBJ_Caldereta",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"OBJ_SoySauceStation",
+  "name":"OBJ_Caldereta",
   "overriddenProperties":[],
   "parent":{
-    "name":"Stations",
-    "path":"folders/OBJECTS/Stations.yy",
+    "name":"Foods",
+    "path":"folders/OBJECTS/Foods.yy",
   },
   "parentObjectId":{
-    "name":"OBJ_CookingStation_Parent",
-    "path":"objects/OBJ_CookingStation_Parent/OBJ_CookingStation_Parent.yy",
+    "name":"OBJ_Food",
+    "path":"objects/OBJ_Food/OBJ_Food.yy",
   },
   "persistent":false,
   "physicsAngularDamping":0.1,
@@ -35,8 +35,8 @@
   "resourceVersion":"2.0",
   "solid":false,
   "spriteId":{
-    "name":"samplestation",
-    "path":"sprites/samplestation/samplestation.yy",
+    "name":"spr_rawcaldereta",
+    "path":"sprites/spr_rawcaldereta/spr_rawcaldereta.yy",
   },
   "spriteMaskId":null,
   "visible":true,

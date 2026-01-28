@@ -3,6 +3,11 @@
 var gui_width = display_get_gui_width();
 var gui_height = display_get_gui_height();
 
+// === UPDATE ANIMATION ===
+anim_timer += 1;
+var bob_offset = sin(anim_timer * anim_bob_speed) * anim_bob_amount;
+var breathe_scale = 1 + sin(anim_timer * anim_breathe_speed) * anim_breathe_amount;
+
 // Function to draw a hand-drawn style box
 function draw_handdrawn_box(bx, by, bw, bh, fill_col, fill_alpha, border_col, border_width, wobble, segments) {
     // Draw filled background with slight wobble
@@ -70,14 +75,15 @@ function draw_handdrawn_box(bx, by, bw, bh, fill_col, fill_alpha, border_col, bo
 // === PLAYER 1 INVENTORY (Bottom Left) ===
 var p1 = instance_find(OBJ_P1, 0);
 if (p1 != noone && instance_exists(p1)) {
-    // Position from bottom-left with padding
+    // Position from bottom-left with padding (with subtle bob)
     var p1_x = ui_margin_x;
-    var p1_y = gui_height - ui_margin_y - box_height - 20;
+    var p1_y = gui_height - ui_margin_y - box_height - 20 + bob_offset;
     
-    // Draw player icon
+    // Draw player icon (with subtle breathe)
     var icon_center_y = p1_y + box_height / 2;
     if (sprite_exists(spr_P1icon)) {
-        draw_sprite_ext(spr_P1icon, 0, p1_x + 24, icon_center_y, icon_scale, icon_scale, 0, c_white, 1);
+        var icon_breathe = icon_scale * (1 + sin(anim_timer * anim_breathe_speed * 0.8) * 0.02);
+        draw_sprite_ext(spr_P1icon, 0, p1_x + 24, icon_center_y, icon_breathe, icon_breathe, 0, c_white, 1);
     } else {
         // Fallback: draw P1 text
         draw_set_font(fnt_winkle);
@@ -104,7 +110,7 @@ if (p1 != noone && instance_exists(p1)) {
     // Draw held item
     var held = p1.held_item;
     if (held != noone && instance_exists(held)) {
-        // Draw item sprite centered in box
+        // Draw item sprite centered in box (with subtle breathing)
         var item_spr = held.sprite_index;
         var item_frame = held.image_index;
         var center_x = box_x + box_width / 2;
@@ -118,7 +124,8 @@ if (p1 != noone && instance_exists(p1)) {
             }
         }
         
-        draw_sprite_ext(item_spr, item_frame, center_x, center_y, item_scale, item_scale, 0, c_white, 1);
+        var animated_scale = item_scale * breathe_scale;
+        draw_sprite_ext(item_spr, item_frame, center_x, center_y, animated_scale, animated_scale, 0, c_white, 1);
         
         // Draw item name BELOW the box (with black outline)
         var item_name = get_item_name(held);
@@ -141,9 +148,10 @@ if (p1 != noone && instance_exists(p1)) {
         draw_set_color(c_white);
         draw_text_transformed(text_x, text_y, item_name, 1.8, 1.8, 0);
     } else {
-        // Draw "Empty" text
+        // Draw "Empty" text (with subtle pulse)
         draw_set_font(fnt_winkle);
-        draw_set_color(c_gray);
+        var empty_alpha = 0.5 + sin(anim_timer * 0.05) * 0.15;
+        draw_set_color(merge_color(c_dkgray, c_gray, empty_alpha));
         draw_set_halign(fa_center);
         draw_set_valign(fa_middle);
         draw_text_transformed(box_x + box_width / 2, box_y + box_height / 2, "Empty", 1.0, 1.0, 0);
@@ -153,16 +161,21 @@ if (p1 != noone && instance_exists(p1)) {
 // === PLAYER 2 INVENTORY (Bottom Right) ===
 var p2 = instance_find(OBJ_P2, 0);
 if (p2 != noone && instance_exists(p2)) {
-    // Position from bottom-right with padding
-    var p2_y = gui_height - ui_margin_y - box_height - 20;
+    // P2 uses offset animation timing for visual interest
+    var p2_bob_offset = sin((anim_timer + 30) * anim_bob_speed) * anim_bob_amount;
+    var p2_breathe_scale = 1 + sin((anim_timer + 30) * anim_breathe_speed) * anim_breathe_amount;
+    
+    // Position from bottom-right with padding (with subtle bob)
+    var p2_y = gui_height - ui_margin_y - box_height - 20 + p2_bob_offset;
     
     // Icon position (right side with padding)
     var icon_x = gui_width - ui_margin_x - 24;
     var icon_center_y = p2_y + box_height / 2;
     
-    // Draw player icon
+    // Draw player icon (with subtle breathe)
     if (sprite_exists(spr_P2icon)) {
-        draw_sprite_ext(spr_P2icon, 0, icon_x, icon_center_y, icon_scale, icon_scale, 0, c_white, 1);
+        var icon_breathe = icon_scale * (1 + sin((anim_timer + 30) * anim_breathe_speed * 0.8) * 0.02);
+        draw_sprite_ext(spr_P2icon, 0, icon_x, icon_center_y, icon_breathe, icon_breathe, 0, c_white, 1);
     } else {
         // Fallback: draw P2 text
         draw_set_font(fnt_winkle);
@@ -189,7 +202,7 @@ if (p2 != noone && instance_exists(p2)) {
     // Draw held item
     var held = p2.held_item;
     if (held != noone && instance_exists(held)) {
-        // Draw item sprite centered in box
+        // Draw item sprite centered in box (with subtle breathing)
         var item_spr = held.sprite_index;
         var item_frame = held.image_index;
         var center_x = box_x + box_width / 2;
@@ -203,7 +216,8 @@ if (p2 != noone && instance_exists(p2)) {
             }
         }
         
-        draw_sprite_ext(item_spr, item_frame, center_x, center_y, item_scale, item_scale, 0, c_white, 1);
+        var animated_scale = item_scale * p2_breathe_scale;
+        draw_sprite_ext(item_spr, item_frame, center_x, center_y, animated_scale, animated_scale, 0, c_white, 1);
         
         // Draw item name BELOW the box (with black outline)
         var item_name = get_item_name(held);
@@ -226,9 +240,10 @@ if (p2 != noone && instance_exists(p2)) {
         draw_set_color(c_white);
         draw_text_transformed(text_x, text_y, item_name, 1.8, 1.8, 0);
     } else {
-        // Draw "Empty" text
+        // Draw "Empty" text (with subtle pulse)
         draw_set_font(fnt_winkle);
-        draw_set_color(c_gray);
+        var empty_alpha = 0.5 + sin((anim_timer + 30) * 0.05) * 0.15;
+        draw_set_color(merge_color(c_dkgray, c_gray, empty_alpha));
         draw_set_halign(fa_center);
         draw_set_valign(fa_middle);
         draw_text_transformed(box_x + box_width / 2, box_y + box_height / 2, "Empty", 1.0, 1.0, 0);

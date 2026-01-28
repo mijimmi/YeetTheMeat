@@ -29,6 +29,13 @@ box_alpha = 0.7;
 box_border_color = c_white;
 box_border_width = 2;
 
+// === ANIMATION SETTINGS ===
+anim_timer = 0;
+anim_bob_speed = 0.03;      // Speed of floating motion
+anim_bob_amount = 2;        // Pixels of vertical float
+anim_breathe_speed = 0.04;  // Speed of item scale breathing
+anim_breathe_amount = 0.04; // Scale variation (very subtle)
+
 // Function to get item display name from object type
 function get_item_name(item) {
     if (item == noone || !instance_exists(item)) return "Empty";
@@ -48,6 +55,7 @@ function get_item_name(item) {
             if (food_spr == spr_veggielumpiadish) return "Veggie Lumpia";
             if (food_spr == spr_ricedish) return "Rice";
             if (food_spr == spr_takoyakidish) return "Kwek Kwek";
+            if (food_spr == spr_calderetadish) return "Caldereta";
             
             // Fallback: check plated_sprite if food_type is "plated"
             if (variable_instance_exists(food, "plated_sprite") && food.plated_sprite != noone) {
@@ -58,6 +66,7 @@ function get_item_name(item) {
                 if (plated_spr == spr_veggielumpiadish) return "Veggie Lumpia";
                 if (plated_spr == spr_ricedish) return "Rice";
                 if (plated_spr == spr_takoyakidish) return "Kwek Kwek";
+                if (plated_spr == spr_calderetadish) return "Caldereta";
             }
             
             // Final fallback: use object name
@@ -92,6 +101,8 @@ function get_item_name(item) {
             case "cooked_veggie_lumpia": obj_name = "Veggie Lumpia"; break;
             case "raw_meat_lumpia": obj_name = "Raw Meat Lumpia"; break;
             case "raw_veggie_lumpia": obj_name = "Raw Veggie Lumpia"; break;
+            case "raw_caldereta": obj_name = "Raw Caldereta"; break;
+            case "cooked_caldereta": obj_name = "Caldereta"; break;
         }
     }
     
