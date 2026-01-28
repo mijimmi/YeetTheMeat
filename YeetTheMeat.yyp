@@ -78,6 +78,7 @@
     {"id":{"name":"OBJ_MixingStation","path":"objects/OBJ_MixingStation/OBJ_MixingStation.yy",},},
     {"id":{"name":"OBJ_P1","path":"objects/OBJ_P1/OBJ_P1.yy",},},
     {"id":{"name":"OBJ_P2","path":"objects/OBJ_P2/OBJ_P2.yy",},},
+    {"id":{"name":"OBJ_PathfindingGrid","path":"objects/OBJ_PathfindingGrid/OBJ_PathfindingGrid.yy",},},
     {"id":{"name":"OBJ_PauseController","path":"objects/OBJ_PauseController/OBJ_PauseController.yy",},},
     {"id":{"name":"OBJ_Plate","path":"objects/OBJ_Plate/OBJ_Plate.yy",},},
     {"id":{"name":"OBJ_PlateStorage","path":"objects/OBJ_PlateStorage/OBJ_PlateStorage.yy",},},

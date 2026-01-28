@@ -41,6 +41,7 @@
     {"name":"OBJ_Meat","order":5,"path":"objects/OBJ_Meat/OBJ_Meat.yy",},
     {"name":"OBJ_MixingStation","order":10,"path":"objects/OBJ_MixingStation/OBJ_MixingStation.yy",},
     {"name":"OBJ_P2","order":1,"path":"objects/OBJ_P2/OBJ_P2.yy",},
+    {"name":"OBJ_PathfindingGrid","order":4,"path":"objects/OBJ_PathfindingGrid/OBJ_PathfindingGrid.yy",},
     {"name":"OBJ_PauseController","order":2,"path":"objects/OBJ_PauseController/OBJ_PauseController.yy",},
     {"name":"OBJ_Plate","order":3,"path":"objects/OBJ_Plate/OBJ_Plate.yy",},
     {"name":"OBJ_PlateStorage","order":1,"path":"objects/OBJ_PlateStorage/OBJ_PlateStorage.yy",},

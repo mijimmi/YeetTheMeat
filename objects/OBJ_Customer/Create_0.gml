@@ -1,5 +1,5 @@
 // === CUSTOMER STATE ===
-customer_state = "walking";  // States: "walking", "sitting", "waiting", "eating", "leaving"
+customer_state = "walking";
 
 // === GROUP INFO ===
 my_group = noone;
@@ -7,29 +7,40 @@ my_table = noone;
 my_chair_index = 0;
 
 // === ORDER INFO ===
-ordered_food_type = "";    // e.g., "cooked", "adobo"
-order_sprite = noone;      // Sprite to show in thought bubble
-order_name = "";           // Display name
+ordered_food_type = "";
+order_sprite = noone;
+order_name = "";
 has_been_served = false;
 
 // === TIMING ===
 wait_timer = 0;
-max_wait_time = 60 * 60;   // 30 seconds (adjustable)
-eat_time = 60 * 5;         // 5 seconds eating
+max_wait_time = 60 * 60;
+eat_time = 60 * 5;
 
-// === MOVEMENT (Grid-based: only X and Y, no diagonals) ===
+// === PATHFINDING ===
+my_path = path_add(); // Create a path for this customer
 target_x = x;
 target_y = y;
 move_speed = 2;
-path_to_target = [];       // Array of [x, y] waypoints
-current_waypoint = 0;
+path_position = 0;
+has_path = false;
 
 // === INTERACTION ===
 interact_range = 50;
 
+// === COLLISION ===
+collision_width = 30;
+collision_height = 40;
+
 // === VISUALS ===
 thought_bubble_alpha = 0;
 sprite_index = spr_placeholder;
+
+spawner = instance_find(OBJ_CustomerSpawner, 0);
+
+// === COLLISION ===
+collision_width = 30;   // Customer hitbox width
+collision_height = 40;  // Customer hitbox height
 
 // Get spawner reference
 spawner = instance_find(OBJ_CustomerSpawner, 0);
@@ -45,20 +56,111 @@ function choose_order() {
     }
 }
 
-function move_towards_target_grid() {
-    // Grid-based movement: only horizontal OR vertical, no diagonals
-    var dx = target_x - x;
-    var dy = target_y - y;
+function create_path_to_target() {
+    // Get pathfinding grid
+    if (!instance_exists(OBJ_PathfindingGrid)) return false;
     
-    // Move horizontally first, then vertically
-    if (abs(dx) > move_speed) {
-        x += sign(dx) * move_speed;
-    } else if (abs(dy) > move_speed) {
-        y += sign(dy) * move_speed;
-    } else {
-        // Close enough, snap to target
-        x = target_x;
-        y = target_y;
+    var grid = OBJ_PathfindingGrid.path_grid;
+    
+    // Clear old path
+    path_clear_points(my_path);
+    
+    // Find path using A*
+    var path_found = mp_grid_path(grid, my_path, x, y, target_x, target_y, false);
+    
+    if (path_found) {
+        has_path = true;
+        path_position = 0;
+        path_start(my_path, move_speed, path_action_stop, false);
+        return true;
+    }
+    
+    has_path = false;
+    return false;
+}
+
+function follow_path() {
+    // Follow the path if we have one
+    if (!has_path) {
+        create_path_to_target();
+    }
+    
+    // Collision with players while walking
+    handle_player_collision();
+    
+    // Collision with food
+    handle_food_collision();
+}
+
+function handle_player_collision() {
+    with (OBJ_P1) {
+        var cust_half_w = other.collision_width / 2;
+        var cust_half_h = other.collision_height / 2;
+        var cust_left = other.x - cust_half_w;
+        var cust_right = other.x + cust_half_w;
+        var cust_top = other.y - cust_half_h;
+        var cust_bottom = other.y + cust_half_h;
+        
+        var player_half_w = collision_width / 2;
+        var player_half_h = collision_height / 2;
+        var player_left = x - player_half_w;
+        var player_right = x + player_half_w;
+        var player_top = y - player_half_h;
+        var player_bottom = y + player_half_h;
+        
+        var colliding = !(cust_right < player_left || 
+                         cust_left > player_right || 
+                         cust_bottom < player_top || 
+                         cust_top > player_bottom);
+        
+        if (colliding) {
+            var push_dir = point_direction(x, y, other.x, other.y);
+            var dist_centers = point_distance(x, y, other.x, other.y);
+            var min_dist = (player_half_w + player_half_h + cust_half_w + cust_half_h) / 2;
+            var overlap = max(0, min_dist - dist_centers);
+            
+            if (overlap > 0) {
+                var push_x = lengthdir_x(overlap * 0.5, push_dir);
+                var push_y = lengthdir_y(overlap * 0.5, push_dir);
+                
+                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) {
+                    other.x += push_x;
+                }
+                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) {
+                    other.y += push_y;
+                }
+            }
+        }
+    }
+}
+
+function handle_food_collision() {
+    with (OBJ_Food) {
+        if (!is_held && !is_cooking && !is_on_plate && can_slide) {
+            var half_box = collision_box_size / 2;
+            var food_left = x - half_box;
+            var food_right = x + half_box;
+            var food_top = y - half_box;
+            var food_bottom = y + half_box;
+            
+            var cust_half_w = other.collision_width / 2;
+            var cust_half_h = other.collision_height / 2;
+            var cust_left = other.x - cust_half_w;
+            var cust_right = other.x + cust_half_w;
+            var cust_top = other.y - cust_half_h;
+            var cust_bottom = other.y + cust_half_h;
+            
+            var colliding = !(food_right < cust_left || 
+                             food_left > cust_right || 
+                             food_bottom < cust_top || 
+                             food_top > cust_bottom);
+            
+            if (colliding) {
+                var push_dir = point_direction(other.x, other.y, x, y);
+                velocity_x = lengthdir_x(1.5, push_dir);
+                velocity_y = lengthdir_y(1.5, push_dir);
+            }
+        }
     }
 }
 
