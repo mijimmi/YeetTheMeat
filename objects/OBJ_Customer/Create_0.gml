@@ -29,6 +29,10 @@ has_path = false;
 collision_width = 40;   // Adjust to match your customer sprite width
 collision_height = 40;  // Adjust to match your customer sprite height
 
+// Collision cloud effect cooldown
+cloud_effect_cooldown = 0;
+cloud_effect_delay = 20; // Frames between cloud spawns (prevent spam)
+
 
 // === INTERACTION ===
 interact_range = 50;
@@ -137,6 +141,124 @@ function handle_player_collision() {
             var overlap = max(0, min_dist - dist_centers);
             
             if (overlap > 0) {
+                // === SPAWN COLLISION CLOUD EFFECT ===
+                if (other.cloud_effect_cooldown <= 0) {
+                    var collision_x = (x + other.x) / 2;
+                    var collision_y = (y + other.y) / 2;
+                    var cloud_count = irandom_range(4, 7);
+                    for (var i = 0; i < cloud_count; i++) {
+                        var cloud_data = array_create(8);
+                        cloud_data[0] = collision_x + random_range(-15, 15);
+                        cloud_data[1] = collision_y + random_range(-15, 15);
+                        cloud_data[2] = 0.7 + random(0.3);  // scale
+                        cloud_data[3] = 0.9;  // alpha
+                        cloud_data[4] = 0.012;  // fade speed
+                        cloud_data[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+                        cloud_data[6] = 0;  // rotation
+                        cloud_data[7] = 0;  // unused
+                        ds_list_add(cloud_list, cloud_data);
+                    }
+                    other.cloud_effect_cooldown = other.cloud_effect_delay;
+                }
+                
+                // === DROP HELD ITEM ON COLLISION WITH CUSTOMER ===
+                if (held_item != noone && instance_exists(held_item)) {
+                    // Drop position slightly away from collision
+                    held_item.x = x + lengthdir_x(20, push_dir + 180);
+                    held_item.y = y + lengthdir_y(20, push_dir + 180) + 40;
+                    held_item.is_held = false;
+                    held_item.held_by = noone;
+                    
+                    // Give velocity based on player movement
+                    if (object_is_ancestor(held_item.object_index, OBJ_Food)) {
+                        held_item.velocity_x = velocity_x * 0.5;
+                        held_item.velocity_y = velocity_y * 0.5;
+                    }
+                    else if (held_item.object_index == OBJ_Plate) {
+                        held_item.velocity_x = velocity_x * 0.5;
+                        held_item.velocity_y = velocity_y * 0.5;
+                    }
+                    else if (held_item.object_index == OBJ_Drink) {
+                        held_item.velocity_x = velocity_x * 0.5;
+                        held_item.velocity_y = velocity_y * 0.5;
+                    }
+                    
+                    // If dropping plate with food, drop the food too
+                    if (held_item.object_index == OBJ_Plate && held_item.has_food) {
+                        var food = held_item.food_on_plate;
+                        if (food != noone && instance_exists(food)) {
+                            food.x = held_item.x;
+                            food.y = held_item.y - 10;
+                            food.velocity_x = velocity_x * 0.5;
+                            food.velocity_y = velocity_y * 0.5;
+                        }
+                    }
+                    
+                    held_item = noone;
+                }
+                
+                // Push customer away
+                var push_x = lengthdir_x(overlap * 0.5, push_dir);
+                var push_y = lengthdir_y(overlap * 0.5, push_dir);
+                
+                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) {
+                    other.x += push_x;
+                }
+                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) {
+                    other.y += push_y;
+                }
+            }
+        }
+    }
+    
+    // Handle collision with Player 2
+    with (OBJ_P2) {
+        var cust_half_w = other.collision_width / 2;
+        var cust_half_h = other.collision_height / 2;
+        var cust_left = other.x - cust_half_w;
+        var cust_right = other.x + cust_half_w;
+        var cust_top = other.y - cust_half_h;
+        var cust_bottom = other.y + cust_half_h;
+        
+        var player_half_w = collision_width / 2;
+        var player_half_h = collision_height / 2;
+        var player_left = x - player_half_w;
+        var player_right = x + player_half_w;
+        var player_top = y - player_half_h;
+        var player_bottom = y + player_half_h;
+        
+        var colliding = !(cust_right < player_left || 
+                         cust_left > player_right || 
+                         cust_bottom < player_top || 
+                         cust_top > player_bottom);
+        
+        if (colliding) {
+            var push_dir = point_direction(x, y, other.x, other.y);
+            var dist_centers = point_distance(x, y, other.x, other.y);
+            var min_dist = (player_half_w + player_half_h + cust_half_w + cust_half_h) / 2;
+            var overlap = max(0, min_dist - dist_centers);
+            
+            if (overlap > 0) {
+                // === SPAWN COLLISION CLOUD EFFECT ===
+                if (other.cloud_effect_cooldown <= 0) {
+                    var collision_x = (x + other.x) / 2;
+                    var collision_y = (y + other.y) / 2;
+                    var cloud_count = irandom_range(4, 7);
+                    for (var i = 0; i < cloud_count; i++) {
+                        var cloud_data = array_create(8);
+                        cloud_data[0] = collision_x + random_range(-15, 15);
+                        cloud_data[1] = collision_y + random_range(-15, 15);
+                        cloud_data[2] = 0.7 + random(0.3);  // scale
+                        cloud_data[3] = 0.9;  // alpha
+                        cloud_data[4] = 0.012;  // fade speed
+                        cloud_data[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
+                        cloud_data[6] = 0;  // rotation
+                        cloud_data[7] = 0;  // unused
+                        ds_list_add(cloud_list, cloud_data);
+                    }
+                    other.cloud_effect_cooldown = other.cloud_effect_delay;
+                }
+                
                 // === DROP HELD ITEM ON COLLISION WITH CUSTOMER ===
                 if (held_item != noone && instance_exists(held_item)) {
                     // Drop position slightly away from collision

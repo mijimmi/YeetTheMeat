@@ -3,6 +3,11 @@ if (global.game_paused) {
     exit;
 }
 
+// Update collision cloud cooldown
+if (cloud_effect_cooldown > 0) {
+    cloud_effect_cooldown--;
+}
+
 switch (customer_state) {
     case "walking":
         // Follow pathfinding
@@ -14,6 +19,14 @@ switch (customer_state) {
             y = target_y;
             has_path = false;
             customer_state = "sitting";
+            
+            // Start the timer when first customer reaches their chair
+            if (spawner != noone && instance_exists(spawner) && !spawner.first_customer_seated) {
+                spawner.first_customer_seated = true;
+                if (instance_exists(OBJ_TimerController)) {
+                    OBJ_TimerController.start_timer();
+                }
+            }
         }
         break;
         

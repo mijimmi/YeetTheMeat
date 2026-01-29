@@ -1,7 +1,8 @@
 // === CHECK FOR SKIP INPUT ===
 // Only allow skipping during first part of cutscene (not during dialogue)
-if (cutscene_state != "done" && cutscene_state != "fade_out" && 
-    cutscene_state != "dialogue_transition" && cutscene_state != "dialogue_show") {
+if (!is_transitioning_out && cutscene_state != "done" && cutscene_state != "fade_out" && 
+    cutscene_state != "dialogue_transition" && cutscene_state != "dialogue_show" &&
+    cutscene_state != "loading") {
     
     var skip_pressed = keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_space) || keyboard_check_pressed(vk_escape);
     
@@ -11,6 +12,7 @@ if (cutscene_state != "done" && cutscene_state != "fade_out" &&
     }
     
     if (skip_pressed) {
+        is_transitioning_out = true;
         cutscene_state = "fade_out";
         state_timer = 0;
     }
@@ -425,8 +427,8 @@ switch (cutscene_state) {
         if (abs(cheer_y - cheer_target_y) < 20 && abs(servethepeople_y - servethepeople_target_y) < 20) {
             press_key_alpha = min(press_key_alpha + 0.03, 1);
             
-            // Check for any key press to start game
-            if (press_key_alpha >= 1 && state_timer > 30) {
+            // Check for any key press to start game (only if not already transitioning)
+            if (!is_transitioning_out && press_key_alpha >= 1 && state_timer > 30) {
                 var any_key = keyboard_check_pressed(vk_anykey) || 
                              mouse_check_button_pressed(mb_any);
                 
@@ -436,6 +438,7 @@ switch (cutscene_state) {
                 }
                 
                 if (any_key) {
+                    is_transitioning_out = true;
                     cutscene_state = "fade_out";
                     state_timer = 0;
                 }

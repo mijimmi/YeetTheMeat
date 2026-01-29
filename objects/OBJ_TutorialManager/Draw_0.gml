@@ -11,10 +11,9 @@ if (current_phase == "recipe" && tutorial_target_station != noone && instance_ex
     
     // Arrow size
     var arrow_size = 16;
-    var arrow_thickness = 3;
-    var outline_thickness = 3; // Bigger outline
+    var outline_thickness = 6; // Thicker outline
     
-    // Draw arrow pointing down (triangle + line)
+    // Draw arrow pointing down (triangle only, no stem)
     // Black outline first (drawn larger)
     draw_set_color(c_black);
     draw_set_alpha(0.9);
@@ -34,16 +33,6 @@ if (current_phase == "recipe" && tutorial_target_station != noone && instance_ex
         arrow_x, arrow_y + arrow_size * 2,
         false
     );
-    
-    // Arrow shaft outline (black, thicker)
-    draw_set_color(c_black);
-    draw_set_alpha(0.9);
-    draw_line_width(arrow_x, arrow_y, arrow_x, arrow_y + arrow_size, arrow_thickness + outline_thickness * 2);
-    
-    // Arrow shaft (yellow, on top)
-    draw_set_color(c_yellow);
-    draw_set_alpha(0.95);
-    draw_line_width(arrow_x, arrow_y, arrow_x, arrow_y + arrow_size, arrow_thickness);
     
     // Reset
     draw_set_alpha(1);

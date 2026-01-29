@@ -183,3 +183,6 @@ song_artist = "watson";
 // Music fade control
 music_is_fading_out = false;
 music_fade_speed = 0.01; // Slower fade for cutscene
+
+// Prevent multiple loading triggers
+is_transitioning_out = false;

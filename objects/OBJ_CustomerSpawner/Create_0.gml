@@ -29,7 +29,7 @@ next_spawn_time = 0;
 // === STATE ===
 can_spawn = true;
 active_groups = [];       // List of all active customer groups
-first_customer_spawned = false;  // Track if first customer has appeared (to start timer)
+first_customer_seated = false;  // Track if first customer has reached their chair (to start timer)
 
 // === AVAILABLE DISHES (What customers can order) ===
 // Format: [food_type, order_sprite, display_name]
@@ -118,14 +118,6 @@ function spawn_customer_group(group_size, target_table) {
         show_debug_message("ERROR: Invalid table passed to spawn_customer_group!");
         can_spawn = true;
         return;
-    }
-    
-    // Start the timer when first customer appears
-    if (!first_customer_spawned) {
-        first_customer_spawned = true;
-        if (instance_exists(OBJ_TimerController)) {
-            OBJ_TimerController.start_timer();
-        }
     }
     
     // Create group management object
