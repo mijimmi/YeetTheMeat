@@ -55,27 +55,30 @@ switch (customer_state) {
         break;
         
     case "leaving":
-        // Set exit as target
-        target_x = spawner.exit_x;
-        target_y = spawner.exit_y;
-        
-        // Follow path to exit
-        follow_path();
-        
-        // Fallback: if path complete or no path, move directly toward exit
-        if (!has_path || path_progress >= 0.99) {
-            var dir = point_direction(x, y, target_x, target_y);
-            var dist = point_distance(x, y, target_x, target_y);
-            if (dist > move_speed) {
-                x += lengthdir_x(move_speed, dir);
-                y += lengthdir_y(move_speed, dir);
-            }
-        }
-        
-        // Destroy when reached exit
-        if (point_distance(x, y, target_x, target_y) < 20) {
-            path_delete(my_path);
-            instance_destroy();
-        }
-        break;
-}
+    // Set exit as target
+	    if (spawner != noone) {
+	        target_x = spawner.exit_x;
+	        target_y = spawner.exit_y;
+	    }
+	    // If no spawner (tutorial mode), exit position should already be set
+    
+	    // Follow path to exit
+	    follow_path();
+    
+	    // Fallback: if path complete or no path, move directly toward exit
+	    if (!has_path || path_progress >= 0.99) {
+	        var dir = point_direction(x, y, target_x, target_y);
+	        var dist = point_distance(x, y, target_x, target_y);
+	        if (dist > move_speed) {
+	            x += lengthdir_x(move_speed, dir);
+	            y += lengthdir_y(move_speed, dir);
+	        }
+	    }
+    
+	    // Destroy when reached exit
+	    if (point_distance(x, y, target_x, target_y) < 20) {
+	        path_delete(my_path);
+	        instance_destroy();
+	    }
+	    break;
+	}

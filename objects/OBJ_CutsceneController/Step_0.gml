@@ -451,21 +451,27 @@ switch (cutscene_state) {
         break;
     
     case "loading":
-        // Animate loading elements
-        loading_timer++;
-        loading_icon_bounce += 0.15;
-        loading_icon_rotation += 2;
+	    // Animate loading elements
+	    loading_timer++;
+	    loading_icon_bounce += 0.15;
+	    loading_icon_rotation += 2;
+    
+	    // Update dot animation (3 dots cycling)
+	    if (loading_timer % 20 == 0) {
+	        loading_dot_count = (loading_dot_count + 1) % 4;
+	    }
+    
+	    // After showing loading screen for a bit, end cutscene
+	    if (loading_timer > 90) {
+	        cutscene_state = "done";
+	        global.game_paused = false;
         
-        // Update dot animation (3 dots cycling)
-        if (loading_timer % 20 == 0) {
-            loading_dot_count = (loading_dot_count + 1) % 4;
-        }
+	        // Check if tutorial should be shown (NEW)
+	        if (global.show_tutorial) {
+	            room_goto(tutorial_room);  // Replace 'tutorial_room' with your actual tutorial room name
+	        }
         
-        // After showing loading screen for a bit, end cutscene
-        if (loading_timer > 90) {
-            cutscene_state = "done";
-            global.game_paused = false;
-            instance_destroy();
-        }
-        break;
-}
+	        instance_destroy();
+	    }
+	    break;
+	}

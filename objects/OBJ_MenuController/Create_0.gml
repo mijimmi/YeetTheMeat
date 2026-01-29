@@ -1,5 +1,4 @@
 // === MENU CONTROLLER ===
-
 // Menu state: "main", "mode_select", or "leaderboard"
 menu_state = "main";
 
@@ -16,6 +15,7 @@ mode_button_scales = [1, 1, 1];
 
 // === LEADERBOARD ===
 leaderboard_back_scale = 1;
+
 // Placeholder leaderboard data
 leaderboard_entries = [
     ["AAA", 9999],
@@ -32,6 +32,9 @@ leaderboard_entries = [
 
 // Global game mode (will be checked by game_room)
 global.game_mode = "singleplayer";
+
+// Global tutorial flag (NEW)
+global.show_tutorial = true;  // Show tutorial before game
 
 // Title animation (fluid multi-layered motion)
 title_time = 0;
