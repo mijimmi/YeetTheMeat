@@ -1,17 +1,17 @@
 {
   "$GMObject":"",
-  "%Name":"OBJ_MenuController",
+  "%Name":"OBJ_ScorePopup",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":8,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
-  "name":"OBJ_MenuController",
+  "name":"OBJ_ScorePopup",
   "overriddenProperties":[],
   "parent":{
-    "name":"Controllers",
-    "path":"folders/OBJECTS/Controllers.yy",
+    "name":"Customer System",
+    "path":"folders/OBJECTS/Miscellaneous/Customer System.yy",
   },
   "parentObjectId":null,
   "persistent":false,

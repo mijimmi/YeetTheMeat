@@ -14,7 +14,7 @@ has_been_served = false;
 
 // === TIMING ===
 wait_timer = 0;
-max_wait_time = 60 * 60;   // 30 seconds (adjustable)
+max_wait_time = 60 * 90;   // 90 seconds (adjustable)
 eat_time = 60 * 5;         // 5 seconds eating
 
 // === PATHFINDING ===
@@ -219,6 +219,10 @@ function serve_food(food_item) {
             if (instance_exists(OBJ_Scoring)) {
                 var points = OBJ_Scoring.get_food_points(ordered_food_type);
                 OBJ_Scoring.add_score(points);
+                
+                // Spawn score popup
+                var popup = instance_create_depth(x, y - 50, depth - 200, OBJ_ScorePopup);
+                popup.score_value = points;
             }
             
             // Spawn confetti!
@@ -242,6 +246,10 @@ function serve_food(food_item) {
             if (instance_exists(OBJ_Scoring)) {
                 var points = OBJ_Scoring.get_food_points_by_sprite(order_sprite);
                 OBJ_Scoring.add_score(points);
+                
+                // Spawn score popup
+                var popup = instance_create_depth(x, y - 50, depth - 200, OBJ_ScorePopup);
+                popup.score_value = points;
             }
             
             // Spawn confetti!

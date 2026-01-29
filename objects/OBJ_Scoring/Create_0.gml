@@ -13,6 +13,10 @@ points_penalty = -5;
 // === RESULTS SCREEN ===
 show_results = false;  // ADD THIS LINE
 
+// === SCORE UI ANIMATION ===
+score_pulse = 0;       // For pulsing animation
+score_scale = 1;       // Current scale for animation
+
 // ... rest of your functions stay the same ...
 // === FOOD TYPE TO POINTS MAPPING ===
 function get_food_points(food_type) {
@@ -65,6 +69,7 @@ function add_score(points) {
     total_score += points;
     if (points > 0) {
         orders_completed++;
+        score_scale = 1.3; // Pulse animation when score increases
     } else if (points < 0) {
         orders_failed++;
     }

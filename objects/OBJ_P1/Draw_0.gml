@@ -274,10 +274,14 @@ if (state == "aiming") {
         draw_set_alpha(cancel_hint_alpha);
         draw_set_halign(fa_center);
         draw_set_valign(fa_middle);
-        draw_set_color(sketch_brown);
         draw_set_font(fnt_winkle);
         
-        draw_text(hint_x + random_range(-0.5, 0.5), hint_y + random_range(-0.5, 0.5), hint_text);
+        // Draw text with lighter color and bigger size
+        var hint_text_color = make_color_rgb(240, 220, 200); // Light cream color
+        var hint_scale = 1.5; // Bigger for better visibility
+        
+        draw_set_color(hint_text_color);
+        draw_text_transformed(hint_x + random_range(-0.5, 0.5), hint_y + random_range(-0.5, 0.5), hint_text, hint_scale, hint_scale, 0);
         
         draw_set_alpha(cancel_hint_alpha * 0.7);
         draw_set_color(pastel_pink);

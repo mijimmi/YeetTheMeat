@@ -90,6 +90,7 @@
     {"id":{"name":"OBJ_PotStation","path":"objects/OBJ_PotStation/OBJ_PotStation.yy",},},
     {"id":{"name":"OBJ_Rice","path":"objects/OBJ_Rice/OBJ_Rice.yy",},},
     {"id":{"name":"OBJ_RiceDispenser","path":"objects/OBJ_RiceDispenser/OBJ_RiceDispenser.yy",},},
+    {"id":{"name":"OBJ_ScorePopup","path":"objects/OBJ_ScorePopup/OBJ_ScorePopup.yy",},},
     {"id":{"name":"OBJ_Scoring","path":"objects/OBJ_Scoring/OBJ_Scoring.yy",},},
     {"id":{"name":"OBJ_ServingCounter","path":"objects/OBJ_ServingCounter/OBJ_ServingCounter.yy",},},
     {"id":{"name":"OBJ_SlicingStation","path":"objects/OBJ_SlicingStation/OBJ_SlicingStation.yy",},},
