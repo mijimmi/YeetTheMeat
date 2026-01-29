@@ -1,3 +1,8 @@
+// Check if this is tutorial room
+if (room == tutorial_room) { 
+    can_spawn = false; // Disable automatic spawning in tutorial
+}
+
 // === SPAWNING CONFIGURATION ===
 spawn_x = 100;            // Where customers spawn (adjust to your room entrance)
 spawn_y = 500;

@@ -137,6 +137,43 @@ function handle_player_collision() {
             var overlap = max(0, min_dist - dist_centers);
             
             if (overlap > 0) {
+                // === DROP HELD ITEM ON COLLISION WITH CUSTOMER ===
+                if (held_item != noone && instance_exists(held_item)) {
+                    // Drop position slightly away from collision
+                    held_item.x = x + lengthdir_x(20, push_dir + 180);
+                    held_item.y = y + lengthdir_y(20, push_dir + 180) + 40;
+                    held_item.is_held = false;
+                    held_item.held_by = noone;
+                    
+                    // Give velocity based on player movement
+                    if (object_is_ancestor(held_item.object_index, OBJ_Food)) {
+                        held_item.velocity_x = velocity_x * 0.5;
+                        held_item.velocity_y = velocity_y * 0.5;
+                    }
+                    else if (held_item.object_index == OBJ_Plate) {
+                        held_item.velocity_x = velocity_x * 0.5;
+                        held_item.velocity_y = velocity_y * 0.5;
+                    }
+                    else if (held_item.object_index == OBJ_Drink) {
+                        held_item.velocity_x = velocity_x * 0.5;
+                        held_item.velocity_y = velocity_y * 0.5;
+                    }
+                    
+                    // If dropping plate with food, drop the food too
+                    if (held_item.object_index == OBJ_Plate && held_item.has_food) {
+                        var food = held_item.food_on_plate;
+                        if (food != noone && instance_exists(food)) {
+                            food.x = held_item.x;
+                            food.y = held_item.y - 10;
+                            food.velocity_x = velocity_x * 0.5;
+                            food.velocity_y = velocity_y * 0.5;
+                        }
+                    }
+                    
+                    held_item = noone;
+                }
+                
+                // Push customer away
                 var push_x = lengthdir_x(overlap * 0.5, push_dir);
                 var push_y = lengthdir_y(overlap * 0.5, push_dir);
                 
