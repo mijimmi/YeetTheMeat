@@ -1,9 +1,12 @@
 // Update instruction fade
 instruction_alpha = lerp(instruction_alpha, target_alpha, 0.1);
 
-// === CHECK FOR SKIP TUTORIAL (SELECT BUTTON) ===
+// Update arrow bounce animation
+arrow_bounce += 0.15;
+
+// === CHECK FOR SKIP TUTORIAL (SELECT BUTTON) - Either player can skip ===
 if (current_phase != "complete") { // Only allow skip if not already complete
-    if (gamepad_button_check_pressed(0, gp_select)) { // SELECT button
+    if (gamepad_button_check_pressed(0, gp_select) || gamepad_button_check_pressed(1, gp_select) || keyboard_check_pressed(vk_tab)) { // SELECT button from P1 or P2
         show_debug_message("Tutorial skipped!");
         global.game_paused = false;
         global.show_tutorial = false;  // Don't show tutorial again (NEW)
@@ -12,6 +15,13 @@ if (current_phase != "complete") { // Only allow skip if not already complete
     }
 }
 
+// Check both players exist
+if (!instance_exists(player)) {
+    player = instance_find(OBJ_P1, 0);
+    if (!instance_exists(player)) {
+        player = instance_find(OBJ_P2, 0); // Fallback to P2
+    }
+}
 if (!instance_exists(player)) return;
 
 // === TUTORIAL COMPLETE - PAUSE AND WAIT FOR INPUT ===
@@ -19,8 +29,8 @@ if (current_phase == "complete") {
     // Pause the game
     global.game_paused = true;
     
-    // Check for A button press to start game
-    if (gamepad_button_check_pressed(0, global.btn_place)) { // A button
+    // Check for A button press to start game (either player)
+    if (gamepad_button_check_pressed(0, global.btn_place) || gamepad_button_check_pressed(1, global.btn_place) || keyboard_check_pressed(ord("C"))) { // A button from P1 or P2
         // Unpause and go to main game room
         global.game_paused = false;
         global.show_tutorial = false;  // Don't show tutorial again (NEW)
@@ -51,10 +61,10 @@ if (current_phase == "movement") {
 
 // === CONTROLS PHASE ===
 else if (current_phase == "controls") {
-    // Track button presses
-    var pressed_X = gamepad_button_check_pressed(0, global.btn_take);
-    var pressed_A = gamepad_button_check_pressed(0, global.btn_place);
-    var pressed_Y = gamepad_button_check_pressed(0, global.btn_drop);
+    // Track button presses from either player
+    var pressed_X = gamepad_button_check_pressed(0, global.btn_take) || gamepad_button_check_pressed(1, global.btn_take) || keyboard_check_pressed(ord("Z"));
+    var pressed_A = gamepad_button_check_pressed(0, global.btn_place) || gamepad_button_check_pressed(1, global.btn_place) || keyboard_check_pressed(ord("C"));
+    var pressed_Y = gamepad_button_check_pressed(0, global.btn_drop) || gamepad_button_check_pressed(1, global.btn_drop) || keyboard_check_pressed(ord("X"));
     
     // Advance when any button has been pressed
     if (pressed_X || pressed_A || pressed_Y) {

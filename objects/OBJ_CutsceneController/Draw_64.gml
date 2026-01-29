@@ -57,7 +57,7 @@ if (displayed_text != "" && fade_alpha < 1 &&
     // Draw text with outline for readability - LARGER
     var text_x = center_x;
     var text_y = screen_height - 150;
-    var text_scale = 3.0;
+    var text_scale = 4.0; // Even bigger
     
     // Draw black outline
     draw_set_color(c_black);
@@ -86,8 +86,8 @@ if (cutscene_state != "done" && cutscene_state != "fade_out" &&
     draw_set_font(global.game_font);
     draw_set_halign(fa_center);
     draw_set_valign(fa_bottom);
-    // Slightly bigger text
-    draw_text_transformed(center_x, screen_height - 40, "Press ENTER or START to skip", 1.3, 1.3, 0);
+    // Bigger skip text
+    draw_text_transformed(center_x, screen_height - 40, "Press ENTER or START to skip", 2.0, 2.0, 0);
 }
 
 // === DRAW DIALOGUE SCENE ===
@@ -130,13 +130,13 @@ if (cutscene_state == "dialogue_show" && dialogue_bg_alpha > 0 && fade_alpha < 1
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
     var name_text = (current_speaker == "istar") ? "ISTAR" : "CULAY";
-    draw_text_transformed(250, 120, name_text, 3.0, 3.0, 0);
+    draw_text_transformed(250, 120, name_text, 4.0, 4.0, 0); // Bigger name
     
     // Draw dialogue text with outline (WHITE with BLACK outline) - closer to name
     var text_x = center_x;
     var text_y = 180;  // Closer to name
-    var text_scale = 3.0;
-    var outline = 3;
+    var text_scale = 4.0; // Bigger dialogue
+    var outline = 4;
     
     draw_set_halign(fa_center);
     draw_set_valign(fa_top);
@@ -163,7 +163,7 @@ if (cutscene_state == "dialogue_show" && dialogue_bg_alpha > 0 && fade_alpha < 1
         draw_set_halign(fa_center);
         draw_set_valign(fa_top);
         draw_set_color(c_black);
-        draw_text_transformed(center_x, text_y + 120, "A for next line", 1.0, 1.0, 0);
+        draw_text_transformed(center_x, text_y + 120, "A for next line", 1.5, 1.5, 0); // Bigger prompt
     }
 }
 
@@ -196,8 +196,8 @@ if (final_dialogue_bg_alpha > 0 && fade_alpha < 1 && cutscene_state == "final_di
         draw_set_halign(fa_center);
         draw_set_valign(fa_middle);
         
-        var text_scale = 4.0;
-        var outline = 4;
+        var text_scale = 5.0; // Even bigger for final message
+        var outline = 5;
         
         // Draw black outline
         draw_set_color(c_black);
@@ -241,13 +241,19 @@ if (final_dialogue_bg_alpha > 0 && fade_alpha < 1 && cutscene_state == "final_di
         draw_set_halign(fa_left);
         draw_set_valign(fa_top);
         var name_text = (final_current_speaker == "istar") ? "ISTAR" : "CULAY";
-        draw_text_transformed(250, 120, name_text, 3.0, 3.0, 0);
+        draw_text_transformed(250, 120, name_text, 4.0, 4.0, 0); // Bigger name
         
         // Draw dialogue text with outline
         var text_x = center_x;
         var text_y = 180;
-        var text_scale = 3.0;
-        var outline = 3;
+        var text_scale = 4.0; // Bigger dialogue
+        
+        // Special case: Make "We can help" line smaller
+        if (string_pos("We can help", final_dialogue_text_display) > 0) {
+            text_scale = 3.0; // Smaller for this specific line
+        }
+        
+        var outline = 4;
         
         draw_set_halign(fa_center);
         draw_set_valign(fa_top);
@@ -274,7 +280,7 @@ if (final_dialogue_bg_alpha > 0 && fade_alpha < 1 && cutscene_state == "final_di
             draw_set_halign(fa_center);
             draw_set_valign(fa_top);
             draw_set_color(c_black);
-            draw_text_transformed(center_x, text_y + 120, "A for next line", 1.0, 1.0, 0);
+            draw_text_transformed(center_x, text_y + 120, "A for next line", 1.5, 1.5, 0); // Bigger prompt
         }
     }
 }
@@ -306,8 +312,8 @@ if ((cutscene_state == "final_animation_transition" || cutscene_state == "final_
         draw_set_halign(fa_center);
         draw_set_valign(fa_bottom);
         
-        var text_scale = 2.5;
-        var outline = 4;
+        var text_scale = 3.5; // Bigger prompt
+        var outline = 5;
         
         // Draw black outline
         draw_set_color(c_black);
@@ -352,11 +358,11 @@ if (cutscene_state == "loading") {
     }
     
     var loading_text = "Loading" + dots;
-    draw_text_transformed(center_x, center_y + 80, loading_text, 3.0, 3.0, 0);
+    draw_text_transformed(center_x, center_y + 80, loading_text, 4.0, 4.0, 0); // Bigger loading text
     
     // Draw cute flavor text
     draw_set_alpha(0.8);
-    draw_text_transformed(center_x, center_y + 150, "Preparing ingredients...", 1.5, 1.5, 0);
+    draw_text_transformed(center_x, center_y + 150, "Preparing ingredients...", 2.0, 2.0, 0); // Bigger flavor text
 }
 
 // === FADE OUT OVERLAY ===
@@ -365,6 +371,36 @@ if (fade_alpha > 0 && cutscene_state != "loading") {
     draw_set_color(c_black);
     draw_rectangle(0, 0, screen_width, screen_height, false);
 }
+
+// === NOW PLAYING (Top Right Corner) ===
+// Always visible, drawn on top of everything
+draw_set_alpha(1); // Force full opacity
+draw_set_font(fnt_winkle);
+draw_set_halign(fa_right);
+draw_set_valign(fa_top);
+
+var now_playing_x = 1920 - 30; // 30px from right edge
+var now_playing_y = 30; // 30px from top
+var text_scale = 1.2;
+var line_spacing = 25;
+
+// "Now Playing" label
+draw_set_color(c_black);
+draw_text_transformed(now_playing_x + 1, now_playing_y + 1, "Now Playing:", text_scale, text_scale, 0);
+draw_set_color(make_color_rgb(255, 200, 100)); // Light orange/yellow
+draw_text_transformed(now_playing_x, now_playing_y, "Now Playing:", text_scale, text_scale, 0);
+
+// Song title
+draw_set_color(c_black);
+draw_text_transformed(now_playing_x + 1, now_playing_y + line_spacing + 1, song_title, text_scale * 0.9, text_scale * 0.9, 0);
+draw_set_color(c_white);
+draw_text_transformed(now_playing_x, now_playing_y + line_spacing, song_title, text_scale * 0.9, text_scale * 0.9, 0);
+
+// Artist credit
+draw_set_color(c_black);
+draw_text_transformed(now_playing_x + 1, now_playing_y + line_spacing * 2 + 1, "by " + song_artist, text_scale * 0.75, text_scale * 0.75, 0);
+draw_set_color(make_color_rgb(180, 180, 180)); // Light gray
+draw_text_transformed(now_playing_x, now_playing_y + line_spacing * 2, "by " + song_artist, text_scale * 0.75, text_scale * 0.75, 0);
 
 // Reset draw settings
 draw_set_alpha(1);

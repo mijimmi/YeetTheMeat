@@ -81,3 +81,18 @@ for (var i = 0; i < gamepad_get_device_count(); i++) {
         break;
     }
 }
+
+// === MUSIC ===
+// Play menu music (loop)
+if (!audio_is_playing(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_)) {
+    audio_play_sound(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_, 1, true);
+    audio_sound_gain(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_, 0.175, 0); 
+}
+
+// Music info for display
+song_title = "Pop up the wind wings";
+song_artist = "watson";
+
+// Fade out control
+is_fading_out = false;
+fade_out_speed = 0.02; // Fade out over ~1.5 seconds

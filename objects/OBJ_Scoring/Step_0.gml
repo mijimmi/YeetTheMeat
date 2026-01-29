@@ -10,6 +10,9 @@ if (score_scale > 1) {
 
 // When showing results, pause the game
 if (show_results) {
+    // Pause the game globally
+    global.game_paused = true;
+    
     // Stop all customer movement
     with (OBJ_Customer) {
         customer_state = "idle";

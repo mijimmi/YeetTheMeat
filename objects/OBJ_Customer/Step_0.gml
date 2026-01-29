@@ -28,7 +28,8 @@ switch (customer_state) {
         
         if (wait_timer >= max_wait_time && !has_been_served) {
             customer_state = "leaving";
-            thought_bubble_alpha = 0;
+            // Keep bubble visible for a moment when leaving (will show red)
+            // thought_bubble_alpha = 0;
             
             if (instance_exists(OBJ_Scoring)) {
                 OBJ_Scoring.add_score(OBJ_Scoring.points_penalty);
@@ -55,7 +56,10 @@ switch (customer_state) {
         break;
         
     case "leaving":
-    // Set exit as target
+        // Fade out thought bubble gradually when leaving
+        thought_bubble_alpha = max(thought_bubble_alpha - 0.02, 0);
+        
+        // Set exit as target
 	    if (spawner != noone) {
 	        target_x = spawner.exit_x;
 	        target_y = spawner.exit_y;

@@ -270,6 +270,7 @@ function player_interact_place(player_instance) {
         }
         
         // --- COMBINE PLATE + FOOD ON GROUND (FALLBACK) ---
+        // Only allow plating cooked food!
         if (held_item != noone && instance_exists(held_item) && held_item.object_index == OBJ_Plate) {
             var plate = held_item;
             if (!plate.has_food) {
@@ -277,11 +278,23 @@ function player_interact_place(player_instance) {
                 if (nearest_food != noone && !nearest_food.is_held && !nearest_food.is_cooking) {
                     var dist = point_distance(x, y, nearest_food.x, nearest_food.y);
                     if (dist <= interact_range) {
-                        plate.food_on_plate = nearest_food;
-                        plate.has_food = true;
-                        nearest_food.is_on_plate = true;
-                        nearest_food.plate_instance = plate;
-                        interacted = true;
+                        // Check if food is ready to be plated (cooked state)
+                        var is_ready_to_plate = (
+                            nearest_food.food_type == "cooked" ||
+                            nearest_food.food_type == "fried_pork" ||
+                            nearest_food.food_type == "adobo" ||
+                            nearest_food.food_type == "cooked_meat_lumpia" ||
+                            nearest_food.food_type == "cooked_veggie_lumpia" ||
+                            nearest_food.food_type == "cooked_caldereta"
+                        );
+                        
+                        if (is_ready_to_plate) {
+                            plate.food_on_plate = nearest_food;
+                            plate.has_food = true;
+                            nearest_food.is_on_plate = true;
+                            nearest_food.plate_instance = plate;
+                            interacted = true;
+                        }
                     }
                 }
             }
@@ -292,17 +305,29 @@ function player_interact_place(player_instance) {
             if (nearest_plate != noone && !nearest_plate.is_held && !nearest_plate.has_food) {
                 var dist = point_distance(x, y, nearest_plate.x, nearest_plate.y);
                 if (dist <= interact_range) {
-                    nearest_plate.food_on_plate = food;
-                    nearest_plate.has_food = true;
-                    food.is_held = false;
-                    food.held_by = noone;
-                    food.is_on_plate = true;
-                    food.plate_instance = nearest_plate;
+                    // Check if food is ready to be plated (cooked state)
+                    var is_ready_to_plate = (
+                        food.food_type == "cooked" ||
+                        food.food_type == "fried_pork" ||
+                        food.food_type == "adobo" ||
+                        food.food_type == "cooked_meat_lumpia" ||
+                        food.food_type == "cooked_veggie_lumpia" ||
+                        food.food_type == "cooked_caldereta"
+                    );
                     
-                    held_item = nearest_plate;
-                    nearest_plate.is_held = true;
-                    nearest_plate.held_by = id;
-                    interacted = true;
+                    if (is_ready_to_plate) {
+                        nearest_plate.food_on_plate = food;
+                        nearest_plate.has_food = true;
+                        food.is_held = false;
+                        food.held_by = noone;
+                        food.is_on_plate = true;
+                        food.plate_instance = nearest_plate;
+                        
+                        held_item = nearest_plate;
+                        nearest_plate.is_held = true;
+                        nearest_plate.held_by = id;
+                        interacted = true;
+                    }
                 }
             }
         }

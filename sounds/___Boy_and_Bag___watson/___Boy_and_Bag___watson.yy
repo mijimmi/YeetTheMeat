@@ -1,0 +1,26 @@
+{
+  "$GMSound":"v2",
+  "%Name":"___Boy_and_Bag___watson",
+  "audioGroupId":{
+    "name":"audiogroup_default",
+    "path":"audiogroups/audiogroup_default",
+  },
+  "bitDepth":1,
+  "channelFormat":0,
+  "compression":0,
+  "compressionQuality":4,
+  "conversionMode":0,
+  "duration":56.058777,
+  "exportDir":"",
+  "name":"___Boy_and_Bag___watson",
+  "parent":{
+    "name":"MUSIC",
+    "path":"folders/ASSETS/MUSIC.yy",
+  },
+  "preload":false,
+  "resourceType":"GMSound",
+  "resourceVersion":"2.0",
+  "sampleRate":44100,
+  "soundFile":"___Boy_and_Bag___watson.mp3",
+  "volume":1.0,
+}

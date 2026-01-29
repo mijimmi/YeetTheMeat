@@ -44,8 +44,15 @@ highlight_color = c_yellow;
 instruction_x = display_get_gui_width() / 2;
 instruction_y = 100;
 
-// === TRACKING PLAYER ACTIONS ===
+// Tutorial arrow indicators
+tutorial_target_station = noone; // Which station to highlight
+arrow_bounce = 0; // Animation timer for arrow
+
+// === TRACKING PLAYER ACTIONS (Check both players) ===
 player = instance_find(OBJ_P1, 0);
+if (!instance_exists(player)) {
+    player = instance_find(OBJ_P2, 0); // If P1 doesn't exist, track P2
+}
 
 // === FUNCTIONS ===
 function set_instruction(text) {
@@ -94,25 +101,47 @@ function check_controls_info() {
 }
 
 function check_recipe_tutorial() {
+    // Check both players for held items
+    var p1 = instance_find(OBJ_P1, 0);
+    var p2 = instance_find(OBJ_P2, 0);
+    
     // Step 0: Pick up lumpia wrapper
     if (tutorial_step == 0) {
-        if (player.held_item != noone && player.held_item.object_index == OBJ_LumpiaWrapper) {
+        var has_wrapper = false;
+        if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_LumpiaWrapper) {
+            has_wrapper = true;
+        }
+        if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_LumpiaWrapper) {
+            has_wrapper = true;
+        }
+        if (has_wrapper) {
             has_picked_wrapper = true;
             advance_step(); // Immediately advance
         }
     }
     // Step 1: Place lumpia wrapper in mixing station (NEW STEP)
 	else if (tutorial_step == 1) {
-	    // Check if player no longer has the wrapper (they placed it somewhere)
-	    if (has_picked_wrapper && player.held_item == noone) {
-	        has_placed_wrapper = true;
-	        tutorial_step++;
-	        update_tutorial();
+	    // Check if the wrapper is on the mixing station
+	    if (instance_exists(OBJ_MixingStation)) {
+	        var mixer = instance_find(OBJ_MixingStation, 0);
+	        // Check if ingredient1 is a wrapper
+	        if (mixer.ingredient1 != noone && instance_exists(mixer.ingredient1) && mixer.ingredient1.object_index == OBJ_LumpiaWrapper) {
+	            has_placed_wrapper = true;
+	            tutorial_step++;
+	            update_tutorial();
+	        }
 	    }
 	}
     // Step 2: Pick up meat from storage
     else if (tutorial_step == 2) {
-        if (player.held_item != noone && player.held_item.object_index == OBJ_Meat) {
+        var has_meat = false;
+        if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_Meat) {
+            has_meat = true;
+        }
+        if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Meat) {
+            has_meat = true;
+        }
+        if (has_meat) {
             has_picked_meat = true;
             advance_step(); // Immediately advance
         }
@@ -144,7 +173,14 @@ function check_recipe_tutorial() {
     }
     // Step 5: Pick up sliced meat
     else if (tutorial_step == 5) {
-        if (player.held_item != noone && player.held_item.object_index == OBJ_Meat && player.held_item.food_type == "sliced") {
+        var has_sliced = false;
+        if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_Meat && p1.held_item.food_type == "sliced") {
+            has_sliced = true;
+        }
+        if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Meat && p2.held_item.food_type == "sliced") {
+            has_sliced = true;
+        }
+        if (has_sliced) {
             advance_step(); // Immediately advance
         }
     }
@@ -160,7 +196,14 @@ function check_recipe_tutorial() {
     }
     // Step 7: Pick up raw lumpia
     else if (tutorial_step == 7) {
-        if (player.held_item != noone && player.held_item.object_index == OBJ_Lumpia) {
+        var has_lumpia = false;
+        if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_Lumpia) {
+            has_lumpia = true;
+        }
+        if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Lumpia) {
+            has_lumpia = true;
+        }
+        if (has_lumpia) {
             advance_step(); // Immediately advance
         }
     }
@@ -187,14 +230,29 @@ function check_recipe_tutorial() {
     }
     // Step 10: Pick up cooked lumpia
     else if (tutorial_step == 10) {
-        if (player.held_item != noone && player.held_item.object_index == OBJ_Lumpia && player.held_item.food_type == "cooked_meat_lumpia") {
+        var has_cooked = false;
+        if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_Lumpia && p1.held_item.food_type == "cooked_meat_lumpia") {
+            has_cooked = true;
+        }
+        if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Lumpia && p2.held_item.food_type == "cooked_meat_lumpia") {
+            has_cooked = true;
+        }
+        if (has_cooked) {
             advance_step(); // Immediately advance
         }
     }
     // Step 11: Get plate and combine with food
 	else if (tutorial_step == 11) {
-	    // Check if player is holding a plate with food
-	    if (player.held_item != noone && player.held_item.object_index == OBJ_Plate && player.held_item.has_food) {
+	    // Check if either player is holding a plate with food
+	    var has_plated_item = false;
+	    if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_Plate && p1.held_item.has_food) {
+	        has_plated_item = true;
+	    }
+	    if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Plate && p2.held_item.has_food) {
+	        has_plated_item = true;
+	    }
+	    
+	    if (has_plated_item) {
 	        has_plated = true;
 	        advance_step(); // Immediately advance to step 12
 	    }
@@ -222,15 +280,17 @@ function check_recipe_tutorial() {
 	        if (counter.plate_on_counter != noone) {
 	            show_debug_message("Plate has food: " + string(counter.plate_on_counter.has_food));
 	            if (counter.plate_on_counter.has_food) {
-	                show_debug_message("Advancing to step 13 and setting alarm[1]");
+	                show_debug_message("Advancing to serve phase and setting alarm[1]");
 	                has_served_counter = true;
-	                tutorial_step = 13; // Directly set to 13
+	                tutorial_step = 0; // Reset step for serve phase
+	                current_phase = "serve"; // CHANGE PHASE NOW
 	                update_tutorial();
 	                alarm[1] = 1; // Spawn customer almost immediately
 	            }
 	        } else {
-	            // Alternative check: player released the plated food
-	            if (has_plated && player.held_item == noone && !has_served_counter) {
+	            // Alternative check: either player released the plated food
+	            var both_empty = (!instance_exists(p1) || p1.held_item == noone) && (!instance_exists(p2) || p2.held_item == noone);
+	            if (has_plated && both_empty && !has_served_counter) {
 	                show_debug_message("Player released plate - advancing to step 13 and changing to serve phase");
 	                has_served_counter = true;
 	                tutorial_step = 0; // Reset step for serve phase
@@ -304,45 +364,61 @@ function update_controls_tutorial() {
 }
 
 function update_recipe_tutorial() {
+    // Reset target station
+    tutorial_target_station = noone;
+    
     switch (tutorial_step) {
         case 0:
             set_instruction("Step 1: Pick up a Lumpia Wrapper\nPress -X- near the wrapper storage");
+            tutorial_target_station = instance_find(OBJ_WrapperStorage, 0);
             break;
         case 1:
             set_instruction("Step 2: Place wrapper in mixing station\nPress -A- near the mixing station");
+            tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 2:
             set_instruction("Step 3: Pick up Meat from storage\nPress -X- near the freezer");
+            tutorial_target_station = instance_find(OBJ_Freezer, 0);
             break;
         case 3:
             set_instruction("Step 4: Place meat on Slicing Station\nPress -A- near the slicing station");
+            tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 4:
             set_instruction("Step 5: Wait for meat to slice...");
+            tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 5:
             set_instruction("Step 6: Take the sliced meat\nPress -X- near the slicing station");
+            tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 6:
             set_instruction("Step 7: Place sliced meat in mixing station\nPress -A- near the mixing station to combine");
+            tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 7:
             set_instruction("Step 8: Take the raw lumpia\nPress -X- near the mixing station");
+            tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 8:
             set_instruction("Step 9: Place lumpia on Frying Station\nPress -A- near the frying station");
+            tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 9:
             set_instruction("Step 10: Wait for lumpia to cook...");
+            tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 10:
             set_instruction("Step 11: Take the cooked lumpia\nPress -X- near the frying station");
+            tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 11:
             set_instruction("Step 12: Get a plate and combine with lumpia\nPress -X- at plate storage, then -A- near lumpia");
+            tutorial_target_station = instance_find(OBJ_PlateStorage, 0);
             break;
         case 12:
             set_instruction("Step 13: Place on serving counter\nPress -A- near the serving counter");
+            tutorial_target_station = instance_find(OBJ_ServingCounter, 0);
             break;
     }
 }

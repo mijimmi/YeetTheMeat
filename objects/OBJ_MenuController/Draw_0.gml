@@ -222,3 +222,36 @@ else if (menu_state == "leaderboard") {
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
 }
+
+// === NOW PLAYING (Top Right Corner - Shows on all menu states) ===
+draw_set_font(fnt_winkle);
+draw_set_halign(fa_right);
+draw_set_valign(fa_top);
+
+var now_playing_x = 1920 - 30; // 30px from right edge
+var now_playing_y = 30; // 30px from top
+var text_scale = 1.2;
+var line_spacing = 25;
+
+// "Now Playing" label
+draw_set_color(c_black);
+draw_text_transformed(now_playing_x + 1, now_playing_y + 1, "Now Playing:", text_scale, text_scale, 0);
+draw_set_color(make_color_rgb(255, 200, 100)); // Light orange/yellow
+draw_text_transformed(now_playing_x, now_playing_y, "Now Playing:", text_scale, text_scale, 0);
+
+// Song title
+draw_set_color(c_black);
+draw_text_transformed(now_playing_x + 1, now_playing_y + line_spacing + 1, song_title, text_scale * 0.9, text_scale * 0.9, 0);
+draw_set_color(c_white);
+draw_text_transformed(now_playing_x, now_playing_y + line_spacing, song_title, text_scale * 0.9, text_scale * 0.9, 0);
+
+// Artist credit
+draw_set_color(c_black);
+draw_text_transformed(now_playing_x + 1, now_playing_y + line_spacing * 2 + 1, "by " + song_artist, text_scale * 0.75, text_scale * 0.75, 0);
+draw_set_color(make_color_rgb(180, 180, 180)); // Light gray
+draw_text_transformed(now_playing_x, now_playing_y + line_spacing * 2, "by " + song_artist, text_scale * 0.75, text_scale * 0.75, 0);
+
+// Reset draw settings
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);
+draw_set_color(c_white);

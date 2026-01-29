@@ -22,6 +22,13 @@ if (cutscene_state != "done" && cutscene_state != "fade_out" &&
 // === SKIP PROMPT PULSE ===
 skip_pulse_timer += 0.05;
 
+// === MUSIC FADE OUT ===
+if (music_is_fading_out && audio_is_playing(___Boy_and_Bag___watson)) {
+    var current_gain = audio_sound_get_gain(___Boy_and_Bag___watson);
+    var new_gain = max(0, current_gain - music_fade_speed);
+    audio_sound_gain(___Boy_and_Bag___watson, new_gain, 0);
+}
+
 // === STATE MACHINE ===
 state_timer++;
 
@@ -437,6 +444,11 @@ switch (cutscene_state) {
         break;
         
     case "fade_out":
+        // Start music fade out on first frame of this state
+        if (state_timer == 1) {
+            music_is_fading_out = true;
+        }
+        
         // Fade everything out
         fade_alpha = min(fade_alpha + 0.03, 1);
         dialogue_alpha = max(dialogue_alpha - 0.05, 0);

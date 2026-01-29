@@ -145,10 +145,10 @@ dialogue_lines_full = [
     ["istar", "They're hungry. I know how that feels."],
     ["culay", "But they fed us."],
     ["istar", "On bad days. On hard times."],
-    ["istar", "…What do we do?"],
+    ["istar", "...What do we do?"],
     ["istar", "We're not much."],
     ["culay", "But we're here."],
-    ["culay", "Wait a minute…"]
+    ["culay", "Wait a minute..."]
 ];
 dialogue_index = 0;
 dialogue_text = "";
@@ -168,3 +168,18 @@ instance_deactivate_object(OBJ_CustomerSpawner);
 instance_deactivate_object(OBJ_Customer);
 instance_deactivate_object(OBJ_P1);
 instance_deactivate_object(OBJ_P2);
+
+// === CUTSCENE MUSIC ===
+// Play cutscene music (loop)
+if (!audio_is_playing(___Boy_and_Bag___watson)) {
+    audio_play_sound(___Boy_and_Bag___watson, 1, true);
+    audio_sound_gain(___Boy_and_Bag___watson, 0.12, 0); // Set volume to 12%
+}
+
+// Music info for display
+song_title = "Boy and Bag";
+song_artist = "watson";
+
+// Music fade control
+music_is_fading_out = false;
+music_fade_speed = 0.01; // Slower fade for cutscene

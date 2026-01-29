@@ -11,6 +11,7 @@
   "defaultScriptType":1,
   "Folders":[
     {"$GMFolder":"","%Name":"ASSETS","folderPath":"folders/ASSETS.yy","name":"ASSETS","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"MUSIC","folderPath":"folders/ASSETS/MUSIC.yy","name":"MUSIC","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"OBJECTS","folderPath":"folders/OBJECTS.yy","name":"OBJECTS","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Controllers","folderPath":"folders/OBJECTS/Controllers.yy","name":"Controllers","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Foods","folderPath":"folders/OBJECTS/Foods.yy","name":"Foods","resourceType":"GMFolder","resourceVersion":"2.0",},
@@ -110,6 +111,8 @@
     {"id":{"name":"game_room","path":"rooms/game_room/game_room.yy",},},
     {"id":{"name":"menu_room","path":"rooms/menu_room/menu_room.yy",},},
     {"id":{"name":"tutorial_room","path":"rooms/tutorial_room/tutorial_room.yy",},},
+    {"id":{"name":"____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_","path":"sounds/____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_/____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_.yy",},},
+    {"id":{"name":"___Boy_and_Bag___watson","path":"sounds/___Boy_and_Bag___watson/___Boy_and_Bag___watson.yy",},},
     {"id":{"name":"samplestation","path":"sprites/samplestation/samplestation.yy",},},
     {"id":{"name":"spr_1Hand","path":"sprites/spr_1Hand/spr_1Hand.yy",},},
     {"id":{"name":"spr_1left","path":"sprites/spr_1left/spr_1left.yy",},},

@@ -1,6 +1,21 @@
 // === UPDATE TITLE ANIMATION ===
 title_time += 1;
 
+// === MUSIC FADE OUT ===
+if (is_fading_out) {
+    var current_gain = audio_sound_get_gain(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_);
+    var new_gain = max(0, current_gain - fade_out_speed);
+    audio_sound_gain(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_, new_gain, 0);
+    
+    // When fully faded out, stop the sound and go to game room
+    if (new_gain <= 0) {
+        audio_stop_sound(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_);
+        room_goto(game_room);
+    }
+    // Don't process any other input while fading
+    exit;
+}
+
 // === UPDATE BUTTON POP ANIMATION ===
 if (menu_state == "main") {
     for (var i = 0; i < total_buttons; i++) {
@@ -129,13 +144,15 @@ else if (menu_state == "mode_select") {
                 global.game_mode = "singleplayer";
                 global.show_cutscene = true;  // Trigger intro cutscene
                 global.show_tutorial = true;  // NEW: Show tutorial after cutscene
-                room_goto(game_room);
+                // Start fade out (room transition happens when fade completes)
+                is_fading_out = true;
                 break;
             case 1: // Multiplayer
                 global.game_mode = "multiplayer";
                 global.show_cutscene = true;  // Trigger intro cutscene
                 global.show_tutorial = true;  // NEW: Show tutorial after cutscene
-                room_goto(game_room);
+                // Start fade out (room transition happens when fade completes)
+                is_fading_out = true;
                 break;
             case 2: // Go Back
                 menu_state = "main";
