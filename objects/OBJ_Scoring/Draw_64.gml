@@ -402,7 +402,7 @@ else {
                   make_color_rgb(255, 120, 120), hud_outline_thickness, text_scale);
     
     // Active customers - hand-drawn person icon
-    var active_customers = instance_number(OBJ_Customer);
+    var active_customers = instance_number(OBJ_Customer_Parent);
     var customers_y = hud_y + line_height * 3.2;
     var person_x = hud_x - 12;
     var person_y = customers_y + 12;
