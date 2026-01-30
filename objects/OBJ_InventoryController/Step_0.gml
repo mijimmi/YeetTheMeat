@@ -44,6 +44,10 @@ if (select_pressed && !recipe_opening && !recipe_closing) {
     if (recipe_book_open) {
         // Start closing animation
         recipe_closing = true;
+        
+        // Play recipe close sound
+        audio_sound_gain(sfx_recipeopen, 0.5, 0);
+        audio_play_sound(sfx_recipeopen, 1, false);
     }
     else if (!global.game_paused) {
         // Start opening animation
@@ -51,6 +55,10 @@ if (select_pressed && !recipe_opening && !recipe_closing) {
         recipe_opening = true;
         recipe_current_page = 1;  // Reset to first page
         global.game_paused = true;
+        
+        // Play recipe open sound
+        audio_sound_gain(sfx_recipeopen, 0.5, 0);
+        audio_play_sound(sfx_recipeopen, 1, false);
     }
 }
 
@@ -76,8 +84,16 @@ if (recipe_book_open && !recipe_opening && !recipe_closing) {
     // Navigate pages
     if (prev_page && recipe_current_page > 1) {
         recipe_current_page--;
+        
+        // Play page turn sound
+        audio_sound_gain(sfx_pageturn, 0.5, 0);
+        audio_play_sound(sfx_pageturn, 1, false);
     }
     if (next_page && recipe_current_page < recipe_total_pages) {
         recipe_current_page++;
+        
+        // Play page turn sound
+        audio_sound_gain(sfx_pageturn, 0.5, 0);
+        audio_play_sound(sfx_pageturn, 1, false);
     }
 }
