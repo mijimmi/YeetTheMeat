@@ -55,9 +55,16 @@ function get_mixing_hint(player) {
             }
         }
     }
-    // Player empty-handed, result ready
-    else if (player.held_item == noone && food_on_station != noone) {
-        hint_text = "X  Take Food";
+    // Player empty-handed
+    else if (player.held_item == noone) {
+        // Can take finished food
+        if (food_on_station != noone) {
+            hint_text = "X  Take Food";
+        }
+        // Can take back first ingredient if it's alone
+        else if (ingredient1 != noone && ingredient2 == noone) {
+            hint_text = "X  Take Ingredient";
+        }
     }
     
     return hint_text;

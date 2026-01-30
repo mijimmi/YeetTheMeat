@@ -17,6 +17,11 @@ function interact_take(player) {
         new_food.is_held = true;
         new_food.held_by = player.id;
         spawn_cooldown = spawn_cooldown_max;
+        
+        // Play interact sound when taking from storage
+        audio_sound_gain(sfx_interact, 0.5, 0);
+        audio_play_sound(sfx_interact, 1, false);
+        
         return true;
     }
     return false;

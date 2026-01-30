@@ -24,3 +24,17 @@ global.controller_disconnected = false;
 
 // Animation for disconnect message
 disconnect_pulse_timer = 0;
+
+// === MUSIC SYSTEM ===
+// Three songs alternate during gameplay
+current_song = 0; // 0 = Magic Cooking, 1 = Thirst, 2 = Viento del sol
+songs = [Magic_Cooking___watson, Thirst___watson, Viento_del_sol___watson];
+song_names = ["Magic Cooking", "Thirst", "Viento del sol"];
+song_artist = "watson";
+
+// Start first song with fade-in
+if (!audio_is_playing(songs[current_song])) {
+    audio_play_sound(songs[current_song], 1, false); // Don't loop, we'll switch songs
+    audio_sound_gain(songs[current_song], 0, 0); // Start at 0
+    audio_sound_gain(songs[current_song], 0.12, 2000); // Fade to 12% over 2 seconds
+}

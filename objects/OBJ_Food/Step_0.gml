@@ -38,6 +38,10 @@ if (is_cooking && instance_exists(cooking_station)) {
         if (cook_timer >= cook_time_required) {
             food_type = cooking_station.output_state;
             cook_timer = 0;
+            
+            // Play ding sound when food is done
+            audio_sound_gain(sfx_ding, 0.7, 0);
+            audio_play_sound(sfx_ding, 1, false);
         }
     } 
     // Only do default cooking if this is a simple food (Kwek, Rice, etc.)
@@ -47,6 +51,10 @@ if (is_cooking && instance_exists(cooking_station)) {
         if (food_type == "raw" && cook_timer >= cook_time_required) {
             food_type = "cooked";
             cook_timer = 0;
+            
+            // Play ding sound when food is done cooking
+            audio_sound_gain(sfx_ding, 0.7, 0);
+            audio_play_sound(sfx_ding, 1, false);
         }
         else if (food_type == "cooked" && cook_timer >= burn_time) {
             food_type = "burnt";

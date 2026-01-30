@@ -9,6 +9,10 @@ if (is_cooking && instance_exists(cooking_station)) {
         if (food_type == "sliced" && cook_timer >= cook_time_required) {
             food_type = "fried_pork";
             cook_timer = 0; // Reset for burn timer
+            
+            // Play ding sound when meat is done cooking
+            audio_sound_gain(sfx_ding, 0.7, 0);
+            audio_play_sound(sfx_ding, 1, false);
         }
         else if (food_type == "fried_pork" && cook_timer >= burn_time) {
             food_type = "burnt";
@@ -19,6 +23,10 @@ if (is_cooking && instance_exists(cooking_station)) {
         if (food_type == "soy_sliced" && cook_timer >= cook_time_required) {
             food_type = "adobo";
             cook_timer = 0; // Reset for burn timer
+            
+            // Play ding sound when meat is done cooking
+            audio_sound_gain(sfx_ding, 0.7, 0);
+            audio_play_sound(sfx_ding, 1, false);
         }
         else if (food_type == "adobo" && cook_timer >= burn_time) {
             food_type = "burnt";

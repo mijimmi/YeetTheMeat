@@ -16,19 +16,65 @@ mode_button_scales = [1, 1, 1];
 // === LEADERBOARD ===
 leaderboard_back_scale = 1;
 
-// Placeholder leaderboard data
-leaderboard_entries = [
-    ["AAA", 9999],
-    ["BBB", 7500],
-    ["CCC", 5000],
-    ["DDD", 3500],
-    ["EEE", 2000],
-    ["FFF", 1500],
-    ["GGG", 1000],
-    ["HHH", 500],
-    ["III", 250],
-    ["JJJ", 100]
-];
+// Load leaderboard from file (persistent storage)
+leaderboard_entries = [];
+var leaderboard_file = "leaderboard.sav";
+
+if (file_exists(leaderboard_file)) {
+    var file = file_text_open_read(leaderboard_file);
+    while (!file_text_eof(file)) {
+        var line = file_text_read_string(file);
+        file_text_readln(file);
+        
+        // Parse "NAME,SCORE" format
+        if (string_length(line) > 0) {
+            var comma_pos = string_pos(",", line);
+            if (comma_pos > 0) {
+                var entry_name = string_copy(line, 1, comma_pos - 1);
+                var entry_score = real(string_copy(line, comma_pos + 1, string_length(line) - comma_pos));
+                array_push(leaderboard_entries, [entry_name, entry_score]);
+            }
+        }
+    }
+    file_text_close(file);
+}
+
+// If no entries loaded, start with empty leaderboard
+if (array_length(leaderboard_entries) == 0) {
+    // Empty leaderboard - players will fill it!
+    leaderboard_entries = [];
+}
+
+// Check for pending leaderboard entry from game
+if (variable_global_exists("pending_leaderboard_entry") && global.pending_leaderboard_entry != noone) {
+    var entry = global.pending_leaderboard_entry;
+    var entry_name = entry[0];
+    var entry_score = entry[1];
+    
+    // Add new entry
+    array_push(leaderboard_entries, [entry_name, entry_score]);
+    
+    // Sort by score (descending)
+    array_sort(leaderboard_entries, function(a, b) {
+        return b[1] - a[1];
+    });
+    
+    // Keep only top 10
+    if (array_length(leaderboard_entries) > 10) {
+        array_resize(leaderboard_entries, 10);
+    }
+    
+    // Save updated leaderboard to file
+    var save_file = file_text_open_write(leaderboard_file);
+    for (var i = 0; i < array_length(leaderboard_entries); i++) {
+        file_text_write_string(save_file, leaderboard_entries[i][0] + "," + string(leaderboard_entries[i][1]));
+        file_text_writeln(save_file);
+    }
+    file_text_close(save_file);
+    
+    // Clear the pending entry
+    global.pending_leaderboard_entry = noone;
+}
 
 // Global game mode (will be checked by game_room)
 global.game_mode = "singleplayer";
@@ -82,11 +128,15 @@ for (var i = 0; i < gamepad_get_device_count(); i++) {
     }
 }
 
+// Track previous button selection for hover sound
+previous_button = selected_button;
+previous_mode = selected_mode;
+
 // === MUSIC ===
 // Play menu music (loop)
 if (!audio_is_playing(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_)) {
     audio_play_sound(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_, 1, true);
-    audio_sound_gain(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_, 0.175, 0); 
+    audio_sound_gain(____BGM_Pops_up_the_mind_wings_MusMus___BLPj3Fh9n1w_, 0.25, 0); 
 }
 
 // Music info for display

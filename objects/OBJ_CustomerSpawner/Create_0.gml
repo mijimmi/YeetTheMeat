@@ -13,8 +13,8 @@ exit_y = 300;
 spawn_timer = 0;
 
 // Starting spawn delays (slow at first)
-spawn_delay_min = 18 * 60;   // Start: Minimum 18 seconds between groups
-spawn_delay_max = 25 * 60;   // Start: Maximum 25 seconds between groups
+spawn_delay_min = 8 * 60;    // Start: Minimum 8 seconds between groups (reduced from 18)
+spawn_delay_max = 12 * 60;   // Start: Maximum 12 seconds between groups (reduced from 25)
 
 // Target spawn delays (after ramping up)
 spawn_delay_min_target = 8 * 60;   // End: Minimum 8 seconds between groups

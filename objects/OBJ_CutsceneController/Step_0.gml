@@ -54,6 +54,13 @@ switch (cutscene_state) {
                 type_timer = 0;
                 char_index++;
                 displayed_text = string_copy(full_text, 1, char_index);
+                
+                // Play text sound every 2 characters to avoid overlap
+                if (char_index % 2 == 0) {
+                    audio_stop_sound(sfx_text_talk);
+                    audio_sound_gain(sfx_text_talk, 0.6, 0);
+                    audio_play_sound(sfx_text_talk, 1, false);
+                }
             }
         }
         
@@ -79,6 +86,13 @@ switch (cutscene_state) {
                 type_timer = 0;
                 char_index++;
                 displayed_text = string_copy(full_text, 1, char_index);
+                
+                // Play text sound every 2 characters to avoid overlap
+                if (char_index % 2 == 0) {
+                    audio_stop_sound(sfx_text_talk);
+                    audio_sound_gain(sfx_text_talk, 0.6, 0);
+                    audio_play_sound(sfx_text_talk, 1, false);
+                }
             }
             // Check if first line done, move to second
             if (char_index >= string_length(full_text) && state_timer > 60) {
@@ -95,6 +109,13 @@ switch (cutscene_state) {
                 type_timer = 0;
                 char_index++;
                 displayed_text = string_copy(full_text, 1, char_index);
+                
+                // Play text sound every 2 characters to avoid overlap
+                if (char_index % 2 == 0) {
+                    audio_stop_sound(sfx_text_talk);
+                    audio_sound_gain(sfx_text_talk, 0.6, 0);
+                    audio_play_sound(sfx_text_talk, 1, false);
+                }
             }
         }
         
@@ -121,6 +142,13 @@ switch (cutscene_state) {
                 type_timer = 0;
                 char_index++;
                 displayed_text = string_copy(full_text, 1, char_index);
+                
+                // Play text sound every 2 characters to avoid overlap
+                if (char_index % 2 == 0) {
+                    audio_stop_sound(sfx_text_talk);
+                    audio_sound_gain(sfx_text_talk, 0.6, 0);
+                    audio_play_sound(sfx_text_talk, 1, false);
+                }
             }
             if (char_index >= string_length(full_text) && state_timer > 60) {
                 current_line = 1;
@@ -135,6 +163,13 @@ switch (cutscene_state) {
                 type_timer = 0;
                 char_index++;
                 displayed_text = string_copy(full_text, 1, char_index);
+                
+                // Play text sound every 2 characters to avoid overlap
+                if (char_index % 2 == 0) {
+                    audio_stop_sound(sfx_text_talk);
+                    audio_sound_gain(sfx_text_talk, 0.6, 0);
+                    audio_play_sound(sfx_text_talk, 1, false);
+                }
             }
         }
         
@@ -158,6 +193,13 @@ switch (cutscene_state) {
                 type_timer = 0;
                 char_index++;
                 displayed_text = string_copy(full_text, 1, char_index);
+                
+                // Play text sound every 2 characters to avoid overlap
+                if (char_index % 2 == 0) {
+                    audio_stop_sound(sfx_text_talk);
+                    audio_sound_gain(sfx_text_talk, 0.6, 0);
+                    audio_play_sound(sfx_text_talk, 1, false);
+                }
             }
             if (char_index >= string_length(full_text) && state_timer > 60) {
                 current_line = 1;
@@ -172,6 +214,13 @@ switch (cutscene_state) {
                 type_timer = 0;
                 char_index++;
                 displayed_text = string_copy(full_text, 1, char_index);
+                
+                // Play text sound every 2 characters to avoid overlap
+                if (char_index % 2 == 0) {
+                    audio_stop_sound(sfx_text_talk);
+                    audio_sound_gain(sfx_text_talk, 0.6, 0);
+                    audio_play_sound(sfx_text_talk, 1, false);
+                }
             }
             // After second line done, transition to silhouette
             if (char_index >= string_length(full_text) && state_timer > 90) {
@@ -206,6 +255,12 @@ switch (cutscene_state) {
         
         // Fade in hunger
         hunger_alpha = min(hunger_alpha + 0.08, 1);
+        
+        // Play hunger sound when it starts showing
+        if (state_timer == 1) {
+            audio_sound_gain(sfx_hunger, 0.4, 0);
+            audio_play_sound(sfx_hunger, 1, false);
+        }
         
         // Shake effect
         if (hunger_alpha > 0.5) {
@@ -252,6 +307,19 @@ switch (cutscene_state) {
                 dialogue_type_timer = 0;
                 dialogue_char_index++;
                 dialogue_text_display = string_copy(dialogue_text_full, 1, dialogue_char_index);
+                
+                // Play meow sound if Culay is speaking
+                if (current_speaker == "culay") {
+                    audio_sound_gain(sfx_meow_talk, 0.3, 0);
+                    audio_sound_pitch(sfx_meow_talk, 1.0);
+                    audio_play_sound(sfx_meow_talk, 1, false);
+                }
+                // Play lower-pitched meow if Istar is speaking
+                else if (current_speaker == "istar") {
+                    audio_sound_gain(sfx_meow_talk, 0.3, 0);
+                    audio_sound_pitch(sfx_meow_talk, 0.6);
+                    audio_play_sound(sfx_meow_talk, 1, false);
+                }
             }
             if (dialogue_char_index >= string_length(dialogue_text_full)) {
                 dialogue_text_complete = true;
@@ -362,6 +430,25 @@ switch (cutscene_state) {
                 final_dialogue_type_timer = 0;
                 final_dialogue_char_index++;
                 final_dialogue_text_display = string_copy(final_dialogue_text_full, 1, final_dialogue_char_index);
+                
+                // Play meow sound if Culay is speaking
+                if (final_current_speaker == "culay") {
+                    audio_sound_gain(sfx_meow_talk, 0.3, 0);
+                    audio_sound_pitch(sfx_meow_talk, 1.0);
+                    audio_play_sound(sfx_meow_talk, 1, false);
+                }
+                // Play lower-pitched meow if Istar is speaking
+                else if (final_current_speaker == "istar") {
+                    audio_sound_gain(sfx_meow_talk, 0.3, 0);
+                    audio_sound_pitch(sfx_meow_talk, 0.6);
+                    audio_play_sound(sfx_meow_talk, 1, false);
+                }
+                // Play text sound for "SERVE THE PEOPLE" (no speaker)
+                else if (final_current_speaker == "" && final_dialogue_char_index % 2 == 0) {
+                    audio_stop_sound(sfx_text_talk);
+                    audio_sound_gain(sfx_text_talk, 0.6, 0);
+                    audio_play_sound(sfx_text_talk, 1, false);
+                }
             }
             if (final_dialogue_char_index >= string_length(final_dialogue_text_full)) {
                 final_dialogue_text_complete = true;

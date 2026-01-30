@@ -5,6 +5,18 @@ tutorial_complete = false;
 // === TUTORIAL PHASES ===
 current_phase = "movement"; // "movement", "controls", "recipe", "serve", "complete"
 
+// === MUSIC ===
+// Play tutorial music with fade-in
+if (!audio_is_playing(Under_the_Cobblestone_watson)) {
+    audio_play_sound(Under_the_Cobblestone_watson, 1, true);
+    audio_sound_gain(Under_the_Cobblestone_watson, 0, 0); // Start at 0
+    audio_sound_gain(Under_the_Cobblestone_watson, 0.18, 2000); // Fade to 18% over 2 seconds (matches cutscene)
+}
+
+// Music info for display
+song_title = "Under the Cobblestone";
+song_artist = "watson";
+
 // === MOVEMENT TUTORIAL ===
 movement_attempts = 0;
 has_moved = false;
@@ -28,8 +40,50 @@ customer_served = false;
 
 // === UI ===
 instruction_text = "";
+instruction_text_full = ""; // Full text to display
+instruction_text_display = ""; // Text being typed out
+instruction_char_index = 0;
+instruction_type_timer = 0;
+instruction_type_speed = 1; // Frames between each character (faster than cutscene)
+instruction_text_complete = false;
 instruction_alpha = 0;
 target_alpha = 1;
+
+// === COMPLETE SCREEN TYPING ===
+complete_text_full = "TUTORIAL COMPLETE!";
+complete_text_display = "";
+complete_char_index = 0;
+complete_type_timer = 0;
+complete_type_speed = 2; // Slower for dramatic effect
+complete_text_complete = false;
+
+continue_text_full = "Press -A- to start the game!";
+continue_text_display = "";
+continue_char_index = 0;
+continue_type_timer = 0;
+continue_type_speed = 1;
+continue_text_complete = false;
+
+reminder_text_full = "Press SELECT in game to learn how to cook other foods";
+reminder_text_display = "";
+reminder_char_index = 0;
+reminder_type_timer = 0;
+reminder_type_speed = 1;
+reminder_text_complete = false;
+
+warning_text_full = "DON'T BUMP INTO YOUR FRIEND OR CUSTOMERS!";
+warning_text_display = "";
+warning_char_index = 0;
+warning_type_timer = 0;
+warning_type_speed = 1;
+warning_text_complete = false;
+
+warning_subtext_full = "It will result in you dropping your food";
+warning_subtext_display = "";
+warning_subtext_char_index = 0;
+warning_subtext_type_timer = 0;
+warning_subtext_type_speed = 1;
+warning_subtext_complete = false;
 
 // Box background
 box_padding = 20;
@@ -56,7 +110,10 @@ if (!instance_exists(player)) {
 
 // === FUNCTIONS ===
 function set_instruction(text) {
-    instruction_text = text;
+    instruction_text_full = text;
+    instruction_text_display = "";
+    instruction_char_index = 0;
+    instruction_text_complete = false;
     target_alpha = 1;
 }
 

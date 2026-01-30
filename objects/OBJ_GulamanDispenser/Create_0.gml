@@ -18,6 +18,11 @@ function interact_place(player) {
             // Fill with gulaman (cup stays in player's hands)
             item.drink_type = "gulaman";
 			item.food_type = "gulaman";
+            
+            // Play drink sound when filling
+            audio_sound_gain(sfx_drink, 0.6, 0);
+            audio_play_sound(sfx_drink, 1, false);
+            
             return true;
         }
     }

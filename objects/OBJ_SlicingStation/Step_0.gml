@@ -24,6 +24,12 @@ if (is_processing && active_player != noone) {
             // Progress!
             progress_current++;
             
+            // Play slicing sound when starting
+            if (progress_current == 1) {
+                audio_sound_gain(sfx_slicing, 0.45, 0);
+                audio_play_sound(sfx_slicing, 1, false);
+            }
+            
             if (progress_current >= progress_max) {
                 // Complete the slicing!
                 complete_slicing();
@@ -36,6 +42,8 @@ function cancel_processing() {
     is_processing = false;
     progress_current = 0;
     active_player = noone;
+    // Stop slicing sound if it was playing
+    audio_stop_sound(sfx_slicing);
     // Item stays on station but not processed
 }
 
@@ -48,6 +56,9 @@ function complete_slicing() {
             item_being_processed.veggie_state = "sliced";
         }
     }
+    
+    // Stop slicing sound
+    audio_stop_sound(sfx_slicing);
     
     is_processing = false;
     progress_current = 0;

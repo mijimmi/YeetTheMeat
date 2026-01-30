@@ -1,5 +1,10 @@
 // Draw GUI Event - Inventory Display
 
+// Don't draw if scoreboard is showing
+if (instance_exists(OBJ_Scoring) && OBJ_Scoring.show_results) {
+    exit;
+}
+
 var gui_width = display_get_gui_width();
 var gui_height = display_get_gui_height();
 

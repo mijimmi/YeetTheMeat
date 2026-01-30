@@ -175,6 +175,12 @@ switch (state) {
                 
                 shake_amount = aim_power * 10;
                 
+                // Play slide sound with pitch based on dash strength
+                var slide_pitch = clamp(0.8 + (aim_power * 0.4), 0.8, 1.2); // 0.8 to 1.2 pitch
+                audio_sound_gain(sfx_slide, 0.15, 0);
+                audio_sound_pitch(sfx_slide, slide_pitch);
+                audio_play_sound(sfx_slide, 1, false);
+                
                 gamepad_set_vibration(gamepad_slot, 1, 1);
                 alarm[0] = 8;
             } else {
@@ -276,6 +282,15 @@ switch (state) {
                     puff[7] = random_range(-5, 5);
                     ds_list_add(cloud_list, puff);
                 }
+                
+                // Play bump sound based on impact speed
+                var bump_volume = clamp(impact_speed / 15, 0.35, 0.65);
+                audio_sound_gain(sfx_bump, bump_volume, 0);
+                audio_play_sound(sfx_bump, 1, false);
+                
+                // Play P1 hit sound
+                audio_sound_gain(sfx_P1hit, 0.3, 0);
+                audio_play_sound(sfx_P1hit, 1, false);
             }
             
             velocity_y = -velocity_y * bounce_factor;
@@ -314,6 +329,9 @@ switch (state) {
             }
             
             // === DROP HELD ITEMS ON PLAYER COLLISION ===
+            var p1_dropped = false;
+            var p2_dropped = false;
+            
             // Drop P1's held item
             if (held_item != noone && instance_exists(held_item)) {
                 held_item.is_held = false;
@@ -321,6 +339,7 @@ switch (state) {
                 held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + random_range(-30, 30));
                 held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + random_range(-30, 30));
                 held_item = noone;
+                p1_dropped = true;
             }
             // Drop P2's held item
             if (other_player.held_item != noone && instance_exists(other_player.held_item)) {
@@ -329,6 +348,13 @@ switch (state) {
                 other_player.held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
                 other_player.held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
                 other_player.held_item = noone;
+                p2_dropped = true;
+            }
+            
+            // Play drop sound if any items were dropped
+            if (p1_dropped || p2_dropped) {
+                audio_sound_gain(sfx_item_drop, 0.4, 0);
+                audio_play_sound(sfx_item_drop, 1, false);
             }
             
             state = "moving";
@@ -405,6 +431,15 @@ switch (state) {
                     puff[7] = random_range(-5, 5);
                     ds_list_add(cloud_list, puff);
                 }
+                
+                // Play bump sound based on impact speed
+                var bump_volume = clamp(impact_speed / 15, 0.35, 0.65);
+                audio_sound_gain(sfx_bump, bump_volume, 0);
+                audio_play_sound(sfx_bump, 1, false);
+                
+                // Play P1 hit sound
+                audio_sound_gain(sfx_P1hit, 0.3, 0);
+                audio_play_sound(sfx_P1hit, 1, false);
             }
             
             velocity_x = -velocity_x * bounce_factor;
@@ -440,6 +475,15 @@ switch (state) {
                     puff[7] = random_range(-5, 5);
                     ds_list_add(cloud_list, puff);
                 }
+                
+                // Play bump sound based on impact speed
+                var bump_volume = clamp(impact_speed / 15, 0.35, 0.65);
+                audio_sound_gain(sfx_bump, bump_volume, 0);
+                audio_play_sound(sfx_bump, 1, false);
+                
+                // Play P1 hit sound
+                audio_sound_gain(sfx_P1hit, 0.3, 0);
+                audio_play_sound(sfx_P1hit, 1, false);
             }
             
             velocity_y = -velocity_y * bounce_factor;
@@ -705,6 +749,9 @@ if (instance_exists(OBJ_P2) && place_meeting(x, y, OBJ_P2)) {
         var impact_force = point_distance(0, 0, velocity_x - other_player.velocity_x, velocity_y - other_player.velocity_y);
         var bounce_strength = max(impact_force * 0.7, 2);
         
+        var p1_dropped = false;
+        var p2_dropped = false;
+        
         // Drop P1's held item
         if (held_item != noone && instance_exists(held_item)) {
             held_item.is_held = false;
@@ -712,6 +759,7 @@ if (instance_exists(OBJ_P2) && place_meeting(x, y, OBJ_P2)) {
             held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + random_range(-30, 30));
             held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + random_range(-30, 30));
             held_item = noone;
+            p1_dropped = true;
         }
         // Drop P2's held item
         if (other_player.held_item != noone && instance_exists(other_player.held_item)) {
@@ -720,6 +768,13 @@ if (instance_exists(OBJ_P2) && place_meeting(x, y, OBJ_P2)) {
             other_player.held_item.velocity_x = lengthdir_x(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
             other_player.held_item.velocity_y = lengthdir_y(bounce_strength * 0.5, push_dir + 180 + random_range(-30, 30));
             other_player.held_item = noone;
+            p2_dropped = true;
+        }
+        
+        // Play drop sound if any items were dropped
+        if (p1_dropped || p2_dropped) {
+            audio_sound_gain(sfx_item_drop, 0.3, 0);
+            audio_play_sound(sfx_item_drop, 1, false);
         }
     }
 }

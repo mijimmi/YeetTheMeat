@@ -44,6 +44,11 @@ function interact_place(player) {
             item.velocity_x = 0;
             item.velocity_y = 0;
             player.held_item = noone;
+            
+            // Play interact sound when placing first ingredient
+            audio_sound_gain(sfx_interact, 0.5, 0);
+            audio_play_sound(sfx_interact, 1, false);
+            
             return true;
         }
         // Second ingredient slot - only allow if it forms a valid combination
@@ -92,6 +97,10 @@ function interact_place(player) {
             
             // === PERFORM MIXING ===
             mix_ingredients();
+            
+            // Play interact sound after mixing
+            audio_sound_gain(sfx_interact, 0.5, 0);
+            audio_play_sound(sfx_interact, 1, false);
             return true;
         }
     }
@@ -99,15 +108,38 @@ function interact_place(player) {
 }
 
 function interact_take(player) {
-    // Can only take the result after mixing
-    if (player.held_item == noone && food_on_station != noone) {
-        player.held_item = food_on_station;
-        player.held_item.is_held = true;
-        player.held_item.held_by = player.id;
-        player.held_item.can_slide = true;
-        player.held_item.cooking_station = noone;  // Reset so it can be picked up from floor later
-        food_on_station = noone;
-        return true;
+    // Can take the result after mixing OR take back ingredient1 if it's alone
+    if (player.held_item == noone) {
+        // Take finished mixed food
+        if (food_on_station != noone) {
+            player.held_item = food_on_station;
+            player.held_item.is_held = true;
+            player.held_item.held_by = player.id;
+            player.held_item.can_slide = true;
+            player.held_item.cooking_station = noone;
+            
+            // Play pickup sound
+            audio_sound_gain(sfx_item_pickup, 1.0, 0);
+            audio_play_sound(sfx_item_pickup, 1, false);
+            
+            food_on_station = noone;
+            return true;
+        }
+        // Take back first ingredient if it's alone (no second ingredient)
+        else if (ingredient1 != noone && ingredient2 == noone) {
+            player.held_item = ingredient1;
+            player.held_item.is_held = true;
+            player.held_item.held_by = player.id;
+            player.held_item.can_slide = true;
+            player.held_item.cooking_station = noone;
+            
+            // Play pickup sound
+            audio_sound_gain(sfx_item_pickup, 1.0, 0);
+            audio_play_sound(sfx_item_pickup, 1, false);
+            
+            ingredient1 = noone;
+            return true;
+        }
     }
     return false;
 }

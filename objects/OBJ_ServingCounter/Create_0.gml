@@ -21,6 +21,10 @@ function interact_place(player) {
                 plate.food_on_plate.can_slide = false;
             }
             
+            // Play interact sound when placing plate
+            audio_sound_gain(sfx_interact, 0.5, 0);
+            audio_play_sound(sfx_interact, 1, false);
+            
             player.held_item = noone;
             return true;
         }
@@ -50,6 +54,10 @@ function interact_place(player) {
 	            food.is_on_plate = true;
 	            food.plate_instance = plate;
 	            food.can_slide = false;
+            
+	            // Play pickup sound when plating food
+	            audio_sound_gain(sfx_item_pickup, 1.0, 0);
+	            audio_play_sound(sfx_item_pickup, 1, false);
             
 	            player.held_item = noone; // ← This clears the held item
 	            return true;

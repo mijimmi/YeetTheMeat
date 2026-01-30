@@ -53,6 +53,14 @@ function interact_place(player) {
                 item.cooking_station = id;
                 item.cook_timer = 0;
                 
+                // Play interact sound when placing item on station
+                audio_sound_gain(sfx_interact, 0.5, 0);
+                audio_play_sound(sfx_interact, 1, false);
+                
+                // Play cooking sound
+                audio_sound_gain(sfx_cooking, 0.45, 0);
+                audio_play_sound(sfx_cooking, 1, true); // Loop the sound
+                
                 player.held_item = noone;
                 return true;
             }

@@ -11,7 +11,21 @@ points_hard = 30;
 points_penalty = -5;   
 
 // === RESULTS SCREEN ===
-show_results = false;  // ADD THIS LINE
+show_results = false;
+
+// === NAME ENTRY FOR LEADERBOARD ===
+entering_name = false;
+player_name = "";
+name_cursor = 0; // Which letter position (0, 1, 2)
+max_name_length = 3;
+
+// Character selection (A-Z only)
+available_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+char_index = [0, 0, 0]; // Current character index for each position
+
+// Input cooldown
+input_cooldown = 0;
+input_cooldown_max = 8;
 
 // === SCORE UI ANIMATION ===
 score_pulse = 0;       // For pulsing animation

@@ -14,6 +14,10 @@ restart_y_offset = 120;
 selected_button = 0; // 0 = resume, 1 = restart, 2 = menu, 3 = exit
 button_hover = -1; // -1 = none, 0 = resume, 1 = restart
 
+// Track previous selection for hover sound
+previous_selected = selected_button;
+previous_hover = button_hover;
+
 // Navigation cooldown to prevent rapid switching
 nav_cooldown = 0;
 nav_cooldown_max = 10; // frames between navigation

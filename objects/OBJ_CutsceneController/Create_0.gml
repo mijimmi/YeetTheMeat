@@ -173,7 +173,7 @@ instance_deactivate_object(OBJ_P2);
 // Play cutscene music (loop)
 if (!audio_is_playing(___Boy_and_Bag___watson)) {
     audio_play_sound(___Boy_and_Bag___watson, 1, true);
-    audio_sound_gain(___Boy_and_Bag___watson, 0.12, 0); // Set volume to 12%
+    audio_sound_gain(___Boy_and_Bag___watson, 0.18, 0); // Set volume to 18%
 }
 
 // Music info for display

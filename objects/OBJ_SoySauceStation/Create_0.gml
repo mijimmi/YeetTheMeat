@@ -58,6 +58,10 @@ function interact_place(player) {
                 item.velocity_y = 0;
                 item.cooking_station = id;  // Mark as on station (prevents ground pickup)
                 
+                // Play interact sound when placing item on station
+                audio_sound_gain(sfx_interact, 0.5, 0);
+                audio_play_sound(sfx_interact, 1, false);
+                
                 // Start processing instead of instant transform
                 is_processing = true;
                 progress_current = 0;

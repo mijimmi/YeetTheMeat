@@ -62,6 +62,10 @@ function interact_take(player) {
         player.held_item.is_cooking = false;
         player.held_item.cooking_station = noone;
         player.held_item.can_slide = true;  // ← Re-enable physics when picked up
+        
+        // Stop cooking sound
+        audio_stop_sound(sfx_cooking);
+        
         food_on_station = noone;
         return true;
     }

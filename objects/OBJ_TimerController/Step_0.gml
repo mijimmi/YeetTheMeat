@@ -18,6 +18,13 @@ if (timer_active && game_timer > 0) {
         game_finished = true;
         timer_active = false;
         
+        // Stop ALL music and sounds before playing complete sound
+        audio_stop_all();
+        
+        // Play level complete sound
+        audio_sound_gain(sfx_complete, 0.85, 0);
+        audio_play_sound(sfx_complete, 1, false);
+        
         // Show results screen
         if (instance_exists(OBJ_Scoring)) {
             OBJ_Scoring.show_results = true;

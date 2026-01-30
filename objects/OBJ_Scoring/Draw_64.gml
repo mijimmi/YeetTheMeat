@@ -62,8 +62,11 @@ if (show_results) {
     draw_outlined_text(text_x, text_y + (line_spacing * 0), "Orders Completed: " + string(orders_completed), font_size, font_size, tilt_angle, outline_thickness);
     draw_outlined_text(text_x, text_y + (line_spacing * 1), "Orders Failed: " + string(orders_failed), font_size, font_size, tilt_angle, outline_thickness);
     
-    // Restart instruction with outline
-    draw_outlined_text(text_x, text_y + restart_offset, "Press A to Restart", font_size, font_size, tilt_angle, outline_thickness);
+    // Instructions with outline
+    if (!entering_name) {
+        draw_outlined_text(text_x, text_y + restart_offset, "Press A to Restart", font_size, font_size, tilt_angle, outline_thickness);
+        draw_outlined_text(text_x, text_y + restart_offset + line_spacing, "Press B for Menu", font_size, font_size, tilt_angle, outline_thickness);
+    }
     
     // Now draw white text on top (centered)
     draw_set_color(c_white);
@@ -73,16 +76,90 @@ if (show_results) {
     draw_text_transformed(text_x, text_y - (line_spacing * 1), "Final Score: " + string(total_score), font_size, font_size, tilt_angle);
     draw_text_transformed(text_x, text_y + (line_spacing * 0), "Orders Completed: " + string(orders_completed), font_size, font_size, tilt_angle);
     draw_text_transformed(text_x, text_y + (line_spacing * 1), "Orders Failed: " + string(orders_failed), font_size, font_size, tilt_angle);
-    draw_text_transformed(text_x, text_y + restart_offset, "Press A to Restart", font_size, font_size, tilt_angle);
     
-    // Restart on button press
-    if (gamepad_button_check_pressed(0, gp_face1)) {
-        room_restart();
+    // Show instructions
+    if (!entering_name) {
+        draw_text_transformed(text_x, text_y + restart_offset, "Press A to Restart", font_size, font_size, tilt_angle);
+        draw_text_transformed(text_x, text_y + restart_offset + line_spacing, "Press B for Menu", font_size, font_size, tilt_angle);
     }
     
     // Reset alignment
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
+    
+    // === NAME ENTRY AT BOTTOM (SEPARATE, BIG) ===
+    if (entering_name) {
+        var gui_w = display_get_gui_width();
+        var gui_h = display_get_gui_height();
+        var bottom_y = gui_h - 320; // Higher on screen
+        var name_font_size = 4; // Bigger than score text
+        var name_tilt = 0; // No tilt for name entry
+        
+        draw_set_halign(fa_center);
+        draw_set_valign(fa_middle);
+        
+        // "ENTER NAME:" title
+        var title_text = "ENTER NAME:";
+        
+        // Black outline for title
+        draw_set_color(c_black);
+        for (var ox = -4; ox <= 4; ox++) {
+            for (var oy = -4; oy <= 4; oy++) {
+                if (ox != 0 || oy != 0) {
+                    draw_text_transformed(gui_w / 2 + ox, bottom_y + oy, title_text, name_font_size * 0.7, name_font_size * 0.7, name_tilt);
+                }
+            }
+        }
+        
+        // White title text
+        draw_set_color(c_white);
+        draw_text_transformed(gui_w / 2, bottom_y, title_text, name_font_size * 0.7, name_font_size * 0.7, name_tilt);
+        
+        // Draw letters with big spacing
+        var letter_spacing = 120;
+        var letters_y = bottom_y + 80;
+        var start_x = (gui_w / 2) - letter_spacing;
+        
+        for (var i = 0; i < max_name_length; i++) {
+            var letter = string_char_at(available_chars, char_index[i] + 1);
+            var letter_x = start_x + (i * letter_spacing);
+            
+            // Black outline for letter
+            draw_set_color(c_black);
+            for (var ox = -5; ox <= 5; ox++) {
+                for (var oy = -5; oy <= 5; oy++) {
+                    if (ox != 0 || oy != 0) {
+                        draw_text_transformed(letter_x + ox, letters_y + oy, letter, name_font_size, name_font_size, name_tilt);
+                    }
+                }
+            }
+            
+            // Highlight current cursor position with yellow, otherwise white
+            if (i == name_cursor) {
+                draw_set_color(c_yellow);
+            } else {
+                draw_set_color(c_white);
+            }
+            draw_text_transformed(letter_x, letters_y, letter, name_font_size, name_font_size, name_tilt);
+        }
+        
+        // Instructions
+        var instructions = "D-Pad: Change  A: Confirm";
+        draw_set_color(c_black);
+        for (var ox = -2; ox <= 2; ox++) {
+            for (var oy = -2; oy <= 2; oy++) {
+                if (ox != 0 || oy != 0) {
+                    draw_text_transformed(gui_w / 2 + ox, letters_y + 80 + oy, instructions, name_font_size * 0.5, name_font_size * 0.5, name_tilt);
+                }
+            }
+        }
+        draw_set_color(c_white);
+        draw_text_transformed(gui_w / 2, letters_y + 80, instructions, name_font_size * 0.5, name_font_size * 0.5, name_tilt);
+        
+        // Reset alignment
+        draw_set_halign(fa_left);
+        draw_set_valign(fa_top);
+    }
 }
 else {
     // === NORMAL IN-GAME HUD (HAND-DRAWN STYLE) ===

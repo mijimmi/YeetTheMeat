@@ -159,23 +159,46 @@ function player_interact_take(player_instance) {
         if (serving_counter_with_plate != noone && serving_counter_dist <= station_dist + 20) {
             // Serving counter with plate is close enough - use it
             interacted = serving_counter_with_plate.interact_take(id);
+            
+            // Play pickup sound if successful
+            if (interacted) {
+                audio_sound_gain(sfx_item_pickup, 0.5, 0);
+                audio_play_sound(sfx_item_pickup, 1, false);
+            }
         }
         else if (closest_ground_item != noone && ground_item_dist < station_dist) {
             // Ground item is closer - pick it up
             held_item = closest_ground_item;
             closest_ground_item.is_held = true;
             closest_ground_item.held_by = id;
+            
+            // Play pickup sound
+            audio_sound_gain(sfx_item_pickup, 1.0, 0);
+            audio_play_sound(sfx_item_pickup, 1, false);
+            
             interacted = true;
         }
         else if (closest_station != noone) {
             // Station is closer (or no ground item) - try station
             if (variable_instance_exists(closest_station, "interact_take")) {
                 interacted = closest_station.interact_take(id);
+                
+                // Play pickup sound if successful
+                if (interacted) {
+                    audio_sound_gain(sfx_item_pickup, 0.5, 0);
+                    audio_play_sound(sfx_item_pickup, 1, false);
+                }
             }
             
             // If station didn't work, try serving counter with plate as fallback
             if (!interacted && serving_counter_with_plate != noone) {
                 interacted = serving_counter_with_plate.interact_take(id);
+                
+                // Play pickup sound if successful
+                if (interacted) {
+                    audio_sound_gain(sfx_item_pickup, 0.5, 0);
+                    audio_play_sound(sfx_item_pickup, 1, false);
+                }
             }
             
             // If still nothing, try ground item as fallback
@@ -183,6 +206,11 @@ function player_interact_take(player_instance) {
                 held_item = closest_ground_item;
                 closest_ground_item.is_held = true;
                 closest_ground_item.held_by = id;
+                
+                // Play pickup sound
+                audio_sound_gain(sfx_item_pickup, 0.5, 0);
+                audio_play_sound(sfx_item_pickup, 1, false);
+                
                 interacted = true;
             }
         }
@@ -191,6 +219,11 @@ function player_interact_take(player_instance) {
             held_item = closest_ground_item;
             closest_ground_item.is_held = true;
             closest_ground_item.held_by = id;
+            
+            // Play pickup sound
+            audio_sound_gain(sfx_item_pickup, 1.0, 0);
+            audio_play_sound(sfx_item_pickup, 1, false);
+            
             interacted = true;
         }
     }
@@ -212,6 +245,10 @@ function player_interact_place(player_instance) {
                     
                     // Try to serve
                     if (nearest_customer.serve_food(food)) {
+                        // Play serve sound on successful serve
+                        audio_sound_gain(sfx_serve, 0.5, 0);
+                        audio_play_sound(sfx_serve, 1, false);
+                        
                         // Success! Destroy plate too
                         instance_destroy(held_item);
                         held_item = noone;
@@ -221,6 +258,10 @@ function player_interact_place(player_instance) {
                 // Also allow serving drinks directly
                 else if (held_item.object_index == OBJ_Drink) {
                     if (nearest_customer.serve_food(held_item)) {
+                        // Play serve sound on successful serve
+                        audio_sound_gain(sfx_serve, 0.5, 0);
+                        audio_play_sound(sfx_serve, 1, false);
+                        
                         held_item = noone;
                         interacted = true;
                     }
@@ -240,6 +281,10 @@ function player_interact_place(player_instance) {
             if (closest_station.object_index == OBJ_TrashCan) {
                 if (held_item != noone && instance_exists(held_item)) {
                     var item_to_trash = held_item;
+                    
+                    // Play interact sound when trashing
+                    audio_sound_gain(sfx_interact, 0.5, 0);
+                    audio_play_sound(sfx_interact, 1, false);
                     
                     // If trashing a plate with food, destroy the food too
                     if (item_to_trash.object_index == OBJ_Plate && item_to_trash.has_food) {
@@ -293,6 +338,11 @@ function player_interact_place(player_instance) {
                             plate.has_food = true;
                             nearest_food.is_on_plate = true;
                             nearest_food.plate_instance = plate;
+                            
+                            // Play pickup sound when picking up food with plate
+                            audio_sound_gain(sfx_item_pickup, 1.0, 0);
+                            audio_play_sound(sfx_item_pickup, 1, false);
+                            
                             interacted = true;
                         }
                     }
@@ -326,6 +376,11 @@ function player_interact_place(player_instance) {
                         held_item = nearest_plate;
                         nearest_plate.is_held = true;
                         nearest_plate.held_by = id;
+                        
+                        // Play pickup sound when plating food from floor
+                        audio_sound_gain(sfx_item_pickup, 1.0, 0);
+                        audio_play_sound(sfx_item_pickup, 1, false);
+                        
                         interacted = true;
                     }
                 }
@@ -369,6 +424,10 @@ function player_drop_item(player_instance) {
                     food.velocity_y = velocity_y * 0.5;
                 }
             }
+            
+            // Play drop sound
+            audio_sound_gain(sfx_item_drop, 0.4, 0);
+            audio_play_sound(sfx_item_drop, 1, false);
             
             held_item = noone;
             dropped = true;

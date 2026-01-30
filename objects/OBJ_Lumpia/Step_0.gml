@@ -7,6 +7,10 @@ if (is_cooking && instance_exists(cooking_station)) {
         if (food_type == "raw_meat_lumpia" && cook_timer >= cook_time_required) {
             food_type = "cooked_meat_lumpia";
             cook_timer = 0;
+            
+            // Play ding sound when lumpia is done cooking
+            audio_sound_gain(sfx_ding, 0.7, 0);
+            audio_play_sound(sfx_ding, 1, false);
         }
         else if (food_type == "cooked_meat_lumpia" && cook_timer >= burn_time) {
             food_type = "burnt";
@@ -15,6 +19,10 @@ if (is_cooking && instance_exists(cooking_station)) {
         else if (food_type == "raw_veggie_lumpia" && cook_timer >= cook_time_required) {
             food_type = "cooked_veggie_lumpia";
             cook_timer = 0;
+            
+            // Play ding sound when lumpia is done cooking
+            audio_sound_gain(sfx_ding, 0.7, 0);
+            audio_play_sound(sfx_ding, 1, false);
         }
         else if (food_type == "cooked_veggie_lumpia" && cook_timer >= burn_time) {
             food_type = "burnt";

@@ -1,0 +1,26 @@
+{
+  "$GMSound":"v2",
+  "%Name":"Under_the_Cobblestone_watson",
+  "audioGroupId":{
+    "name":"audiogroup_default",
+    "path":"audiogroups/audiogroup_default",
+  },
+  "bitDepth":1,
+  "channelFormat":0,
+  "compression":0,
+  "compressionQuality":4,
+  "conversionMode":0,
+  "duration":95.89551,
+  "exportDir":"",
+  "name":"Under_the_Cobblestone_watson",
+  "parent":{
+    "name":"MUSIC",
+    "path":"folders/ASSETS/MUSIC.yy",
+  },
+  "preload":false,
+  "resourceType":"GMSound",
+  "resourceVersion":"2.0",
+  "sampleRate":44100,
+  "soundFile":"Under_the_Cobblestone_watson.mp3",
+  "volume":1.0,
+}

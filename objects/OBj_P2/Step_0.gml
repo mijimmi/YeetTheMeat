@@ -3,11 +3,6 @@ if (variable_global_exists("controller_disconnected") && global.controller_disco
     exit; // Stop all player logic while disconnected
 }
 
-// === CHECK FOR GAME PAUSE (recipe book, etc.) ===
-if (global.game_paused) {
-    exit; // Stop all player logic while paused
-}
-
 // === GET CONTROLLER OR KEYBOARD INPUT ===
 var stick_x = 0;
 var stick_y = 0;
@@ -210,6 +205,12 @@ switch (state) {
                 
                 shake_amount = aim_power * 10;
                 
+                // Play slide sound with pitch based on dash strength
+                var slide_pitch = clamp(0.8 + (aim_power * 0.4), 0.8, 1.2); // 0.8 to 1.2 pitch
+                audio_sound_gain(sfx_slide, 0.15, 0);
+                audio_sound_pitch(sfx_slide, slide_pitch);
+                audio_play_sound(sfx_slide, 1, false);
+                
                 if (gamepad_is_connected(gamepad_slot)) {
                     gamepad_set_vibration(gamepad_slot, 1, 1);
                 }
@@ -280,6 +281,15 @@ switch (state) {
                     puff[7] = random_range(-5, 5);
                     ds_list_add(cloud_list, puff);
                 }
+                
+                // Play bump sound based on impact speed
+                var bump_volume = clamp(impact_speed / 15, 0.35, 0.65);
+                audio_sound_gain(sfx_bump, bump_volume, 0);
+                audio_play_sound(sfx_bump, 1, false);
+                
+                // Play P2 hit sound
+                audio_sound_gain(sfx_P2hit, 0.3, 0);
+                audio_play_sound(sfx_P2hit, 1, false);
             }
             
             velocity_x = -velocity_x * bounce_factor;
@@ -317,6 +327,15 @@ switch (state) {
                     puff[7] = random_range(-5, 5);
                     ds_list_add(cloud_list, puff);
                 }
+                
+                // Play bump sound based on impact speed
+                var bump_volume = clamp(impact_speed / 15, 0.35, 0.65);
+                audio_sound_gain(sfx_bump, bump_volume, 0);
+                audio_play_sound(sfx_bump, 1, false);
+                
+                // Play P2 hit sound
+                audio_sound_gain(sfx_P2hit, 0.3, 0);
+                audio_play_sound(sfx_P2hit, 1, false);
             }
             
             velocity_y = -velocity_y * bounce_factor;
@@ -450,6 +469,15 @@ switch (state) {
                     puff[7] = random_range(-5, 5);
                     ds_list_add(cloud_list, puff);
                 }
+                
+                // Play bump sound based on impact speed
+                var bump_volume = clamp(impact_speed / 15, 0.35, 0.65);
+                audio_sound_gain(sfx_bump, bump_volume, 0);
+                audio_play_sound(sfx_bump, 1, false);
+                
+                // Play P2 hit sound
+                audio_sound_gain(sfx_P2hit, 0.3, 0);
+                audio_play_sound(sfx_P2hit, 1, false);
             }
             
             velocity_x = -velocity_x * bounce_factor;
@@ -487,6 +515,15 @@ switch (state) {
                     puff[7] = random_range(-5, 5);
                     ds_list_add(cloud_list, puff);
                 }
+                
+                // Play bump sound based on impact speed
+                var bump_volume = clamp(impact_speed / 15, 0.35, 0.65);
+                audio_sound_gain(sfx_bump, bump_volume, 0);
+                audio_play_sound(sfx_bump, 1, false);
+                
+                // Play P2 hit sound
+                audio_sound_gain(sfx_P2hit, 0.3, 0);
+                audio_play_sound(sfx_P2hit, 1, false);
             }
             
             velocity_y = -velocity_y * bounce_factor;

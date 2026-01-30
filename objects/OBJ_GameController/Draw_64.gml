@@ -63,3 +63,41 @@ if (global.controller_disconnected) {
     draw_set_valign(fa_top);
     draw_set_color(c_white);
 }
+
+// === NOW PLAYING (Top Right Corner - Shows during gameplay only) ===
+// Don't show during cutscene, tutorial, or results screen
+var results_showing = (instance_exists(OBJ_Scoring) && OBJ_Scoring.show_results);
+if (!instance_exists(OBJ_CutsceneController) && !instance_exists(OBJ_TutorialManager) && !results_showing) {
+    draw_set_font(global.game_font);
+    draw_set_halign(fa_right);
+    draw_set_valign(fa_top);
+
+    var gui_w = display_get_gui_width();
+    var now_playing_x = gui_w - 30; // 30px from right edge
+    var now_playing_y = 30; // 30px from top
+    var text_scale = 1.2;
+    var line_spacing = 25;
+
+    // "Now Playing" label
+    draw_set_color(c_black);
+    draw_text_transformed(now_playing_x + 1, now_playing_y + 1, "Now Playing:", text_scale, text_scale, 0);
+    draw_set_color(make_color_rgb(255, 200, 100)); // Light orange/yellow
+    draw_text_transformed(now_playing_x, now_playing_y, "Now Playing:", text_scale, text_scale, 0);
+
+    // Song title
+    draw_set_color(c_black);
+    draw_text_transformed(now_playing_x + 1, now_playing_y + line_spacing + 1, song_names[current_song], text_scale * 0.9, text_scale * 0.9, 0);
+    draw_set_color(c_white);
+    draw_text_transformed(now_playing_x, now_playing_y + line_spacing, song_names[current_song], text_scale * 0.9, text_scale * 0.9, 0);
+
+    // Artist credit
+    draw_set_color(c_black);
+    draw_text_transformed(now_playing_x + 1, now_playing_y + line_spacing * 2 + 1, "by " + song_artist, text_scale * 0.75, text_scale * 0.75, 0);
+    draw_set_color(make_color_rgb(180, 180, 180)); // Light gray
+    draw_text_transformed(now_playing_x, now_playing_y + line_spacing * 2, "by " + song_artist, text_scale * 0.75, text_scale * 0.75, 0);
+
+    // Reset draw settings
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_set_color(c_white);
+}

@@ -1,8 +1,13 @@
 // Step Event
-// Check for pause input (but not during cutscene)
+// Check for pause input (but not during cutscene or scoreboard)
+var scoreboard_active = (instance_exists(OBJ_Scoring) && OBJ_Scoring.show_results);
 if ((keyboard_check_pressed(vk_escape) || gamepad_button_check_pressed(0, gp_start) || gamepad_button_check_pressed(1, gp_start)) 
-    && !instance_exists(OBJ_CutsceneController)) {
+    && !instance_exists(OBJ_CutsceneController) && !scoreboard_active) {
     if (!paused && !unpausing) {
+        // Play pause sound
+        audio_sound_gain(sfx_pause, 0.6, 0);
+        audio_play_sound(sfx_pause, 1, false);
+        
         // Pause the game
         paused = true;
         unpausing = false;
@@ -83,9 +88,18 @@ if (paused && !unpausing) {
         }
     }
     
+    // Play hover sound if selection changed
+    if (selected_button != previous_selected) {
+        audio_play_sound(sfx_hover, 1, false);
+        previous_selected = selected_button;
+    }
+    
     // Button activation
     if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_space) ||
         gamepad_button_check_pressed(0, gp_face1) || gamepad_button_check_pressed(1, gp_face1)) {
+        
+        audio_sound_gain(sfx_confirm, 0.6, 0);
+        audio_play_sound(sfx_confirm, 1, false);
         
         if (selected_button == 0) {
             // Resume - start slide down animation
@@ -105,6 +119,12 @@ if (paused && !unpausing) {
             if (surface_exists(pause_surf)) {
                 surface_free(pause_surf);
             }
+            
+            // Stop tutorial music if it's playing
+            if (audio_is_playing(Under_the_Cobblestone_watson)) {
+                audio_stop_sound(Under_the_Cobblestone_watson);
+            }
+            
             room_goto(menu_room);
         } else if (selected_button == 3) {
             // Exit game
@@ -129,6 +149,8 @@ if (paused && !unpausing) {
         center_y + resume_y_offset + button_height / 2)) {
         button_hover = 0;
         if (mouse_check_button_pressed(mb_left)) {
+            audio_sound_gain(sfx_confirm, 0.6, 0);
+            audio_play_sound(sfx_confirm, 1, false);
             paused = false;
             instance_activate_all();
             if (surface_exists(pause_surf)) {
@@ -144,6 +166,8 @@ if (paused && !unpausing) {
         center_y + restart_y_offset + button_height / 2)) {
         button_hover = 1;
         if (mouse_check_button_pressed(mb_left)) {
+            audio_sound_gain(sfx_confirm, 0.6, 0);
+            audio_play_sound(sfx_confirm, 1, false);
             paused = false;
             instance_activate_all();
             if (surface_exists(pause_surf)) {
@@ -154,4 +178,10 @@ if (paused && !unpausing) {
     } else {
         button_hover = -1;
     }
+    
+    // Play hover sound if mouse hover changed
+    if (button_hover != previous_hover && button_hover != -1) {
+        audio_play_sound(sfx_hover, 1, false);
+    }
+    previous_hover = button_hover;
 }

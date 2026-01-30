@@ -24,6 +24,12 @@ if (is_processing && active_player != noone) {
             // Progress!
             progress_current++;
             
+            // Play saucing sound when starting
+            if (progress_current == 1) {
+                audio_sound_gain(sfx_saucing, 0.45, 0);
+                audio_play_sound(sfx_saucing, 1, false);
+            }
+            
             if (progress_current >= progress_max) {
                 // Complete the saucing!
                 complete_saucing();
@@ -36,6 +42,8 @@ function cancel_processing() {
     is_processing = false;
     progress_current = 0;
     active_player = noone;
+    // Stop saucing sound if it was playing
+    audio_stop_sound(sfx_saucing);
     // Item stays on station but not processed
 }
 
@@ -44,6 +52,9 @@ function complete_saucing() {
         // Transform the item to soy_sliced
         item_being_processed.food_type = "soy_sliced";
     }
+    
+    // Stop saucing sound
+    audio_stop_sound(sfx_saucing);
     
     is_processing = false;
     progress_current = 0;

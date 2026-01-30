@@ -95,8 +95,16 @@ if (menu_state == "main") {
         if (selected_button >= total_buttons) selected_button = 0;
     }
     
+    // Play hover sound if button changed
+    if (selected_button != previous_button) {
+        audio_play_sound(sfx_hover, 1, false);
+        previous_button = selected_button;
+    }
+    
     // Confirm selection
     if (confirm) {
+        audio_sound_gain(sfx_confirm, 0.6, 0);
+        audio_play_sound(sfx_confirm, 1, false);
         switch (selected_button) {
             case 0: // Start -> Go to mode select
                 menu_state = "mode_select";
@@ -132,13 +140,23 @@ else if (menu_state == "mode_select") {
         if (selected_mode == 2) selected_mode = 0; // Go Back -> Singleplayer
     }
     
+    // Play hover sound if mode changed
+    if (selected_mode != previous_mode) {
+        audio_play_sound(sfx_hover, 1, false);
+        previous_mode = selected_mode;
+    }
+    
     // Go back with B/Escape
     if (go_back) {
+        audio_sound_gain(sfx_confirm, 0.6, 0);
+        audio_play_sound(sfx_confirm, 1, false);
         menu_state = "main";
     }
     
     // Confirm selection
     if (confirm) {
+        audio_sound_gain(sfx_confirm, 0.6, 0);
+        audio_play_sound(sfx_confirm, 1, false);
         switch (selected_mode) {
             case 0: // Singleplayer
                 global.game_mode = "singleplayer";
@@ -164,6 +182,8 @@ else if (menu_state == "mode_select") {
 else if (menu_state == "leaderboard") {
     // Go back with B/Escape or confirm
     if (go_back || confirm) {
+        audio_sound_gain(sfx_confirm, 0.6, 0);
+        audio_play_sound(sfx_confirm, 1, false);
         menu_state = "main";
     }
 }

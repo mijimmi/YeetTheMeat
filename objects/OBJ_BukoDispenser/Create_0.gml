@@ -18,6 +18,11 @@ function interact_place(player) {
             // Fill with buko (cup stays in player's hands)
             item.drink_type = "buko";
 			item.food_type = "buko";
+            
+            // Play drink sound when filling
+            audio_sound_gain(sfx_drink, 0.6, 0);
+            audio_play_sound(sfx_drink, 1, false);
+            
             return true;
         }
     }
