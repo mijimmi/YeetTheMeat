@@ -1,5 +1,6 @@
-// Don't update customer when game is paused (e.g., recipe book open)
-if (global.game_paused) {
+// Don't update customer when game is paused (e.g., recipe book open) or scoreboard showing
+var scoreboard_active = (instance_exists(OBJ_Scoring) && OBJ_Scoring.show_results);
+if (global.game_paused || scoreboard_active) {
     exit;
 }
 
