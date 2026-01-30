@@ -132,15 +132,19 @@ function spawn_customer_group(group_size, target_table) {
     
     // Spawn individual customers
     for (var i = 0; i < group_size; i++) {
-        var customer = instance_create_depth(spawn_x, spawn_y + (i * 20), depth, OBJ_Customer);
-        customer.my_group = group;
-        customer.my_table = target_table;
-        customer.my_chair_index = i;
+	    // Randomly choose customer variant
+	    var customer_variants = [OBJ_Customer1,OBJ_Customer2]; 
+	    var random_variant = customer_variants[irandom(array_length(customer_variants) - 1)];
+    
+	    var customer = instance_create_depth(spawn_x, spawn_y + (i * 20), depth, random_variant); 
+	    customer.my_group = group;
+	    customer.my_table = target_table;
+	    customer.my_chair_index = i;
         
         // Set target position to specific chair at table
-        var chair_pos = target_table.chair_positions[i];  // CHANGED: table → target_table
-        customer.target_x = target_table.x + chair_pos[0];  // CHANGED: table → target_table
-        customer.target_y = target_table.y + chair_pos[1];  // CHANGED: table → target_table
+        var chair_pos = target_table.chair_positions[i];  
+        customer.target_x = target_table.x + chair_pos[0]; 
+        customer.target_y = target_table.y + chair_pos[1];  
 
         // Create initial path
         customer.create_path_to_target();

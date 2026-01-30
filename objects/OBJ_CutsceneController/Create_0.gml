@@ -165,7 +165,7 @@ bob_amount = 8;
 
 // Deactivate game objects during cutscene
 instance_deactivate_object(OBJ_CustomerSpawner);
-instance_deactivate_object(OBJ_Customer);
+instance_deactivate_object(OBJ_Customer_Parent);
 instance_deactivate_object(OBJ_P1);
 instance_deactivate_object(OBJ_P2);
 

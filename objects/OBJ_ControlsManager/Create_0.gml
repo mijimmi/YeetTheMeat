@@ -236,7 +236,7 @@ function player_interact_place(player_instance) {
     
     with (player_instance) {
         // --- SERVE CUSTOMER (CHECK FIRST - HIGH PRIORITY) ---
-        var nearest_customer = instance_nearest(x, y, OBJ_Customer);
+        var nearest_customer = instance_nearest(x, y, OBJ_Customer_Parent);
         if (nearest_customer != noone && point_distance(x, y, nearest_customer.x, nearest_customer.y) <= interact_range) {
             if (held_item != noone && instance_exists(held_item)) {
                 // Check if holding a plate with food

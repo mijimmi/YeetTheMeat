@@ -38,7 +38,7 @@ if (p1 != noone && p2 != noone) {
     var max_y = max(p1.y, p2.y);
     
     // Include all customers in the bounds
-    with (OBJ_Customer) {
+    with (OBJ_Customer_Parent) {
         min_x = min(min_x, x);
         max_x = max(max_x, x);
         min_y = min(min_y, y);
@@ -80,7 +80,7 @@ else if (p1 != noone) {
     var max_y = p1.y;
     
     // Include all customers in the bounds
-    with (OBJ_Customer) {
+    with (OBJ_Customer_Parent) {
         min_x = min(min_x, x);
         max_x = max(max_x, x);
         min_y = min(min_y, y);

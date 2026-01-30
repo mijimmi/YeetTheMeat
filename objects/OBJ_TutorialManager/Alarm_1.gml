@@ -14,7 +14,7 @@ if (current_phase == "serve" && !customer_spawned) {
         var spawn_y = 500;
         
         // Create customer
-        tutorial_customer = instance_create_depth(spawn_x, spawn_y, -100, OBJ_Customer);
+        tutorial_customer = instance_create_depth(spawn_x, spawn_y, -100, OBJ_Customer1);
         tutorial_customer.my_table = target_table;
         tutorial_customer.my_chair_index = 0;
         

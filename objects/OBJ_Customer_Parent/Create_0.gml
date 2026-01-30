@@ -1,3 +1,19 @@
+customer_walk_front1 = spr_customer1_front1;
+customer_walk_front2 = spr_customer1_front2;
+customer_walk_back1 = spr_customer1_back1;
+customer_walk_back2 = spr_customer1_back2;
+customer_walk_side1 = spr_customer1_side1;
+customer_walk_side2 = spr_customer1_side2;
+customer_walk_side1_right = spr_customer1_side1_right;
+customer_walk_side2_right = spr_customer1_side2_right;
+
+customer_sit_front = spr_customer1_front_sit;
+customer_sit_back = spr_customer1_back_sit;
+customer_sit_side = spr_customer1_side_sit;
+customer_sit_side_right = spr_customer1_side_sit_right;
+
+customer_angry = spr_customer1_angry;
+
 // === CUSTOMER STATE ===
 customer_state = "walking";  // States: "walking", "sitting", "waiting", "eating", "leaving"
 
@@ -39,7 +55,28 @@ interact_range = 50;
 
 // === VISUALS ===
 thought_bubble_alpha = 0;
-sprite_index = spr_placeholder;
+
+// === SPRITE ANIMATION ===
+walk_sprite_timer = 0;
+walk_sprite_speed = 8; // Frames between sprite changes
+current_walk_sprite = spr_customer1_front1;
+
+// Direction tracking
+facing_direction = "down"; // "left", "right", "up", "down"
+last_x = x;
+last_y = y;
+
+// Sitting sprite
+sitting_sprite = spr_customer1_front_sit; 
+sitting_xscale = 1; 
+
+// Angry state
+is_angry = false;
+angry_timer = 0;         
+angry_duration = 60;     
+temp_angry = false;      
+
+
 
 // Get spawner reference
 spawner = instance_find(OBJ_CustomerSpawner, 0);
@@ -135,41 +172,23 @@ function handle_player_collision() {
                          cust_top > player_bottom);
         
         if (colliding) {
+            // Make customer temporarily angry
+            other.temp_angry = true;
+            other.angry_timer = 0;
+            
             var push_dir = point_direction(x, y, other.x, other.y);
             var dist_centers = point_distance(x, y, other.x, other.y);
             var min_dist = (player_half_w + player_half_h + cust_half_w + cust_half_h) / 2;
             var overlap = max(0, min_dist - dist_centers);
             
             if (overlap > 0) {
-                // === SPAWN COLLISION CLOUD EFFECT ===
-                if (other.cloud_effect_cooldown <= 0) {
-                    var collision_x = (x + other.x) / 2;
-                    var collision_y = (y + other.y) / 2;
-                    var cloud_count = irandom_range(4, 7);
-                    for (var i = 0; i < cloud_count; i++) {
-                        var cloud_data = array_create(8);
-                        cloud_data[0] = collision_x + random_range(-15, 15);
-                        cloud_data[1] = collision_y + random_range(-15, 15);
-                        cloud_data[2] = 0.7 + random(0.3);  // scale
-                        cloud_data[3] = 0.9;  // alpha
-                        cloud_data[4] = 0.012;  // fade speed
-                        cloud_data[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
-                        cloud_data[6] = 0;  // rotation
-                        cloud_data[7] = 0;  // unused
-                        ds_list_add(cloud_list, cloud_data);
-                    }
-                    other.cloud_effect_cooldown = other.cloud_effect_delay;
-                }
-                
-                // === DROP HELD ITEM ON COLLISION WITH CUSTOMER ===
+                // Drop held item
                 if (held_item != noone && instance_exists(held_item)) {
-                    // Drop position slightly away from collision
                     held_item.x = x + lengthdir_x(20, push_dir + 180);
                     held_item.y = y + lengthdir_y(20, push_dir + 180) + 40;
                     held_item.is_held = false;
                     held_item.held_by = noone;
                     
-                    // Give velocity based on player movement
                     if (object_is_ancestor(held_item.object_index, OBJ_Food)) {
                         held_item.velocity_x = velocity_x * 0.5;
                         held_item.velocity_y = velocity_y * 0.5;
@@ -183,7 +202,6 @@ function handle_player_collision() {
                         held_item.velocity_y = velocity_y * 0.5;
                     }
                     
-                    // If dropping plate with food, drop the food too
                     if (held_item.object_index == OBJ_Plate && held_item.has_food) {
                         var food = held_item.food_on_plate;
                         if (food != noone && instance_exists(food)) {
@@ -197,7 +215,7 @@ function handle_player_collision() {
                     held_item = noone;
                 }
                 
-                // Push customer away
+                // Push customer
                 var push_x = lengthdir_x(overlap * 0.5, push_dir);
                 var push_y = lengthdir_y(overlap * 0.5, push_dir);
                 
@@ -211,7 +229,6 @@ function handle_player_collision() {
         }
     }
     
-    // Handle collision with Player 2
     with (OBJ_P2) {
         var cust_half_w = other.collision_width / 2;
         var cust_half_h = other.collision_height / 2;
@@ -233,41 +250,23 @@ function handle_player_collision() {
                          cust_top > player_bottom);
         
         if (colliding) {
+            // MAKE CUSTOMER ANGRY WHEN HIT
+            other.temp_angry = true;
+            other.angry_timer = 0;
+            
             var push_dir = point_direction(x, y, other.x, other.y);
             var dist_centers = point_distance(x, y, other.x, other.y);
             var min_dist = (player_half_w + player_half_h + cust_half_w + cust_half_h) / 2;
             var overlap = max(0, min_dist - dist_centers);
             
             if (overlap > 0) {
-                // === SPAWN COLLISION CLOUD EFFECT ===
-                if (other.cloud_effect_cooldown <= 0) {
-                    var collision_x = (x + other.x) / 2;
-                    var collision_y = (y + other.y) / 2;
-                    var cloud_count = irandom_range(4, 7);
-                    for (var i = 0; i < cloud_count; i++) {
-                        var cloud_data = array_create(8);
-                        cloud_data[0] = collision_x + random_range(-15, 15);
-                        cloud_data[1] = collision_y + random_range(-15, 15);
-                        cloud_data[2] = 0.7 + random(0.3);  // scale
-                        cloud_data[3] = 0.9;  // alpha
-                        cloud_data[4] = 0.012;  // fade speed
-                        cloud_data[5] = choose(spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4);
-                        cloud_data[6] = 0;  // rotation
-                        cloud_data[7] = 0;  // unused
-                        ds_list_add(cloud_list, cloud_data);
-                    }
-                    other.cloud_effect_cooldown = other.cloud_effect_delay;
-                }
-                
-                // === DROP HELD ITEM ON COLLISION WITH CUSTOMER ===
+                // Drop held item
                 if (held_item != noone && instance_exists(held_item)) {
-                    // Drop position slightly away from collision
                     held_item.x = x + lengthdir_x(20, push_dir + 180);
                     held_item.y = y + lengthdir_y(20, push_dir + 180) + 40;
                     held_item.is_held = false;
                     held_item.held_by = noone;
                     
-                    // Give velocity based on player movement
                     if (object_is_ancestor(held_item.object_index, OBJ_Food)) {
                         held_item.velocity_x = velocity_x * 0.5;
                         held_item.velocity_y = velocity_y * 0.5;
@@ -281,7 +280,6 @@ function handle_player_collision() {
                         held_item.velocity_y = velocity_y * 0.5;
                     }
                     
-                    // If dropping plate with food, drop the food too
                     if (held_item.object_index == OBJ_Plate && held_item.has_food) {
                         var food = held_item.food_on_plate;
                         if (food != noone && instance_exists(food)) {
@@ -295,7 +293,7 @@ function handle_player_collision() {
                     held_item = noone;
                 }
                 
-                // Push customer away
+                // Push customer
                 var push_x = lengthdir_x(overlap * 0.5, push_dir);
                 var push_y = lengthdir_y(overlap * 0.5, push_dir);
                 
@@ -433,5 +431,29 @@ function spawn_confetti() {
             depth - 100,
             OBJ_Confetti
         );
+    }
+}
+
+function determine_sitting_sprite() {
+    if (my_table == noone || !instance_exists(my_table)) return;
+    
+    var chair_pos = my_table.chair_positions[my_chair_index];
+    var chair_x_offset = chair_pos[0];
+    var chair_y_offset = chair_pos[1];
+    
+    if (abs(chair_x_offset) > abs(chair_y_offset)) {
+        // Side chairs
+        if (chair_x_offset < 0) {
+            sitting_sprite = customer_sit_side_right; 
+        } else {
+            sitting_sprite = customer_sit_side; 
+        }
+    } else {
+        // Vertical chairs
+        if (chair_y_offset < 0) {
+            sitting_sprite = customer_sit_front; 
+        } else {
+            sitting_sprite = customer_sit_back; 
+        }
     }
 }
