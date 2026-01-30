@@ -30,6 +30,21 @@ if (menu_state == "main") {
 } else if (menu_state == "leaderboard") {
     var target = button_target_scale;
     leaderboard_back_scale += (target - leaderboard_back_scale) * button_scale_speed;
+    
+    // Animate paw moving up from bottom
+    if (leaderboard_paw_y > leaderboard_paw_target_y) {
+        leaderboard_paw_y -= leaderboard_paw_speed;
+        // Clamp to target to prevent overshooting
+        if (leaderboard_paw_y < leaderboard_paw_target_y) {
+            leaderboard_paw_y = leaderboard_paw_target_y;
+        }
+    }
+    
+    // Update bobbing timer
+    leaderboard_paw_bob_timer += leaderboard_paw_bob_speed;
+    
+    // Update title animation timer
+    leaderboard_title_timer += 1;
 }
 
 // === INPUT HANDLING ===
@@ -115,6 +130,8 @@ if (menu_state == "main") {
             case 1: // Leaderboard
                 menu_state = "leaderboard";
                 leaderboard_back_scale = 1;
+                // Reset paw animation to start from bottom
+                leaderboard_paw_y = 1080;
                 break;
             case 2: // Exit
                 game_end();
@@ -185,5 +202,7 @@ else if (menu_state == "leaderboard") {
         audio_sound_gain(sfx_confirm, 0.6, 0);
         audio_play_sound(sfx_confirm, 1, false);
         menu_state = "main";
+        // Reset paw position when leaving leaderboard
+        leaderboard_paw_y = 1080;
     }
 }

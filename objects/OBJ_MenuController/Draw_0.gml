@@ -141,32 +141,55 @@ else if (menu_state == "mode_select") {
 // === LEADERBOARD ===
 else if (menu_state == "leaderboard") {
     // Draw background
-    draw_sprite(spr_menuBG2, 0, cx, cy);
+    draw_sprite(spr_menuBG3, 0, cx, cy);
+    
+    // Draw leaderboard paper (stationary, above background, below text)
+    if (sprite_exists(spr_leaderboardpaper)) {
+        draw_sprite(spr_leaderboardpaper, 0, cx, cy);
+    }
+    
+    // Draw leaderboard paw (animated from bottom with bobbing, above paper, below text)
+    if (sprite_exists(spr_leaderboardpaw)) {
+        // Add bobbing effect once paw reaches target position
+        var bob_offset = 0;
+        if (leaderboard_paw_y <= leaderboard_paw_target_y) {
+            bob_offset = sin(leaderboard_paw_bob_timer) * leaderboard_paw_bob_amount;
+        }
+        draw_sprite(spr_leaderboardpaw, 0, cx, leaderboard_paw_y + bob_offset);
+    }
     
     draw_set_font(fnt_winkle);
     draw_set_halign(fa_center);
     draw_set_valign(fa_middle);
     
-    // Draw title "LEADERBOARD"
+    // Draw title "LEADERBOARD" with animation
     var title_text = "LEADERBOARD";
-    var title_y = 120;
+    var title_base_y = 150; // Lowered from 120 to 150
     var title_scale = 4;
+    
+    // Brown color for entry text (not title)
+    var brown_color = make_color_rgb(101, 67, 33);
+    
+    // Title animation
+    var title_y_offset = sin(leaderboard_title_timer * leaderboard_title_bob_speed) * leaderboard_title_bob_amount;
+    var title_rotation = sin(leaderboard_title_timer * leaderboard_title_sway_speed) * leaderboard_title_sway_amount;
+    var title_y = title_base_y + title_y_offset;
     
     // Black outline
     draw_set_color(c_black);
     for (var ox = -4; ox <= 4; ox += 4) {
         for (var oy = -4; oy <= 4; oy += 4) {
             if (ox != 0 || oy != 0) {
-                draw_text_transformed(cx + ox, title_y + oy, title_text, title_scale, title_scale, 0);
+                draw_text_transformed(cx + ox, title_y + oy, title_text, title_scale, title_scale, title_rotation);
             }
         }
     }
-    // Yellow text
-    draw_set_color(c_yellow);
-    draw_text_transformed(cx, title_y, title_text, title_scale, title_scale, 0);
+    // White text
+    draw_set_color(c_white);
+    draw_text_transformed(cx, title_y, title_text, title_scale, title_scale, title_rotation);
     
     // Draw leaderboard entries
-    var entry_start_y = 250;
+    var entry_start_y = 280; // Lowered from 250 to 280
     var entry_spacing = 65;
     var entry_scale = 2;
     var rank_x = cx - 300;
@@ -180,8 +203,8 @@ else if (menu_state == "leaderboard") {
         var entry_y = entry_start_y + (i * entry_spacing);
         var rank_text = string(i + 1) + ".";
         
-        // Alternate colors for readability
-        var entry_color = (i % 2 == 0) ? c_white : c_ltgray;
+        // Brown color for all entries
+        var entry_color = brown_color;
         
         // Draw rank
         draw_set_halign(fa_right);

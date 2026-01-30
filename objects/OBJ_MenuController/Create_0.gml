@@ -145,4 +145,19 @@ song_artist = "watson";
 
 // Fade out control
 is_fading_out = false;
+
+// === LEADERBOARD PAPER ANIMATION ===
+leaderboard_paw_y = 1080; // Start off-screen at bottom
+leaderboard_paw_target_y = 540; // Target: center screen
+leaderboard_paw_speed = 15; // Pixels per frame
+leaderboard_paw_bob_timer = 0; // Timer for bobbing animation
+leaderboard_paw_bob_speed = 0.03; // Bob speed
+leaderboard_paw_bob_amount = 8; // Bob amount in pixels
+
+// === LEADERBOARD TITLE ANIMATION ===
+leaderboard_title_timer = 0;
+leaderboard_title_bob_speed = 0.025;
+leaderboard_title_bob_amount = 4;
+leaderboard_title_sway_speed = 0.02;
+leaderboard_title_sway_amount = 1.5;
 fade_out_speed = 0.02; // Fade out over ~1.5 seconds
