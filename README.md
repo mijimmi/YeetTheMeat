@@ -2,17 +2,23 @@
 
 Slide N' Serve is a fast-paced eatery simulator where you run an ordinary eatery except its... **extremely slippery**?! Yes, you read that right! You will prepare, cook, and serve delicious and mouth-watering Filipino dishes to your beloved customers by utilizing your acquired sliding techniques. After all, you are a master in the quirky hobby of sliding unlike those normie gloving bros. Not only do you have to prepare, cook, and serve to your customers, but you also need to ensure that you give your customers the best of the best customer service. That means no hitting customers, otherwise they will leave a negative review of your eatery and wish eternal misfortune to your eatery, which you don't want obviously. What's even better is that **you can tag someone along with you** in running your eatery. It could be your very best friend, your romantic partner, your instructor, or literally anyone. After all, two is better than one. So what are you waiting for? Grab yourself and your buddy and run the eatery of your dreams!
 
-YeetTheMeat is the submission of Culay Games for the Game Jam 2026 hosted by UPCSG. 
+Slide N' Serve is the submission of Culay Games for the UPCSG Game Jam 2026 hosted by UPCSG. 
 
 ## Mechanics
 
 ### Game Objectives
 
-The main objective of the game is to achieve the highest possible score within the time limit, which is four minutes. Getting the highest score in Slide N' Serve means serving the requested dishes to as many customers as possible. 
+The main objective of the game is to achieve the highest possible score within the time limit, which is four minutes. Getting the highest score in Slide N' Serve means serving the requested dishes to as many customers as possible.
+
+During the game proper, customers will enter in groups of two to four and selects a random table in the map. Each customer will request one dish from the available dishes on the recipe book. Players will then prepare the dish according to the instructions specified in the recipe book. The instructions of all recipes are listed on the recipe book, in which the players can open throughout the game proper. Each customer will wait for their dish for 90 seconds. If the players failed to serve the dish to the customer, the customer will get upset and leave. Similarly, if the players accidentally hit a customer as they go to their table, the customer will also get upset and leave.
+
+The players is awarded 10 points if they successfully served rice, kwek-kwek, or a drink to a customer who requested for one of those dishes. They will be awarded 20 points if they successfully served adobo, porkchop, and either of the two types of lumpia to a customer who requested for one of those dishes. They will be awarded 30 points if they successfully served caldereta to a customer who requested for it. The players is deducted 5 points if they failed to serve the respective dish within the 90-second duration. No points will be added or deducted if the players hit a customer or the players served the wrong dish to a customer.
+
+After the four minutes has ended, the total score will be shown to the players. They are prompted to enter a three-letter name. Then, their score will be displayed in the leaderboard.
 
 ### Player Movement and Controls
 
-
+Slide N' Serve is a controller-based game. The playable character's movement can be controlled similar to using a slingshot. To move the playable character, flick or hold the left stick in the opposite direction of where you want to go. Release to launch your character across the map. The speed intensity is indicated by a power bar. When the power bar reaches the red zone, the playable character will cover a greater distance. When the power bar reaches the green zone, the playable character will cover a shorter distance. Items can be picked up by pressing the X button. Items can be dropped anywhere in the map by pressing the Y button. The recipe book can be opened using the SELECT button.
 
 ### Map Design
 
