@@ -28,9 +28,9 @@ The map layout is composed of two main areas: the kitchen and the dining area. T
 
 _insert gifs of the gameplay here_
 
-## The Team Behind YeetTheMeat
+## The Team Behind Slide N' Serve
 
-The development and design of YeetTheMeat would not be possible without the efforts of these incredible and highly-skilled contributors:
+The development and design of Slide N' Serve would not be possible without the efforts of these incredible and highly-skilled contributors:
 - Ana Antipuesto - designed the player sprites, the main menu interface, and the cutscenes
 - Christian Brillos - designed the map layout and the customer sprites
 - Rhanzel Eroja - *insert contribution*
