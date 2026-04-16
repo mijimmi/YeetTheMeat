@@ -20,17 +20,15 @@ After the four minutes has ended, the total score will be shown to the players. 
 
 Slide N' Serve is a **controller-based game**. The playable character's movement can be controlled similar to using a slingshot. To move the playable character, **flick or hold the left stick** in the opposite direction of where you want to go. **Release to launch** your character across the map. The speed intensity is indicated by a power bar. When the power bar reaches the red zone, the playable character will cover a greater distance. When the power bar reaches the green zone, the playable character will cover a shorter distance. Items can be picked up by pressing the **X** button. Items can be dropped anywhere in the map by pressing the **Y** button. The recipe book can be opened using the **SELECT** button.
 
-<div align="center">
-  <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExb21vYWY3N3dldG5zeWRqdWhicTRiOTNhMzBtc3pkMnJ1czdlNzNnciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/gQ5Hbxo7sfOrvzXwzz/giphy.gif" alt="movement" width=720 height=320>
-</div>
-
 ### Map Design
 
 The map layout is composed of two main areas: the *kitchen* and the *dining area*. The **kitchen** is where all the cooking stations, preparing stations, and the ingredients are found. Players will spend time here preparing dishes they will serve to their customers. The kitchen is located at the top middle area of the map. The **dining** area is where all of the tables and the chairs are situated where the customers will stay to wait and eat their food. The dining area covers the rest of the map layout.
 
 ## Gameplay Demos
 
-_insert gifs of the gameplay here_
+<div align="center">
+  <img src="https://media.giphy.com/media/gQ5Hbxo7sfOrvzXwzz/giphy.gif" alt="movement" width="790" height="320">
+</div>
 
 ## The Team Behind Slide N' Serve
 
