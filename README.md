@@ -26,9 +26,11 @@ The map layout is composed of two main areas: the *kitchen* and the *dining area
 
 ## Gameplay Demos
 
-<div align="center">
-  <img src="https://media.giphy.com/media/gQ5Hbxo7sfOrvzXwzz/giphy.gif" alt="movement" width="790" height="320">
-</div>
+![Player Movement](./assets/gifs/movement.gif)
+
+![Player Preparing the Dish](./assets/gifs/cooking.gif)
+
+![Game Completion](./assets/gifs/completed.gif)
 
 ## The Team Behind Slide N' Serve
 
