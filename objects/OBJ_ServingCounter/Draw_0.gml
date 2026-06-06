@@ -11,7 +11,7 @@ function get_serving_hint(player) {
         // Holding plate (with or without food)
         if (item.object_index == OBJ_Plate) {
             if (plate_on_counter == noone) {
-                hint_text = "A  Place Plate";
+                hint_text = "X  Place Plate";
             }
         }
         // Holding cooked food, counter has empty plate
@@ -24,7 +24,7 @@ function get_serving_hint(player) {
                     item.food_type == "cooked_caldereta" ||
                     item.food_type == "fried_pork" ||
                     item.food_type == "adobo") {
-                    hint_text = "A  Plate Food";
+                    hint_text = "X  Plate Food";
                 }
             }
         }
@@ -49,21 +49,7 @@ if (p1 != noone && global.p1_closest_station == id) {
         var hint_text = get_serving_hint(p1);
         if (hint_text != "") {
             var player_color = make_color_rgb(255, 100, 100);
-            
-            draw_set_halign(fa_center);
-            draw_set_valign(fa_middle);
-            draw_set_color(c_black);
-            for (var xx = -2; xx <= 2; xx++) {
-                for (var yy = -2; yy <= 2; yy++) {
-                    if (xx != 0 || yy != 0) {
-                        draw_text(x + xx, y - 50 + yy, hint_text);
-                    }
-                }
-            }
-            draw_set_color(player_color);
-            draw_text(x, y - 50, hint_text);
-            draw_set_halign(fa_left);
-            draw_set_valign(fa_top);
+            OBJ_ControlsManager.draw_action_prompt(x, y - 50, hint_text, p1, player_color);
         }
     }
 }
@@ -82,24 +68,11 @@ if (p2 != noone && global.p2_closest_station == id) {
             if (p1 != noone && global.p1_closest_station == id) {
                 var p1_hint = get_serving_hint(p1);
                 if (p1_hint != "") {
-                    y_offset = -70;
+                    y_offset = -78;
                 }
             }
             
-            draw_set_halign(fa_center);
-            draw_set_valign(fa_middle);
-            draw_set_color(c_black);
-            for (var xx = -2; xx <= 2; xx++) {
-                for (var yy = -2; yy <= 2; yy++) {
-                    if (xx != 0 || yy != 0) {
-                        draw_text(x + xx, y + y_offset + yy, hint_text);
-                    }
-                }
-            }
-            draw_set_color(player_color);
-            draw_text(x, y + y_offset, hint_text);
-            draw_set_halign(fa_left);
-            draw_set_valign(fa_top);
+            OBJ_ControlsManager.draw_action_prompt(x, y + y_offset, hint_text, p2, player_color);
         }
     }
 }

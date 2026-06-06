@@ -1,4 +1,7 @@
-// === PAUSE IF CONTROLLER DISCONNECTED ===
+// === PAUSE IF GAME PAUSED OR CONTROLLER DISCONNECTED ===
+if (global.game_paused) {
+    exit;
+}
 if (variable_global_exists("controller_disconnected") && global.controller_disconnected) {
     exit;
 }

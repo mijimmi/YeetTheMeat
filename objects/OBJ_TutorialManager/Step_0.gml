@@ -4,6 +4,9 @@ instruction_alpha = lerp(instruction_alpha, target_alpha, 0.1);
 // Update arrow bounce animation
 arrow_bounce += 0.15;
 
+// Gentle idle bob for the instruction card
+box_bob_timer += 0.05;
+
 // === TYPING ANIMATION ===
 if (!instruction_text_complete && instruction_text_full != "") {
     instruction_type_timer++;
@@ -56,12 +59,31 @@ if (!instance_exists(player)) return;
 if (current_phase == "complete") {
     // Pause the game
     global.game_paused = true;
+
+    // === ANIMATE COMPLETE SCREEN ===
+    // Card slides up from below
+    complete_card_y_offset = lerp(complete_card_y_offset, complete_card_target_y, 0.12);
+    // Headline pops in then gently pulses
+    if (complete_headline_scale < 1.0) {
+        complete_headline_scale = min(complete_headline_scale + 0.06, 1.0);
+    }
+    complete_headline_timer++;
+    complete_star_timer++;
+    complete_prompt_blink++;
     
     // Play complete sound once when entering this phase
     if (!variable_instance_exists(id, "complete_sound_played")) {
         complete_sound_played = false;
     }
     if (!complete_sound_played) {
+        // Stop all in-game sounds (cooking, slicing, etc.) before playing complete jingle
+        audio_stop_sound(sfx_cooking);
+        audio_stop_sound(sfx_slicing);
+        audio_stop_sound(sfx_saucing);
+        // Kill any gamepad vibration
+        gamepad_set_vibration(0, 0, 0);
+        gamepad_set_vibration(1, 0, 0);
+
         audio_sound_gain(sfx_complete, 0.85, 0);
         audio_play_sound(sfx_complete, 1, false);
         complete_sound_played = true;
@@ -164,8 +186,8 @@ if (current_phase == "complete") {
         }
     }
     
-    // Check for A button press to start game (either player)
-    if (gamepad_button_check_pressed(0, global.btn_place) || gamepad_button_check_pressed(1, global.btn_place) || keyboard_check_pressed(ord("C"))) { // A button from P1 or P2
+    // Check for X button press to start game (either player)
+    if (gamepad_button_check_pressed(0, global.btn_action) || gamepad_button_check_pressed(1, global.btn_action) || keyboard_check_pressed(ord("E"))) {
         // Stop tutorial music
         if (audio_is_playing(Under_the_Cobblestone_watson)) {
             audio_stop_sound(Under_the_Cobblestone_watson);
@@ -202,13 +224,19 @@ if (current_phase == "movement") {
 // === CONTROLS PHASE ===
 else if (current_phase == "controls") {
     // Track button presses from either player
-    var pressed_X = gamepad_button_check_pressed(0, global.btn_take) || gamepad_button_check_pressed(1, global.btn_take) || keyboard_check_pressed(ord("Z"));
-    var pressed_A = gamepad_button_check_pressed(0, global.btn_place) || gamepad_button_check_pressed(1, global.btn_place) || keyboard_check_pressed(ord("C"));
-    var pressed_Y = gamepad_button_check_pressed(0, global.btn_drop) || gamepad_button_check_pressed(1, global.btn_drop) || keyboard_check_pressed(ord("X"));
+    var pressed_action = gamepad_button_check_pressed(0, global.btn_action) || gamepad_button_check_pressed(1, global.btn_action) || keyboard_check_pressed(ord("E"));
+    var pressed_drop = gamepad_button_check_pressed(0, global.btn_drop) || gamepad_button_check_pressed(1, global.btn_drop) || keyboard_check_pressed(ord("R"));
     
     // Advance when any button has been pressed
-    if (pressed_X || pressed_A || pressed_Y) {
-        alarm[0] = 180; // Wait 3 seconds, then move to recipe phase
+    if (pressed_action || pressed_drop) {
+        alarm[0] = 120; // Brief beat, then move to recipe phase
+    }
+
+    // Failsafe: never let the player get stuck here. Auto-advance after a
+    // short read even if they never press anything.
+    controls_idle_timer++;
+    if (controls_idle_timer >= 420 && alarm[0] < 0) { // ~7 seconds, no pending advance
+        alarm[0] = 1;
     }
 }
 

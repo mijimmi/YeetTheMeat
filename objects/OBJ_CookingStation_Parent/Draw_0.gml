@@ -78,12 +78,30 @@ if (p1 != noone && global.p1_closest_station == id) {
         var hint_text = "";
         var player_color = make_color_rgb(255, 100, 100);
         
+        // Player holding plate, station has cooked food - instant plate
+        if (p1.held_item != noone && p1.held_item.object_index == OBJ_Plate && !p1.held_item.has_food && food_on_station != noone) {
+            var is_done = false;
+            if (instance_exists(food_on_station)) {
+                var food = food_on_station;
+                if (food.food_type == "cooked" ||
+                    food.food_type == "fried_pork" ||
+                    food.food_type == "adobo" ||
+                    food.food_type == "cooked_meat_lumpia" ||
+                    food.food_type == "cooked_veggie_lumpia" ||
+                    food.food_type == "cooked_caldereta") {
+                    is_done = true;
+                }
+            }
+            if (is_done) {
+                hint_text = "X  Plate Food";
+            }
+        }
         // Player holding something, station empty - can place
-        if (p1.held_item != noone && food_on_station == noone) {
+        else if (p1.held_item != noone && food_on_station == noone) {
             var item = p1.held_item;
             
             if (can_item_be_placed(item)) {
-                hint_text = "A  " + station_action;
+                hint_text = "X  " + station_action;
             }
         }
         // Station has food, player empty-handed
@@ -113,20 +131,7 @@ if (p1 != noone && global.p1_closest_station == id) {
         }
         
         if (hint_text != "") {
-            draw_set_halign(fa_center);
-            draw_set_valign(fa_middle);
-            draw_set_color(c_black);
-            for (var xx = -2; xx <= 2; xx++) {
-                for (var yy = -2; yy <= 2; yy++) {
-                    if (xx != 0 || yy != 0) {
-                        draw_text(x + xx, y - 50 + yy, hint_text);
-                    }
-                }
-            }
-            draw_set_color(player_color);
-            draw_text(x, y - 50, hint_text);
-            draw_set_halign(fa_left);
-            draw_set_valign(fa_top);
+            OBJ_ControlsManager.draw_action_prompt(x, y - 50, hint_text, p1, player_color);
         }
     }
 }
@@ -139,12 +144,30 @@ if (p2 != noone && global.p2_closest_station == id) {
         var hint_text = "";
         var player_color = make_color_rgb(220, 140, 40);
         
+        // Player holding plate, station has cooked food - instant plate
+        if (p2.held_item != noone && p2.held_item.object_index == OBJ_Plate && !p2.held_item.has_food && food_on_station != noone) {
+            var is_done = false;
+            if (instance_exists(food_on_station)) {
+                var food = food_on_station;
+                if (food.food_type == "cooked" ||
+                    food.food_type == "fried_pork" ||
+                    food.food_type == "adobo" ||
+                    food.food_type == "cooked_meat_lumpia" ||
+                    food.food_type == "cooked_veggie_lumpia" ||
+                    food.food_type == "cooked_caldereta") {
+                    is_done = true;
+                }
+            }
+            if (is_done) {
+                hint_text = "X  Plate Food";
+            }
+        }
         // Player holding something, station empty - can place
-        if (p2.held_item != noone && food_on_station == noone) {
+        else if (p2.held_item != noone && food_on_station == noone) {
             var item = p2.held_item;
             
             if (can_item_be_placed(item)) {
-                hint_text = "A  " + station_action;
+                hint_text = "X  " + station_action;
             }
         }
         // Station has food, player empty-handed
@@ -177,23 +200,10 @@ if (p2 != noone && global.p2_closest_station == id) {
             // Draw slightly offset if P1 also has a hint here
             var y_offset = -50;
             if (p1 != noone && global.p1_closest_station == id) {
-                y_offset = -70; // Move P2 hint higher
+                y_offset = -78; // Move P2 hint higher
             }
             
-            draw_set_halign(fa_center);
-            draw_set_valign(fa_middle);
-            draw_set_color(c_black);
-            for (var xx = -2; xx <= 2; xx++) {
-                for (var yy = -2; yy <= 2; yy++) {
-                    if (xx != 0 || yy != 0) {
-                        draw_text(x + xx, y + y_offset + yy, hint_text);
-                    }
-                }
-            }
-            draw_set_color(player_color);
-            draw_text(x, y + y_offset, hint_text);
-            draw_set_halign(fa_left);
-            draw_set_valign(fa_top);
+            OBJ_ControlsManager.draw_action_prompt(x, y + y_offset, hint_text, p2, player_color);
         }
     }
 }

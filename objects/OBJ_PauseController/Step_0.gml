@@ -96,7 +96,8 @@ if (paused && !unpausing) {
     
     // Button activation
     if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_space) ||
-        gamepad_button_check_pressed(0, gp_face1) || gamepad_button_check_pressed(1, gp_face1)) {
+        gamepad_button_check_pressed(0, gp_face1) || gamepad_button_check_pressed(1, gp_face1) ||
+        gamepad_button_check_pressed(0, gp_face3) || gamepad_button_check_pressed(1, gp_face3)) {
         
         audio_sound_gain(sfx_confirm, 0.6, 0);
         audio_play_sound(sfx_confirm, 1, false);

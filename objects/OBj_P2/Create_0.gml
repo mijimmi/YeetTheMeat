@@ -83,7 +83,7 @@ cloud_spawn_rate = 5;  // Spawn a cloud every X frames
 // === INTERACTION / CARRYING ===
 held_item = noone;           // What the player is holding
 interact_range = 100;         // How close to interact with objects
-interact_button = gp_face1;  // A button for pickup/drop/interact
+interact_button = gp_face3;  // X button for context action
 
 // === COLLISION HITBOX ===
 collision_width = 40;   // Vertical rectangle width
@@ -98,10 +98,12 @@ idle_timer = 0;
 idle_indicator_delay = 120;  // 2 seconds at 60fps
 
 // === INPUT BUFFER ===
-input_buffer_frames = 8;  // How many frames to remember inputs
-take_buffer = 0;
-place_buffer = 0;
+input_buffer_frames = 8;
+action_buffer = 0;
 drop_buffer = 0;
+
+// Which device this player is currently using (drives on-screen prompts)
+prompt_use_keyboard = !gamepad_is_connected(gamepad_slot);
 
 // === HELD ITEM BOB ===
 held_item_bob_timer = 0;

@@ -64,7 +64,7 @@ if (show_results) {
     
     // Instructions with outline
     if (!entering_name) {
-        draw_outlined_text(text_x, text_y + restart_offset, "Press A to Restart", font_size, font_size, tilt_angle, outline_thickness);
+        draw_outlined_text(text_x, text_y + restart_offset, "Press X to Restart", font_size, font_size, tilt_angle, outline_thickness);
         draw_outlined_text(text_x, text_y + restart_offset + line_spacing, "Press B for Menu", font_size, font_size, tilt_angle, outline_thickness);
     }
     
@@ -79,7 +79,7 @@ if (show_results) {
     
     // Show instructions
     if (!entering_name) {
-        draw_text_transformed(text_x, text_y + restart_offset, "Press A to Restart", font_size, font_size, tilt_angle);
+        draw_text_transformed(text_x, text_y + restart_offset, "Press X to Restart", font_size, font_size, tilt_angle);
         draw_text_transformed(text_x, text_y + restart_offset + line_spacing, "Press B for Menu", font_size, font_size, tilt_angle);
     }
     
@@ -144,7 +144,7 @@ if (show_results) {
         }
         
         // Instructions
-        var instructions = "D-Pad: Change  A: Confirm";
+        var instructions = "D-Pad: Change  X: Confirm";
         draw_set_color(c_black);
         for (var ox = -2; ox <= 2; ox++) {
             for (var oy = -2; oy <= 2; oy++) {

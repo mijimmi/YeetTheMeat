@@ -331,7 +331,7 @@ switch (cutscene_state) {
                              keyboard_check_pressed(vk_space);
         
         if (gamepad != -1 && gamepad_is_connected(gamepad)) {
-            advance_pressed = advance_pressed || gamepad_button_check_pressed(gamepad, gp_face1);
+            advance_pressed = advance_pressed || gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_face3);
         }
         
         if (advance_pressed && state_timer > 10) {
@@ -460,7 +460,7 @@ switch (cutscene_state) {
                              keyboard_check_pressed(vk_space);
         
         if (gamepad != -1 && gamepad_is_connected(gamepad)) {
-            advance_pressed = advance_pressed || gamepad_button_check_pressed(gamepad, gp_face1);
+            advance_pressed = advance_pressed || gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_face3);
         }
         
         if (advance_pressed && state_timer > 10) {
@@ -521,6 +521,7 @@ switch (cutscene_state) {
                 
                 if (gamepad != -1 && gamepad_is_connected(gamepad)) {
                     any_key = any_key || gamepad_button_check_pressed(gamepad, gp_face1) ||
+                             gamepad_button_check_pressed(gamepad, gp_face3) ||
                              gamepad_button_check_pressed(gamepad, gp_start);
                 }
                 

@@ -71,3 +71,47 @@ function interact_take(player) {
     }
     return false;
 }
+
+// NEW: Instant plate cooked food at station
+function interact_plate_here(player) {
+    // Check if player is holding an empty plate
+    if (player.held_item != noone && instance_exists(player.held_item) && player.held_item.object_index == OBJ_Plate) {
+        var plate = player.held_item;
+        
+        // Check if food on station is cooked
+        if (!plate.has_food && food_on_station != noone && instance_exists(food_on_station)) {
+            var food = food_on_station;
+            
+            var is_cooked = (food.food_type == "cooked" || 
+                           food.food_type == "fried_pork" ||
+                           food.food_type == "adobo" ||
+                           food.food_type == "cooked_meat_lumpia" ||
+                           food.food_type == "cooked_veggie_lumpia" ||
+                           food.food_type == "cooked_caldereta");
+            
+            if (is_cooked) {
+                // Stop cooking
+                food.is_cooking = false;
+                food.cooking_station = noone;
+                audio_stop_sound(sfx_cooking);
+                
+                // Plate the food (same as serving counter plating)
+                plate.food_on_plate = food;
+                plate.has_food = true;
+                food.is_held = false;
+                food.held_by = noone;
+                food.is_on_plate = true;
+                food.plate_instance = plate;
+                food.can_slide = false;
+                
+                food_on_station = noone;
+                
+                audio_sound_gain(sfx_item_pickup, 1.0, 0);
+                audio_play_sound(sfx_item_pickup, 1, false);
+                
+                return true;
+            }
+        }
+    }
+    return false;
+}

@@ -1,3 +1,22 @@
+// === DEVICE-AWARE BUTTON LABELS ===
+// Show keyboard keys if the tutorial player is on keyboard, else controller labels
+function tut_on_keyboard() {
+    var p = instance_exists(OBJ_P1) ? instance_find(OBJ_P1, 0) : noone;
+    if (p != noone && variable_instance_exists(p, "prompt_use_keyboard")) {
+        return p.prompt_use_keyboard;
+    }
+    return !(gamepad_is_connected(0) || gamepad_is_connected(1));
+}
+function tut_action_key() {
+    return tut_on_keyboard() ? "E" : "X";
+}
+function tut_drop_key() {
+    return tut_on_keyboard() ? "R" : "Y";
+}
+function tut_select_key() {
+    return tut_on_keyboard() ? "TAB" : "SELECT";
+}
+
 // === TUTORIAL STATE ===
 tutorial_step = 0;
 tutorial_complete = false;
@@ -50,49 +69,63 @@ instruction_alpha = 0;
 target_alpha = 1;
 
 // === COMPLETE SCREEN TYPING ===
-complete_text_full = "TUTORIAL COMPLETE!";
+complete_text_full = "You are ready to cook!";
 complete_text_display = "";
 complete_char_index = 0;
 complete_type_timer = 0;
 complete_type_speed = 2; // Slower for dramatic effect
 complete_text_complete = false;
 
-continue_text_full = "Press -A- to start the game!";
+continue_text_full = "Press -" + tut_action_key() + "- to begin your shift!";
 continue_text_display = "";
 continue_char_index = 0;
 continue_type_timer = 0;
 continue_type_speed = 1;
 continue_text_complete = false;
 
-reminder_text_full = "Press SELECT in game to learn how to cook other foods";
+reminder_text_full = "Tip: Open the recipe book anytime with " + tut_select_key() + "!";
 reminder_text_display = "";
 reminder_char_index = 0;
 reminder_type_timer = 0;
 reminder_type_speed = 1;
 reminder_text_complete = false;
 
-warning_text_full = "DON'T BUMP INTO YOUR FRIEND OR CUSTOMERS!";
+warning_text_full = "Watch out for collisions!";
 warning_text_display = "";
 warning_char_index = 0;
 warning_type_timer = 0;
 warning_type_speed = 1;
 warning_text_complete = false;
 
-warning_subtext_full = "It will result in you dropping your food";
+warning_subtext_full = "Bumping into people makes you drop your food!";
 warning_subtext_display = "";
 warning_subtext_char_index = 0;
 warning_subtext_type_timer = 0;
 warning_subtext_type_speed = 1;
 warning_subtext_complete = false;
 
-// Box background
-box_padding = 20;
-box_color = c_black;
-box_alpha = 0.8;
+// Box background (cute cream "recipe card" look)
+box_padding = 28;
+box_color = make_color_rgb(250, 241, 218);      // warm cream
+box_alpha = 0.97;
 
 // Text settings
-text_color = c_white;
-highlight_color = c_yellow;
+text_color = make_color_rgb(90, 55, 30);        // dark brown ink
+highlight_color = make_color_rgb(124, 82, 46);  // brown border
+
+// Gentle idle bob so the card feels alive
+box_bob_timer = 0;
+
+// === TUTORIAL COMPLETE SCREEN ANIMATIONS ===
+complete_card_y_offset = 300;   // Starts below screen, slides up
+complete_card_target_y = 0;     // Final resting position
+complete_headline_scale = 0.5;  // Starts small, pops to full
+complete_headline_timer = 0;    // Drives pulse after pop
+complete_star_timer = 0;        // Sparkle animation timer
+complete_prompt_blink = 0;      // Blink timer for continue prompt
+
+// Failsafe timer so the controls screen can't soft-lock an idle player
+controls_idle_timer = 0;
 
 // Position
 instruction_x = display_get_gui_width() / 2;
@@ -110,6 +143,10 @@ if (!instance_exists(player)) {
 
 // === FUNCTIONS ===
 function set_instruction(text) {
+    // Substitute device-aware button labels into placeholders
+    text = string_replace_all(text, "-X-", "-" + tut_action_key() + "-");
+    text = string_replace_all(text, "-Y-", "-" + tut_drop_key() + "-");
+    text = string_replace_all(text, "-SELECT-", "-" + tut_select_key() + "-");
     instruction_text_full = text;
     instruction_text_display = "";
     instruction_char_index = 0;
@@ -294,8 +331,23 @@ function check_recipe_tutorial() {
         if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Lumpia && p2.held_item.food_type == "cooked_meat_lumpia") {
             has_cooked = true;
         }
-        if (has_cooked) {
-            advance_step(); // Immediately advance
+        
+        // SHORTCUT: player instant-plated at station - holding a plate with cooked lumpia
+        var has_plated_already = false;
+        if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_Plate && p1.held_item.has_food) {
+            has_plated_already = true;
+        }
+        if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Plate && p2.held_item.has_food) {
+            has_plated_already = true;
+        }
+        
+        if (has_plated_already) {
+            // Skip steps 11 and 12 of recipe phase — go straight to "place on counter"
+            has_plated = true;
+            tutorial_step = 12;
+            update_tutorial();
+        } else if (has_cooked) {
+            advance_step();
         }
     }
     // Step 11: Get plate and combine with food
@@ -410,7 +462,7 @@ function update_movement_tutorial() {
 
 function update_controls_tutorial() {
     if (tutorial_step == 0) {
-        set_instruction("CONTROLS:\nX- Take or Pickup objects\nA - Place items on stations or counter\nY - Drop items anywhere");
+        set_instruction("P1: WASD move  -X- Interact  R Drop\nP2: IJKL move  U Interact  O Drop");
     }
     else {
         // Controls phase complete
@@ -430,7 +482,7 @@ function update_recipe_tutorial() {
             tutorial_target_station = instance_find(OBJ_WrapperStorage, 0);
             break;
         case 1:
-            set_instruction("Step 2: Place wrapper in mixing station\nPress -A- near the mixing station");
+            set_instruction("Step 2: Place wrapper in mixing station\nPress -X- near the mixing station");
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 2:
@@ -438,7 +490,7 @@ function update_recipe_tutorial() {
             tutorial_target_station = instance_find(OBJ_Freezer, 0);
             break;
         case 3:
-            set_instruction("Step 4: Place meat on Slicing Station\nPress -A- near the slicing station");
+            set_instruction("Step 4: Place meat on Slicing Station\nPress -X- near the slicing station");
             tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 4:
@@ -450,7 +502,7 @@ function update_recipe_tutorial() {
             tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 6:
-            set_instruction("Step 7: Place sliced meat in mixing station\nPress -A- near the mixing station to combine");
+            set_instruction("Step 7: Place sliced meat in mixing station\nPress -X- near the mixing station to combine");
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 7:
@@ -458,7 +510,7 @@ function update_recipe_tutorial() {
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 8:
-            set_instruction("Step 9: Place lumpia on Frying Station\nPress -A- near the frying station");
+            set_instruction("Step 9: Place lumpia on Frying Station\nPress -X- near the frying station");
             tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 9:
@@ -470,11 +522,11 @@ function update_recipe_tutorial() {
             tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 11:
-            set_instruction("Step 12: Get a plate and combine with lumpia\nPress -X- at plate storage, then -A- near lumpia");
+            set_instruction("Step 12: Get a plate and combine with lumpia\nPress -X- at plate storage, then -X- near lumpia\nor -X- at the fryer while holding a plate");
             tutorial_target_station = instance_find(OBJ_PlateStorage, 0);
             break;
         case 12:
-            set_instruction("Step 13: Place on serving counter\nPress -A- near the serving counter");
+            set_instruction("Step 13: Place on serving counter\nPress -X- near the serving counter");
             tutorial_target_station = instance_find(OBJ_ServingCounter, 0);
             break;
     }
@@ -483,7 +535,7 @@ function update_recipe_tutorial() {
 function update_serve_tutorial() {
     show_debug_message("update_serve_tutorial called, step: " + string(tutorial_step));
     if (tutorial_step == 0) {
-        set_instruction("Serve the Meat Lumpia to the customer!\nPick up the plate -X- and press -A- near the customer.");
+        set_instruction("Serve the Meat Lumpia to the customer!\nPick up the plate -X- and press -X- near the customer.");
     }
     else if (tutorial_step == 1) {
         show_debug_message("Setting phase to complete!");

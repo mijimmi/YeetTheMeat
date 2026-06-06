@@ -1,5 +1,8 @@
 event_inherited();
 
+// Stop all per-frame logic when paused
+if (global.game_paused) exit;
+
 // Custom cooking logic
 if (is_cooking && instance_exists(cooking_station)) {
     if (cooking_station.object_index == OBJ_FryingStation) {

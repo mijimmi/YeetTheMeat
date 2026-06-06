@@ -41,8 +41,8 @@ if (entering_name) {
         }
     }
     
-    // Confirm name (A button)
-    if (gamepad_button_check_pressed(0, gp_face1) || keyboard_check_pressed(vk_enter)) {
+    // Confirm name (X button)
+    if (gamepad_button_check_pressed(0, gp_face3) || keyboard_check_pressed(vk_enter) || keyboard_check_pressed(ord("E"))) {
         // Build final name
         player_name = "";
         for (var i = 0; i < max_name_length; i++) {
@@ -63,13 +63,13 @@ else {
         entering_name = true; // Always allow name entry
     }
     
-    // Restart on A button
-    if (gamepad_button_check_pressed(0, gp_face1) || keyboard_check_pressed(ord("C"))) {
+    // Restart on X button
+    if (gamepad_button_check_pressed(0, gp_face3) || keyboard_check_pressed(ord("E"))) {
         room_restart();
     }
     
     // Go to menu on B button
-    if (gamepad_button_check_pressed(0, gp_face2) || keyboard_check_pressed(ord("X"))) {
+    if (gamepad_button_check_pressed(0, gp_face2) || keyboard_check_pressed(vk_escape)) {
         room_goto(menu_room);
     }
 }

@@ -228,7 +228,7 @@ if (state == "aiming") {
     if (cancel_hint_alpha > 0) {
         var hint_x = x;
         var hint_y = y + 75;
-        var hint_text = gamepad_is_connected(gamepad_slot) ? "B" : "Shift";
+        var hint_text = gamepad_is_connected(gamepad_slot) ? "B" : "Y";
         
         var hint_bounce = sin(current_time * 0.005) * 2;
         hint_y += hint_bounce;

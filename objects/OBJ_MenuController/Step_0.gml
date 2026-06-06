@@ -81,7 +81,7 @@ if (gamepad != -1 && gamepad_is_connected(gamepad)) {
                   (gamepad_axis_value(gamepad, gp_axislh) < -0.5 && input_cooldown == 0);
     var gp_right = gamepad_button_check_pressed(gamepad, gp_padr) || 
                    (gamepad_axis_value(gamepad, gp_axislh) > 0.5 && input_cooldown == 0);
-    var gp_confirm = gamepad_button_check_pressed(gamepad, gp_face1); // A button
+    var gp_confirm = gamepad_button_check_pressed(gamepad, gp_face1) || gamepad_button_check_pressed(gamepad, gp_face3); // A or X button
     var gp_back = gamepad_button_check_pressed(gamepad, gp_face2);    // B button
     
     move_up = move_up || gp_up;

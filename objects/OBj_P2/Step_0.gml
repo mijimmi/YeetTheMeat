@@ -1,3 +1,8 @@
+// === CHECK FOR GAME PAUSE ===
+if (global.game_paused) {
+    exit;
+}
+
 // === CHECK FOR CONTROLLER DISCONNECT PAUSE ===
 if (variable_global_exists("controller_disconnected") && global.controller_disconnected) {
     exit; // Stop all player logic while disconnected
@@ -13,10 +18,11 @@ if (gamepad_is_connected(gamepad_slot)) {
     stick_y = gamepad_axis_value(gamepad_slot, gp_axislv);
 } else {
     using_keyboard = true;
-    if (keyboard_check(ord("A"))) stick_x -= 1;
-    if (keyboard_check(ord("D"))) stick_x += 1;
-    if (keyboard_check(ord("W"))) stick_y -= 1;
-    if (keyboard_check(ord("S"))) stick_y += 1;
+    // P2 keyboard: IJKL for movement
+    if (keyboard_check(ord("J"))) stick_x -= 1;
+    if (keyboard_check(ord("L"))) stick_x += 1;
+    if (keyboard_check(ord("I"))) stick_y -= 1;
+    if (keyboard_check(ord("K"))) stick_y += 1;
     
     if (stick_x != 0 && stick_y != 0) {
         stick_x *= 0.707;
@@ -31,7 +37,7 @@ var cancel_pressed = false;
 if (gamepad_is_connected(gamepad_slot)) {
     cancel_pressed = gamepad_button_check_pressed(gamepad_slot, gp_face2);
 } else {
-    cancel_pressed = keyboard_check_pressed(vk_shift) || keyboard_check_pressed(vk_escape);
+    cancel_pressed = keyboard_check_pressed(ord("Y"));
 }
 
 // === AIM COOLDOWN TIMER ===
@@ -41,49 +47,40 @@ if (aim_cooldown > 0) {
 
 // === INTERACTION SYSTEM (with input buffering) ===
 // Decrement buffers
-if (take_buffer > 0) take_buffer--;
-if (place_buffer > 0) place_buffer--;
+if (action_buffer > 0) action_buffer--;
 if (drop_buffer > 0) drop_buffer--;
 
 // Check for new presses and fill buffer
 if (gamepad_is_connected(gamepad_slot)) {
-    if (gamepad_button_check_pressed(gamepad_slot, global.btn_take)) {
-        take_buffer = input_buffer_frames;
-    }
-    if (gamepad_button_check_pressed(gamepad_slot, global.btn_place)) {
-        place_buffer = input_buffer_frames;
+    if (gamepad_button_check_pressed(gamepad_slot, global.btn_action)) {
+        action_buffer = input_buffer_frames;
     }
     if (gamepad_button_check_pressed(gamepad_slot, global.btn_drop)) {
         drop_buffer = input_buffer_frames;
     }
 } else {
-    if (keyboard_check_pressed(ord("E"))) {
-        take_buffer = input_buffer_frames;
+    // P2 keyboard: U = action, O = drop
+    if (keyboard_check_pressed(ord("U"))) {
+        action_buffer = input_buffer_frames;
     }
-    if (keyboard_check_pressed(ord("Q"))) {
-        place_buffer = input_buffer_frames;
-    }
-    if (keyboard_check_pressed(ord("R"))) {
+    if (keyboard_check_pressed(ord("O"))) {
         drop_buffer = input_buffer_frames;
     }
 }
 
-// Execute buffered inputs
-if (take_buffer > 0) {
-    if (OBJ_ControlsManager.player_interact_take(id)) {
-        take_buffer = 0;  // Clear buffer on success
-    }
-}
+// Track device for context-aware prompts (P2 is controller-or-keyboard)
+prompt_use_keyboard = !gamepad_is_connected(gamepad_slot);
 
-if (place_buffer > 0) {
-    if (OBJ_ControlsManager.player_interact_place(id)) {
-        place_buffer = 0;  // Clear buffer on success
+// Execute buffered inputs
+if (action_buffer > 0) {
+    if (OBJ_ControlsManager.player_action(id)) {
+        action_buffer = 0;
     }
 }
 
 if (drop_buffer > 0) {
     if (OBJ_ControlsManager.player_drop_item(id)) {
-        drop_buffer = 0;  // Clear buffer on success
+        drop_buffer = 0;
     }
 }
 
