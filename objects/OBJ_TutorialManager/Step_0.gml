@@ -7,6 +7,11 @@ arrow_bounce += 0.15;
 // Gentle idle bob for the instruction card
 box_bob_timer += 0.05;
 
+// Controls screen animations
+if (current_phase == "controls") {
+    controls_anim_timer++;
+}
+
 // === TYPING ANIMATION ===
 if (!instruction_text_complete && instruction_text_full != "") {
     instruction_type_timer++;
@@ -186,17 +191,32 @@ if (current_phase == "complete") {
         }
     }
     
-    // Check for X button press to start game (either player)
-    if (gamepad_button_check_pressed(0, global.btn_action) || gamepad_button_check_pressed(1, global.btn_action) || keyboard_check_pressed(ord("E"))) {
-        // Stop tutorial music
-        if (audio_is_playing(Under_the_Cobblestone_watson)) {
-            audio_stop_sound(Under_the_Cobblestone_watson);
+    // Proceed once continue prompt has finished typing — any key / button
+    if (continue_text_complete) {
+        var proceed_pressed = keyboard_check_pressed(vk_anykey) || mouse_check_button_pressed(mb_any);
+        if (gamepad_is_connected(0)) {
+            proceed_pressed = proceed_pressed ||
+                gamepad_button_check_pressed(0, gp_face1) ||
+                gamepad_button_check_pressed(0, gp_face3) ||
+                gamepad_button_check_pressed(0, gp_start);
         }
-        
-        // Unpause and go to main game room
-        global.game_paused = false;
-        global.show_tutorial = false;  // Don't show tutorial again (NEW)
-        room_goto(game_room); // Replace 'game_room' with your actual main game room name
+        if (gamepad_is_connected(1)) {
+            proceed_pressed = proceed_pressed ||
+                gamepad_button_check_pressed(1, gp_face1) ||
+                gamepad_button_check_pressed(1, gp_face3) ||
+                gamepad_button_check_pressed(1, gp_start);
+        }
+        if (proceed_pressed) {
+            // Stop tutorial music
+            if (audio_is_playing(Under_the_Cobblestone_watson)) {
+                audio_stop_sound(Under_the_Cobblestone_watson);
+            }
+            
+            // Unpause and go to main game room
+            global.game_paused = false;
+            global.show_tutorial = false;
+            room_goto(game_room);
+        }
     }
     
     // Don't process any other tutorial logic
@@ -224,8 +244,10 @@ if (current_phase == "movement") {
 // === CONTROLS PHASE ===
 else if (current_phase == "controls") {
     // Track button presses from either player
-    var pressed_action = gamepad_button_check_pressed(0, global.btn_action) || gamepad_button_check_pressed(1, global.btn_action) || keyboard_check_pressed(ord("E"));
-    var pressed_drop = gamepad_button_check_pressed(0, global.btn_drop) || gamepad_button_check_pressed(1, global.btn_drop) || keyboard_check_pressed(ord("R"));
+    var pressed_action = gamepad_button_check_pressed(0, global.btn_action) || gamepad_button_check_pressed(1, global.btn_action) ||
+                        keyboard_check_pressed(ord("E")) || keyboard_check_pressed(ord("U"));
+    var pressed_drop = gamepad_button_check_pressed(0, global.btn_drop) || gamepad_button_check_pressed(1, global.btn_drop) ||
+                      keyboard_check_pressed(ord("R")) || keyboard_check_pressed(ord("O"));
     
     // Advance when any button has been pressed
     if (pressed_action || pressed_drop) {

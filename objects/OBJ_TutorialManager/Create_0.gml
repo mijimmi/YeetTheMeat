@@ -16,6 +16,14 @@ function tut_drop_key() {
 function tut_select_key() {
     return tut_on_keyboard() ? "TAB" : "SELECT";
 }
+function tut_all_action_keys() {
+    // Action word instead of raw button labels
+    return "Interact";
+}
+function tut_all_drop_keys() {
+    // Action word instead of raw button labels
+    return "Drop";
+}
 
 // === TUTORIAL STATE ===
 tutorial_step = 0;
@@ -76,7 +84,7 @@ complete_type_timer = 0;
 complete_type_speed = 2; // Slower for dramatic effect
 complete_text_complete = false;
 
-continue_text_full = "Press -" + tut_action_key() + "- to begin your shift!";
+continue_text_full = "Press any key to proceed to your shift!";
 continue_text_display = "";
 continue_char_index = 0;
 continue_type_timer = 0;
@@ -126,6 +134,7 @@ complete_prompt_blink = 0;      // Blink timer for continue prompt
 
 // Failsafe timer so the controls screen can't soft-lock an idle player
 controls_idle_timer = 0;
+controls_anim_timer = 0;
 
 // Position
 instruction_x = display_get_gui_width() / 2;
@@ -143,9 +152,10 @@ if (!instance_exists(player)) {
 
 // === FUNCTIONS ===
 function set_instruction(text) {
-    // Substitute device-aware button labels into placeholders
-    text = string_replace_all(text, "-X-", "-" + tut_action_key() + "-");
-    text = string_replace_all(text, "-Y-", "-" + tut_drop_key() + "-");
+    // Substitute tutorial placeholders
+    // -X- and -Y- now show all valid options for P1 and P2.
+    text = string_replace_all(text, "-X-", tut_all_action_keys());
+    text = string_replace_all(text, "-Y-", tut_all_drop_keys());
     text = string_replace_all(text, "-SELECT-", "-" + tut_select_key() + "-");
     instruction_text_full = text;
     instruction_text_display = "";
@@ -156,6 +166,101 @@ function set_instruction(text) {
 
 function clear_instruction() {
     target_alpha = 0;
+}
+
+function is_multiplayer_mode() {
+    if (variable_global_exists("game_mode") && global.game_mode == "multiplayer") {
+        return true;
+    }
+    return instance_exists(OBJ_P2);
+}
+
+// Draws one player's control card with controller + keyboard columns
+function draw_control_card(ccx, ccy, cw, ch, title, title_color, rows, a, anim_t, card_index) {
+    // Pop-in + idle bob per card
+    var pop = min(1, anim_t * 0.06);
+    pop = pop + sin(anim_t * 0.08 + card_index * 1.2) * 0.015 * pop;
+    var bob = sin(anim_t * 0.05 + card_index * 2.1) * 8 * pop;
+    ccy += bob;
+
+    var x1 = ccx - cw / 2;
+    var x2 = ccx + cw / 2;
+    var y1 = ccy - ch / 2;
+    var y2 = ccy + ch / 2;
+    var rad = 28;
+
+    // Shadow
+    draw_set_alpha(0.22 * a * pop);
+    draw_set_color(c_black);
+    draw_roundrect_ext(x1 + 7, y1 + 9, x2 + 7, y2 + 9, rad, rad, false);
+    // Cream fill
+    draw_set_alpha(box_alpha * a);
+    draw_set_color(box_color);
+    draw_roundrect_ext(x1, y1, x2, y2, rad, rad, false);
+    // Brown double border
+    draw_set_alpha(a);
+    draw_set_color(highlight_color);
+    draw_roundrect_ext(x1, y1, x2, y2, rad, rad, true);
+    draw_roundrect_ext(x1 + 4, y1 + 4, x2 - 4, y2 - 4, rad - 4, rad - 4, true);
+
+    draw_set_font(global.game_font);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+
+    // Header pill (player color) — gentle pulse
+    var ts = 2.2 * pop;
+    var tw = string_width(title) * ts;
+    var hp_y = y1 + 48;
+    var pill_pulse = 1 + sin(anim_t * 0.06 + card_index) * 0.03;
+    draw_set_color(title_color);
+    draw_roundrect_ext(ccx - (tw / 2 + 30) * pill_pulse, hp_y - 28, ccx + (tw / 2 + 30) * pill_pulse, hp_y + 28, 20, 20, false);
+    draw_set_color(box_color);
+    draw_text_transformed(ccx, hp_y, title, ts, ts, 0);
+
+    // Column anchors
+    var label_col = x1 + 44;
+    var pad_col = x1 + cw * 0.56;
+    var key_col = x1 + cw * 0.84;
+
+    // Column sub-headers
+    var head_y = hp_y + 68;
+    var hs = 1.65 * pop;
+    draw_set_color(make_color_rgb(150, 110, 70));
+    draw_text_transformed(pad_col, head_y, "PAD", hs, hs, 0);
+    draw_text_transformed(key_col, head_y, "KEYS", hs, hs, 0);
+
+    // Divider line
+    draw_set_alpha(a * 0.4);
+    draw_set_color(highlight_color);
+    draw_line_width(x1 + 30, head_y + 24, x2 - 30, head_y + 24, 3);
+    draw_set_alpha(a);
+
+    // Rows (staggered fade-in)
+    var row_y = head_y + 58;
+    var row_gap = 72;
+    var rs = 1.85 * pop;
+    for (var i = 0; i < array_length(rows); i++) {
+        var row_delay = card_index * 12 + i * 10;
+        var row_alpha = clamp((anim_t - row_delay) * 0.07, 0, 1) * a;
+        if (row_alpha <= 0.01) continue;
+
+        var ry = row_y + i * row_gap;
+        draw_set_alpha(row_alpha);
+
+        // Action label (left aligned)
+        draw_set_halign(fa_left);
+        draw_set_color(text_color);
+        draw_text_transformed(label_col, ry, rows[i][0], rs, rs, 0);
+        // Pad + keyboard keys (centered in columns)
+        draw_set_halign(fa_center);
+        draw_set_color(make_color_rgb(70, 45, 25));
+        draw_text_transformed(pad_col, ry, rows[i][1], rs, rs, 0);
+        draw_text_transformed(key_col, ry, rows[i][2], rs, rs, 0);
+    }
+
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_set_alpha(1);
 }
 
 function advance_step() {
@@ -462,7 +567,9 @@ function update_movement_tutorial() {
 
 function update_controls_tutorial() {
     if (tutorial_step == 0) {
-        set_instruction("P1: WASD move  -X- Interact  R Drop\nP2: IJKL move  U Interact  O Drop");
+        // Drawn as control cards in Draw_64; no typed text needed
+        controls_anim_timer = 0;
+        set_instruction("");
     }
     else {
         // Controls phase complete
@@ -478,55 +585,55 @@ function update_recipe_tutorial() {
     
     switch (tutorial_step) {
         case 0:
-            set_instruction("Step 1: Pick up a Lumpia Wrapper\nPress -X- near the wrapper storage");
+            set_instruction("Step 1: Grab a Lumpia Wrapper\nInteract with the wrapper storage");
             tutorial_target_station = instance_find(OBJ_WrapperStorage, 0);
             break;
         case 1:
-            set_instruction("Step 2: Place wrapper in mixing station\nPress -X- near the mixing station");
+            set_instruction("Step 2: Add the wrapper to the mix\nInteract with the mixing station");
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 2:
-            set_instruction("Step 3: Pick up Meat from storage\nPress -X- near the freezer");
+            set_instruction("Step 3: Grab some Meat\nInteract with the freezer");
             tutorial_target_station = instance_find(OBJ_Freezer, 0);
             break;
         case 3:
-            set_instruction("Step 4: Place meat on Slicing Station\nPress -X- near the slicing station");
+            set_instruction("Step 4: Slice the meat\nInteract with the slicing station");
             tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 4:
-            set_instruction("Step 5: Wait for meat to slice...");
+            set_instruction("Step 5: Wait for the meat to slice...");
             tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 5:
-            set_instruction("Step 6: Take the sliced meat\nPress -X- near the slicing station");
+            set_instruction("Step 6: Grab the sliced meat\nInteract with the slicing station");
             tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 6:
-            set_instruction("Step 7: Place sliced meat in mixing station\nPress -X- near the mixing station to combine");
+            set_instruction("Step 7: Combine it in the mix\nInteract with the mixing station");
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 7:
-            set_instruction("Step 8: Take the raw lumpia\nPress -X- near the mixing station");
+            set_instruction("Step 8: Grab the raw lumpia\nInteract with the mixing station");
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 8:
-            set_instruction("Step 9: Place lumpia on Frying Station\nPress -X- near the frying station");
+            set_instruction("Step 9: Fry the lumpia\nInteract with the frying station");
             tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 9:
-            set_instruction("Step 10: Wait for lumpia to cook...");
+            set_instruction("Step 10: Wait for the lumpia to cook...");
             tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 10:
-            set_instruction("Step 11: Take the cooked lumpia\nPress -X- near the frying station");
+            set_instruction("Step 11: Grab the cooked lumpia\nInteract with the frying station");
             tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 11:
-            set_instruction("Step 12: Get a plate and combine with lumpia\nPress -X- at plate storage, then -X- near lumpia\nor -X- at the fryer while holding a plate");
+            set_instruction("Step 12: Plate the lumpia\nGrab a plate, or bring cooked food to the plates");
             tutorial_target_station = instance_find(OBJ_PlateStorage, 0);
             break;
         case 12:
-            set_instruction("Step 13: Place on serving counter\nPress -X- near the serving counter");
+            set_instruction("Step 13: Send it out!\nInteract with the serving counter");
             tutorial_target_station = instance_find(OBJ_ServingCounter, 0);
             break;
     }
@@ -535,7 +642,7 @@ function update_recipe_tutorial() {
 function update_serve_tutorial() {
     show_debug_message("update_serve_tutorial called, step: " + string(tutorial_step));
     if (tutorial_step == 0) {
-        set_instruction("Serve the Meat Lumpia to the customer!\nPick up the plate -X- and press -X- near the customer.");
+        set_instruction("Serve the Meat Lumpia to the customer!\nGrab the plate, then Interact with the customer.");
     }
     else if (tutorial_step == 1) {
         show_debug_message("Setting phase to complete!");

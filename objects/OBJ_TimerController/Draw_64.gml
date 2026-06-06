@@ -1,7 +1,8 @@
 // === TIMER BAR (Middle Left) ===
 
-// Don't draw if scoreboard is showing
-if (instance_exists(OBJ_Scoring) && OBJ_Scoring.show_results) {
+// Don't draw during tutorial or on scoreboard
+if (instance_exists(OBJ_TutorialManager) || room == tutorial_room ||
+    (instance_exists(OBJ_Scoring) && OBJ_Scoring.show_results)) {
     exit;
 }
 

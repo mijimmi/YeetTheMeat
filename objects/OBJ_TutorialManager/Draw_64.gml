@@ -1,4 +1,88 @@
-if (instruction_alpha > 0.01 && current_phase != "complete") {
+// === CONTROLS PHASE: P1 only (single) or P1 + P2 (multi) ===
+if (instruction_alpha > 0.01 && current_phase == "controls") {
+    var gui_w = display_get_gui_width();
+    var gui_h = display_get_gui_height();
+    var cx = gui_w / 2;
+    var cy = gui_h / 2 + 20;
+    var multiplayer = is_multiplayer_mode();
+    var anim_t = controls_anim_timer;
+
+    var card_w = multiplayer ? 680 : 820;
+    var card_h = 520;
+    var gap = 80;
+
+    // Slide-in from sides (multi) or scale-up from center (single)
+    var slide = max(0, 1 - anim_t * 0.04);
+    var p1_off_x = multiplayer ? -(card_w / 2 + gap / 2) - slide * 120 : 0;
+    var p2_off_x = (card_w / 2 + gap / 2) + slide * 120;
+
+    // --- Heading above the cards (animated bob) ---
+    var head_bob = sin(anim_t * 0.06) * 5;
+    var heading_y = cy - card_h / 2 - 78 + head_bob;
+    draw_set_font(global.game_font);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    var heading = multiplayer ? "HOW TO PLAY TOGETHER" : "HOW TO PLAY";
+    var head_s = 3.0 + sin(anim_t * 0.05) * 0.05;
+    draw_set_alpha(instruction_alpha);
+    draw_set_color(c_black);
+    for (var hx = -3; hx <= 3; hx += 3) {
+        for (var hy = -3; hy <= 3; hy += 3) {
+            if (hx != 0 || hy != 0) {
+                draw_text_transformed(cx + hx, heading_y + hy, heading, head_s, head_s, 0);
+            }
+        }
+    }
+    draw_set_color(c_white);
+    draw_text_transformed(cx, heading_y, heading, head_s, head_s, 0);
+
+    // --- Control rows ---
+    var p1_rows = [
+        ["Move",   "Stick", "WASD"],
+        ["Action", "X",     "E"],
+        ["Drop",   "Y",     "R"],
+        ["Cancel", "B",     "Shift"],
+    ];
+    var p2_rows = [
+        ["Move",   "Stick", "IJKL"],
+        ["Action", "X",     "U"],
+        ["Drop",   "Y",     "O"],
+        ["Cancel", "B",     "Y"],
+    ];
+
+    draw_control_card(cx + p1_off_x, cy, card_w, card_h, "PLAYER 1", make_color_rgb(210, 80, 80), p1_rows, instruction_alpha, anim_t, 0);
+
+    if (multiplayer) {
+        draw_control_card(cx + p2_off_x, cy, card_w, card_h, "PLAYER 2", make_color_rgb(225, 150, 50), p2_rows, instruction_alpha, anim_t, 1);
+    }
+
+    // --- Skip hint below ---
+    var c_skip_text = "Stuck? Press " + tut_select_key() + " to skip";
+    var c_skip_scale = 1.4;
+    var c_skip_y = cy + card_h / 2 + 44;
+    var skip_blink = 0.75 + sin(anim_t * 0.08) * 0.25;
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_top);
+    draw_set_alpha(instruction_alpha * skip_blink);
+    draw_set_color(c_black);
+    for (var csx = -2; csx <= 2; csx += 2) {
+        for (var csy = -2; csy <= 2; csy += 2) {
+            if (csx != 0 || csy != 0) {
+                draw_text_transformed(cx + csx, c_skip_y + csy, c_skip_text, c_skip_scale, c_skip_scale, 0);
+            }
+        }
+    }
+    draw_set_color(make_color_rgb(255, 240, 200));
+    draw_text_transformed(cx, c_skip_y, c_skip_text, c_skip_scale, c_skip_scale, 0);
+
+    // Reset
+    draw_set_alpha(1);
+    draw_set_color(c_white);
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+}
+
+if (instruction_alpha > 0.01 && current_phase != "complete" && current_phase != "controls") {
     draw_set_font(global.game_font);
     draw_set_halign(fa_center);
     draw_set_valign(fa_middle);
@@ -7,11 +91,12 @@ if (instruction_alpha > 0.01 && current_phase != "complete") {
     var text_w = string_width(instruction_text_full) * text_scale; // Full text for stable box size
     var text_h = string_height(instruction_text_full) * text_scale;
 
-    // Position between middle and bottom of screen
+    // Position a touch above the middle/bottom midpoint so it sits a little
+    // higher than dead-bottom but stays clear of the bottom recipe-book UI.
     var gui_h = display_get_gui_height();
     var center_y = gui_h / 2;
     var bottom_y = gui_h;
-    var base_y = (center_y + bottom_y) / 2;
+    var base_y = (center_y + bottom_y) / 2 - 25;
 
     // Gentle idle bob so the card feels alive
     var bob = sin(box_bob_timer) * 4;
@@ -154,34 +239,36 @@ if (current_phase == "complete") {
     draw_line_width(cc_x1 + 50, divider_y, cc_x2 - 50, divider_y, 2);
     draw_set_alpha(1);
 
-    // === Animated sparkle stars around headline ===
+    // === Animated sparkle stars around headline (bigger) ===
     var star_positions = [
-        [cc_x1 + 55, cc_y1 + 48],
-        [cc_x2 - 55, cc_y1 + 48],
-        [cc_x1 + 100, cc_y1 + 100],
-        [cc_x2 - 100, cc_y1 + 100],
+        [cc_x1 + 40, cc_y1 + 36],
+        [cc_x2 - 40, cc_y1 + 36],
+        [cc_x1 + 120, cc_y1 + 90],
+        [cc_x2 - 120, cc_y1 + 90],
+        [cc_x1 + 70, cc_y1 + 130],
+        [cc_x2 - 70, cc_y1 + 130],
     ];
-    var star_color = make_color_rgb(220, 170, 60);
-    for (var si = 0; si < 4; si++) {
+    var star_color = make_color_rgb(255, 210, 80);
+    for (var si = 0; si < 6; si++) {
         var sx = star_positions[si][0];
         var sy = star_positions[si][1];
         var star_phase = complete_star_timer * 0.07 + si * 1.4;
-        var star_s = 0.7 + sin(star_phase) * 0.3;
+        var star_s = 1.1 + sin(star_phase) * 0.35;
         var star_rot = complete_star_timer * 1.5 + si * 45;
-        var star_alpha = 0.5 + sin(star_phase + 1.0) * 0.4;
+        var star_alpha = 0.55 + sin(star_phase + 1.0) * 0.4;
         draw_set_alpha(star_alpha);
         draw_set_color(star_color);
         // Draw a simple 4-point star as two crossed lines
-        var arm = 10 * star_s;
-        var arm2 = arm * 0.5;
+        var arm = 26 * star_s;
+        var arm2 = arm * 0.55;
         var rcos = dcos(star_rot);
         var rsin = dsin(star_rot);
-        draw_line_width(sx - arm * rcos, sy + arm * rsin, sx + arm * rcos, sy - arm * rsin, 3);
-        draw_line_width(sx - arm * (-rsin), sy + arm * rcos, sx + arm * (-rsin), sy - arm * rcos, 3);
+        draw_line_width(sx - arm * rcos, sy + arm * rsin, sx + arm * rcos, sy - arm * rsin, 5);
+        draw_line_width(sx - arm * (-rsin), sy + arm * rcos, sx + arm * (-rsin), sy - arm * rcos, 5);
         draw_line_width(sx - arm2 * dcos(star_rot + 45), sy + arm2 * dsin(star_rot + 45),
-                        sx + arm2 * dcos(star_rot + 45), sy - arm2 * dsin(star_rot + 45), 2);
+                        sx + arm2 * dcos(star_rot + 45), sy - arm2 * dsin(star_rot + 45), 4);
         draw_line_width(sx - arm2 * dcos(star_rot + 135), sy + arm2 * dsin(star_rot + 135),
-                        sx + arm2 * dcos(star_rot + 135), sy - arm2 * dsin(star_rot + 135), 2);
+                        sx + arm2 * dcos(star_rot + 135), sy - arm2 * dsin(star_rot + 135), 4);
     }
     draw_set_alpha(1);
 
@@ -214,22 +301,8 @@ if (current_phase == "complete") {
     draw_set_color(make_color_rgb(140, 100, 60));
     draw_text_transformed(cx, tip_y, reminder_text_display, 1.3, 1.3, 0);
 
-    // === Warning chip at the bottom of the card ===
+    // === Warning text at the bottom of the card (no box) ===
     var warn_y = cc_y2 - 62;
-    if (string_length(warning_text_display) > 0) {
-        var wt_w = string_width(warning_text_display) * 1.4 + 40;
-        var wt_h = string_height(warning_text_display) * 1.4 + 18;
-        var wt_x1 = cx - wt_w / 2;
-        var wt_x2 = cx + wt_w / 2;
-        var wt_y1 = warn_y - wt_h / 2;
-        var wt_y2 = warn_y + wt_h / 2;
-        draw_set_alpha(0.15);
-        draw_set_color(make_color_rgb(190, 70, 50));
-        draw_roundrect_ext(wt_x1, wt_y1, wt_x2, wt_y2, 14, 14, false);
-        draw_set_alpha(1);
-        draw_set_color(make_color_rgb(190, 70, 50));
-        draw_roundrect_ext(wt_x1, wt_y1, wt_x2, wt_y2, 14, 14, true);
-    }
     draw_set_color(make_color_rgb(190, 70, 50));
     draw_text_transformed(cx, warn_y, warning_text_display, 1.4, 1.4, 0);
 
