@@ -208,23 +208,23 @@ function draw_control_card(ccx, ccy, cw, ch, title, title_color, rows, a, anim_t
     draw_set_valign(fa_middle);
 
     // Header pill (player color) — gentle pulse
-    var ts = 2.2 * pop;
+    var ts = 1.6 * pop;
     var tw = string_width(title) * ts;
-    var hp_y = y1 + 48;
+    var hp_y = y1 + 34;
     var pill_pulse = 1 + sin(anim_t * 0.06 + card_index) * 0.03;
     draw_set_color(title_color);
-    draw_roundrect_ext(ccx - (tw / 2 + 30) * pill_pulse, hp_y - 28, ccx + (tw / 2 + 30) * pill_pulse, hp_y + 28, 20, 20, false);
+    draw_roundrect_ext(ccx - (tw / 2 + 22) * pill_pulse, hp_y - 20, ccx + (tw / 2 + 22) * pill_pulse, hp_y + 20, 16, 16, false);
     draw_set_color(box_color);
     draw_text_transformed(ccx, hp_y, title, ts, ts, 0);
 
     // Column anchors
-    var label_col = x1 + 44;
-    var pad_col = x1 + cw * 0.56;
-    var key_col = x1 + cw * 0.84;
+    var label_col = x1 + 34;
+    var pad_col = x1 + cw * 0.58;
+    var key_col = x1 + cw * 0.85;
 
     // Column sub-headers
-    var head_y = hp_y + 68;
-    var hs = 1.65 * pop;
+    var head_y = hp_y + 44;
+    var hs = 1.1 * pop;
     draw_set_color(make_color_rgb(150, 110, 70));
     draw_text_transformed(pad_col, head_y, "PAD", hs, hs, 0);
     draw_text_transformed(key_col, head_y, "KEYS", hs, hs, 0);
@@ -232,13 +232,13 @@ function draw_control_card(ccx, ccy, cw, ch, title, title_color, rows, a, anim_t
     // Divider line
     draw_set_alpha(a * 0.4);
     draw_set_color(highlight_color);
-    draw_line_width(x1 + 30, head_y + 24, x2 - 30, head_y + 24, 3);
+    draw_line_width(x1 + 24, head_y + 18, x2 - 24, head_y + 18, 2);
     draw_set_alpha(a);
 
     // Rows (staggered fade-in)
-    var row_y = head_y + 58;
-    var row_gap = 72;
-    var rs = 1.85 * pop;
+    var row_y = head_y + 42;
+    var row_gap = 50;
+    var rs = 1.3 * pop;
     for (var i = 0; i < array_length(rows); i++) {
         var row_delay = card_index * 12 + i * 10;
         var row_alpha = clamp((anim_t - row_delay) * 0.07, 0, 1) * a;
@@ -384,12 +384,19 @@ function check_recipe_tutorial() {
         }
     }
     // Step 6: Mix ingredients (place on mixing station)
+    // Accepts any lumpia type (meat or veggie) in case player improvised.
     else if (tutorial_step == 6) {
         if (instance_exists(OBJ_MixingStation)) {
             var mixer = instance_find(OBJ_MixingStation, 0);
-            if (mixer.food_on_station != noone && mixer.food_on_station.object_index == OBJ_Lumpia) {
-                has_mixed = true;
-                advance_step(); // Immediately advance
+            if (mixer.food_on_station != noone && instance_exists(mixer.food_on_station)) {
+                var _fos = mixer.food_on_station;
+                var _is_mixed = (_fos.object_index == OBJ_Lumpia)
+                    || (variable_instance_exists(_fos, "food_type") &&
+                        (_fos.food_type == "raw_meat_lumpia" || _fos.food_type == "raw_veggie_lumpia" || _fos.food_type == "raw_caldereta"));
+                if (_is_mixed) {
+                    has_mixed = true;
+                    advance_step();
+                }
             }
         }
     }
@@ -415,26 +422,29 @@ function check_recipe_tutorial() {
             }
         }
     }
-    // Step 9: Wait for lumpia to cook
+    // Step 9: Wait for lumpia to cook (accept either lumpia type)
     else if (tutorial_step == 9) {
         if (instance_exists(OBJ_FryingStation)) {
             var fryer = instance_find(OBJ_FryingStation, 0);
             if (fryer.food_on_station != noone && fryer.food_on_station.object_index == OBJ_Lumpia) {
-                if (fryer.food_on_station.food_type == "cooked_meat_lumpia") {
+                var _ft = fryer.food_on_station.food_type;
+                if (_ft == "cooked_meat_lumpia" || _ft == "cooked_veggie_lumpia") {
                     has_fried = true;
-                    advance_step(); // Advance when cooked
+                    advance_step();
                 }
             }
         }
     }
-    // Step 10: Pick up cooked lumpia
+    // Step 10: Pick up cooked lumpia (accept either lumpia type)
     else if (tutorial_step == 10) {
         var has_cooked = false;
-        if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_Lumpia && p1.held_item.food_type == "cooked_meat_lumpia") {
-            has_cooked = true;
+        if (instance_exists(p1) && p1.held_item != noone && p1.held_item.object_index == OBJ_Lumpia) {
+            var _ft1 = p1.held_item.food_type;
+            if (_ft1 == "cooked_meat_lumpia" || _ft1 == "cooked_veggie_lumpia") has_cooked = true;
         }
-        if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Lumpia && p2.held_item.food_type == "cooked_meat_lumpia") {
-            has_cooked = true;
+        if (instance_exists(p2) && p2.held_item != noone && p2.held_item.object_index == OBJ_Lumpia) {
+            var _ft2 = p2.held_item.food_type;
+            if (_ft2 == "cooked_meat_lumpia" || _ft2 == "cooked_veggie_lumpia") has_cooked = true;
         }
         
         // SHORTCUT: player instant-plated at station - holding a plate with cooked lumpia
@@ -552,10 +562,10 @@ function update_tutorial() {
 
 function update_movement_tutorial() {
     if (tutorial_step == 0) {
-        set_instruction("MOVEMENT: Flick or hold the Left Stick in the opposite direction\nof where you want to go. Release to launch!");
+        set_instruction("Welcome to my kitchen, little chef!\nPull AWAY from where you want to go,\nthen let go to launch. Go on, give it a try!");
     }
     else if (tutorial_step == 1) {
-        set_instruction("Time the power bar:\nRED zone - Long distance\nGREEN zone - Short distance\nPress B to cancel!");
+        set_instruction("Purrfect! Mind the power bar, though -\nRED flings you far, GREEN keeps it short.\nDon't like your aim? Just cancel it!");
     }
     else {
         // Movement phase complete
@@ -569,6 +579,7 @@ function update_controls_tutorial() {
     if (tutorial_step == 0) {
         // Drawn as control cards in Draw_64; no typed text needed
         controls_anim_timer = 0;
+        controls_idle_timer = 0;
         set_instruction("");
     }
     else {
@@ -585,55 +596,55 @@ function update_recipe_tutorial() {
     
     switch (tutorial_step) {
         case 0:
-            set_instruction("Step 1: Grab a Lumpia Wrapper\nInteract with the wrapper storage");
+            set_instruction("First things first - we need a wrapper!\nGo Interact with the wrapper storage.");
             tutorial_target_station = instance_find(OBJ_WrapperStorage, 0);
             break;
         case 1:
-            set_instruction("Step 2: Add the wrapper to the mix\nInteract with the mixing station");
+            set_instruction("Good catch! Now pop that wrapper\ninto the mixing station for me.");
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 2:
-            set_instruction("Step 3: Grab some Meat\nInteract with the freezer");
+            set_instruction("Every lumpia needs a filling.\nGrab some meat from the freezer!");
             tutorial_target_station = instance_find(OBJ_Freezer, 0);
             break;
         case 3:
-            set_instruction("Step 4: Slice the meat\nInteract with the slicing station");
+            set_instruction("Raw won't do, dear - take it to the\nslicing station and Interact to chop it!");
             tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 4:
-            set_instruction("Step 5: Wait for the meat to slice...");
+            set_instruction("Just a moment...\nlet those knives do their work.");
             tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 5:
-            set_instruction("Step 6: Grab the sliced meat\nInteract with the slicing station");
+            set_instruction("All sliced up! Grab the meat back\nfrom the slicing station.");
             tutorial_target_station = instance_find(OBJ_SlicingStation, 0);
             break;
         case 6:
-            set_instruction("Step 7: Combine it in the mix\nInteract with the mixing station");
+            set_instruction("Now mix it with the wrapper -\nInteract with the mixing station!");
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 7:
-            set_instruction("Step 8: Grab the raw lumpia\nInteract with the mixing station");
+            set_instruction("Look at that, a fresh lumpia!\nPick it up from the mixing station.");
             tutorial_target_station = instance_find(OBJ_MixingStation, 0);
             break;
         case 8:
-            set_instruction("Step 9: Fry the lumpia\nInteract with the frying station");
+            set_instruction("Time to make it crispy -\ndrop it on the frying station!");
             tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 9:
-            set_instruction("Step 10: Wait for the lumpia to cook...");
+            set_instruction("Sizzle, sizzle...\nwait for it to cook through.");
             tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 10:
-            set_instruction("Step 11: Grab the cooked lumpia\nInteract with the frying station");
+            set_instruction("Golden and crunchy! Mmm!\nGrab the cooked lumpia.");
             tutorial_target_station = instance_find(OBJ_FryingStation, 0);
             break;
         case 11:
-            set_instruction("Step 12: Plate the lumpia\nGrab a plate, or bring cooked food to the plates");
+            set_instruction("Let's plate it nicely - grab a plate,\nor carry the food right to the plates!");
             tutorial_target_station = instance_find(OBJ_PlateStorage, 0);
             break;
         case 12:
-            set_instruction("Step 13: Send it out!\nInteract with the serving counter");
+            set_instruction("Last step - send it out!\nInteract with the serving counter.");
             tutorial_target_station = instance_find(OBJ_ServingCounter, 0);
             break;
     }
@@ -642,7 +653,7 @@ function update_recipe_tutorial() {
 function update_serve_tutorial() {
     show_debug_message("update_serve_tutorial called, step: " + string(tutorial_step));
     if (tutorial_step == 0) {
-        set_instruction("Serve the Meat Lumpia to the customer!\nGrab the plate, then Interact with the customer.");
+        set_instruction("Here comes a hungry customer!\nGrab the plate and Interact to serve them!");
     }
     else if (tutorial_step == 1) {
         show_debug_message("Setting phase to complete!");

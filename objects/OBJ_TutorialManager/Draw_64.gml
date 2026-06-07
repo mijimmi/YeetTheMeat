@@ -7,9 +7,9 @@ if (instruction_alpha > 0.01 && current_phase == "controls") {
     var multiplayer = is_multiplayer_mode();
     var anim_t = controls_anim_timer;
 
-    var card_w = multiplayer ? 680 : 820;
-    var card_h = 520;
-    var gap = 80;
+    var card_w = multiplayer ? 470 : 620;
+    var card_h = 340;
+    var gap = 60;
 
     // Slide-in from sides (multi) or scale-up from center (single)
     var slide = max(0, 1 - anim_t * 0.04);
@@ -18,12 +18,12 @@ if (instruction_alpha > 0.01 && current_phase == "controls") {
 
     // --- Heading above the cards (animated bob) ---
     var head_bob = sin(anim_t * 0.06) * 5;
-    var heading_y = cy - card_h / 2 - 78 + head_bob;
+    var heading_y = cy - card_h / 2 - 58 + head_bob;
     draw_set_font(global.game_font);
     draw_set_halign(fa_center);
     draw_set_valign(fa_middle);
     var heading = multiplayer ? "HOW TO PLAY TOGETHER" : "HOW TO PLAY";
-    var head_s = 3.0 + sin(anim_t * 0.05) * 0.05;
+    var head_s = 2.3 + sin(anim_t * 0.05) * 0.05;
     draw_set_alpha(instruction_alpha);
     draw_set_color(c_black);
     for (var hx = -3; hx <= 3; hx += 3) {
@@ -56,23 +56,41 @@ if (instruction_alpha > 0.01 && current_phase == "controls") {
         draw_control_card(cx + p2_off_x, cy, card_w, card_h, "PLAYER 2", make_color_rgb(225, 150, 50), p2_rows, instruction_alpha, anim_t, 1);
     }
 
-    // --- Skip hint below ---
-    var c_skip_text = "Stuck? Press " + tut_select_key() + " to skip";
-    var c_skip_scale = 1.4;
-    var c_skip_y = cy + card_h / 2 + 44;
-    var skip_blink = 0.75 + sin(anim_t * 0.08) * 0.25;
     draw_set_halign(fa_center);
     draw_set_valign(fa_top);
-    draw_set_alpha(instruction_alpha * skip_blink);
-    draw_set_color(c_black);
-    for (var csx = -2; csx <= 2; csx += 2) {
-        for (var csy = -2; csy <= 2; csy += 2) {
-            if (csx != 0 || csy != 0) {
-                draw_text_transformed(cx + csx, c_skip_y + csy, c_skip_text, c_skip_scale, c_skip_scale, 0);
+
+    // --- "Press to continue" prompt (appears only after a short read) ---
+    var cont_y = cy + card_h / 2 + 40;
+    if (anim_t >= 90) {
+        var cont_text = "Press " + tut_action_key() + " to continue";
+        var cont_scale = 1.7;
+        var cont_blink = 0.7 + sin(anim_t * 0.12) * 0.3;
+        draw_set_alpha(instruction_alpha * cont_blink);
+        draw_set_color(c_black);
+        for (var cnx = -2; cnx <= 2; cnx += 2) {
+            for (var cny = -2; cny <= 2; cny += 2) {
+                if (cnx != 0 || cny != 0) {
+                    draw_text_transformed(cx + cnx, cont_y + cny, cont_text, cont_scale, cont_scale, 0);
+                }
             }
         }
+        draw_set_color(make_color_rgb(255, 235, 170));
+        draw_text_transformed(cx, cont_y, cont_text, cont_scale, cont_scale, 0);
+    } else {
+        // Brief "take a look" hint before the continue prompt unlocks
+        var look_text = "Take a look at your controls...";
+        draw_set_alpha(instruction_alpha * 0.85);
+        draw_set_color(make_color_rgb(230, 215, 180));
+        draw_text_transformed(cx, cont_y, look_text, 1.4, 1.4, 0);
     }
-    draw_set_color(make_color_rgb(255, 240, 200));
+
+    // --- Skip hint below the continue prompt ---
+    var c_skip_text = "Stuck? Press " + tut_select_key() + " to skip";
+    var c_skip_scale = 1.1;
+    var c_skip_y = cont_y + 40;
+    var skip_blink = 0.65 + sin(anim_t * 0.08) * 0.25;
+    draw_set_alpha(instruction_alpha * skip_blink);
+    draw_set_color(make_color_rgb(200, 180, 150));
     draw_text_transformed(cx, c_skip_y, c_skip_text, c_skip_scale, c_skip_scale, 0);
 
     // Reset
@@ -87,28 +105,26 @@ if (instruction_alpha > 0.01 && current_phase != "complete" && current_phase != 
     draw_set_halign(fa_center);
     draw_set_valign(fa_middle);
 
-    var text_scale = 2.5; // Big, readable text
-    var text_w = string_width(instruction_text_full) * text_scale; // Full text for stable box size
+    var text_scale = 2.5;
+    var text_w = string_width(instruction_text_full) * text_scale;
     var text_h = string_height(instruction_text_full) * text_scale;
 
-    // Position a touch above the middle/bottom midpoint so it sits a little
-    // higher than dead-bottom but stays clear of the bottom recipe-book UI.
     var gui_h = display_get_gui_height();
     var center_y = gui_h / 2;
     var bottom_y = gui_h;
     var base_y = (center_y + bottom_y) / 2 - 25;
 
-    // Gentle idle bob so the card feels alive
+    // Gentle idle bob
     var bob = sin(box_bob_timer) * 4;
     var card_cy = base_y + bob;
 
-    // Card bounds
-    var pad = box_padding;
-    var box_x1 = instruction_x - (text_w / 2) - pad;
-    var box_y1 = card_cy - (text_h / 2) - pad;
-    var box_x2 = instruction_x + (text_w / 2) + pad;
-    var box_y2 = card_cy + (text_h / 2) + pad;
-    var rad = 26; // Rounded corners
+    // Card bounds (text centered; Istar's portrait sits beside it on the left)
+    var pad        = box_padding;
+    var box_x1     = instruction_x - (text_w / 2) - pad;
+    var box_y1     = card_cy - (text_h / 2) - pad;
+    var box_x2     = instruction_x + (text_w / 2) + pad;
+    var box_y2     = card_cy + (text_h / 2) + pad;
+    var rad        = 26;
 
     // --- Soft drop shadow ---
     draw_set_alpha(0.22 * instruction_alpha);
@@ -120,48 +136,61 @@ if (instruction_alpha > 0.01 && current_phase != "complete" && current_phase != 
     draw_set_color(box_color);
     draw_roundrect_ext(box_x1, box_y1, box_x2, box_y2, rad, rad, false);
 
-    // --- Hand-drawn double border (brown) ---
+    // --- Double brown border ---
     draw_set_alpha(instruction_alpha);
     draw_set_color(highlight_color);
     draw_roundrect_ext(box_x1, box_y1, box_x2, box_y2, rad, rad, true);
     draw_roundrect_ext(box_x1 + 4, box_y1 + 4, box_x2 - 4, box_y2 - 4, rad - 4, rad - 4, true);
 
-    // --- "TUTORIAL" tab pill above the card ---
-    var tab_text = "TUTORIAL";
-    var tab_scale = 1.6;
-    var tab_w = string_width(tab_text) * tab_scale;
-    var tab_h = string_height(tab_text) * tab_scale;
-    var tab_cx = instruction_x;
-    var tab_cy = box_y1 - tab_h * 0.5 - 6;
-    var tab_x1 = tab_cx - tab_w / 2 - 22;
-    var tab_x2 = tab_cx + tab_w / 2 + 22;
-    var tab_y1 = tab_cy - tab_h / 2 - 8;
-    var tab_y2 = tab_cy + tab_h / 2 + 8;
+    // --- Istar portrait (spr_P2icon), large, sitting beside the box on the left ---
+    // spr_P2icon is 256x256, centered origin.
+    var icon_scale   = 0.78;
+    var icon_w       = 256 * icon_scale;   // ~200px
+    var icon_h       = 256 * icon_scale;
+    var portrait_bob = sin(box_bob_timer * 1.25) * 4;          // her own gentle bob
+    var portrait_cx  = box_x1 - icon_w * 0.34;                 // overlaps the box's left edge a touch
+    var portrait_cy  = card_cy + portrait_bob;
 
-    // Tab fill (brown) + cream outline
+    // --- "ISTAR" speaker nametag pill above the portrait ---
+    var name_text  = "ISTAR";
+    var name_scale = 1.5;
+    var name_w     = string_width(name_text) * name_scale;
+    var name_h     = string_height(name_text) * name_scale;
+    var name_cx    = portrait_cx;
+    var name_cy    = portrait_cy - icon_h * 0.5 - name_h * 0.5 + 6;
+    var name_x1    = name_cx - name_w / 2 - 16;
+    var name_x2    = name_cx + name_w / 2 + 16;
+    var name_y1    = name_cy - name_h / 2 - 7;
+    var name_y2    = name_cy + name_h / 2 + 7;
+
     draw_set_color(highlight_color);
-    draw_roundrect_ext(tab_x1, tab_y1, tab_x2, tab_y2, 18, 18, false);
+    draw_roundrect_ext(name_x1, name_y1, name_x2, name_y2, 16, 16, false);
     draw_set_color(box_color);
-    draw_roundrect_ext(tab_x1, tab_y1, tab_x2, tab_y2, 18, 18, true);
-    // Tab label (cream)
+    draw_roundrect_ext(name_x1, name_y1, name_x2, name_y2, 16, 16, true);
     draw_set_color(box_color);
-    draw_text_transformed(tab_cx, tab_cy, tab_text, tab_scale, tab_scale, 0);
+    draw_text_transformed(name_cx, name_cy, name_text, name_scale, name_scale, 0);
+
+    // Portrait itself (drawn over the box edge for a nice overlap)
+    draw_set_alpha(instruction_alpha);
+    draw_sprite_ext(spr_P2icon, 0, portrait_cx, portrait_cy,
+                    icon_scale, icon_scale, 0, c_white, 1);
 
     // --- Instruction text (brown ink, typing effect) ---
     draw_set_color(text_color);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
     draw_text_transformed(instruction_x, card_cy, instruction_text_display, text_scale, text_scale, 0);
 
-    // --- Skip hint chip below the card ---
-    var skip_text = "Stuck? Press " + tut_select_key() + " to skip";
+    // --- Skip hint below the card ---
+    var skip_text  = "Stuck? Press " + tut_select_key() + " to skip";
     var skip_scale = 1.3;
-    var skip_y = box_y2 + 34;
+    var skip_y     = box_y2 + 34;
     draw_set_valign(fa_top);
-    // outline
     draw_set_color(c_black);
-    for (var sx = -2; sx <= 2; sx += 2) {
-        for (var sy = -2; sy <= 2; sy += 2) {
-            if (sx != 0 || sy != 0) {
-                draw_text_transformed(instruction_x + sx, skip_y + sy, skip_text, skip_scale, skip_scale, 0);
+    for (var _sx = -2; _sx <= 2; _sx += 2) {
+        for (var _sy = -2; _sy <= 2; _sy += 2) {
+            if (_sx != 0 || _sy != 0) {
+                draw_text_transformed(instruction_x + _sx, skip_y + _sy, skip_text, skip_scale, skip_scale, 0);
             }
         }
     }

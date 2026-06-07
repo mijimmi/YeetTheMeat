@@ -1,28 +1,28 @@
 // === UPDATE ACTIVE HINTS ===
-// Only show hints for the closest station to each player
+// active_hints stores structs: { spr, col }
+// Each entry carries the blend color matching that player's prompt color.
 active_hints = [];
+
+var _p1_col  = make_color_rgb(255, 100, 100); // same red as P1 interaction prompt
+var _p2_col  = make_color_rgb(220, 140,  40); // same orange as P2 interaction prompt
 
 // Check P1's closest station
 var p1 = instance_find(OBJ_P1, 0);
 if (p1 != noone && instance_exists(p1)) {
     var closest = global.p1_closest_station;
     if (closest != noone && instance_exists(closest)) {
-        // Check if this station has a hint sprite mapped
         var hint_spr = ds_map_find_value(hint_map, closest.object_index);
-        if (hint_spr != undefined) {
-            var can_interact = check_can_interact(p1, closest);
-            if (can_interact) {
-                // Check if this hint is already in the list
-                var already_added = false;
-                for (var i = 0; i < array_length(active_hints); i++) {
-                    if (active_hints[i] == hint_spr) {
-                        already_added = true;
-                        break;
-                    }
-                }
-                if (!already_added) {
-                    array_push(active_hints, hint_spr);
-                }
+        if (hint_spr != undefined && check_can_interact(p1, closest)) {
+            // Check if same sprite already queued (from P2 at same station)
+            var found = -1;
+            for (var i = 0; i < array_length(active_hints); i++) {
+                if (active_hints[i].spr == hint_spr) { found = i; break; }
+            }
+            if (found == -1) {
+                array_push(active_hints, { spr: hint_spr, col: _p1_col });
+            } else {
+                // Both players at same station — blend to a neutral highlight
+                active_hints[found].col = merge_color(_p1_col, _p2_col, 0.5);
             }
         }
     }
@@ -33,22 +33,16 @@ var p2 = instance_find(OBJ_P2, 0);
 if (p2 != noone && instance_exists(p2)) {
     var closest = global.p2_closest_station;
     if (closest != noone && instance_exists(closest)) {
-        // Check if this station has a hint sprite mapped
         var hint_spr = ds_map_find_value(hint_map, closest.object_index);
-        if (hint_spr != undefined) {
-            var can_interact = check_can_interact(p2, closest);
-            if (can_interact) {
-                // Check if this hint is already in the list
-                var already_added = false;
-                for (var i = 0; i < array_length(active_hints); i++) {
-                    if (active_hints[i] == hint_spr) {
-                        already_added = true;
-                        break;
-                    }
-                }
-                if (!already_added) {
-                    array_push(active_hints, hint_spr);
-                }
+        if (hint_spr != undefined && check_can_interact(p2, closest)) {
+            var found = -1;
+            for (var i = 0; i < array_length(active_hints); i++) {
+                if (active_hints[i].spr == hint_spr) { found = i; break; }
+            }
+            if (found == -1) {
+                array_push(active_hints, { spr: hint_spr, col: _p2_col });
+            } else {
+                active_hints[found].col = merge_color(active_hints[found].col, _p2_col, 0.5);
             }
         }
     }

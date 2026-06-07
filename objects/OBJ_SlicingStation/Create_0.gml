@@ -18,6 +18,11 @@ bar_height = 14;
 wobble_amount = 1.5;
 line_segments = 3;
 
+// Popcorn particles
+popcorn_particles = ds_list_create(); // each entry: [x, y, vx, vy, scale, alpha, spr]
+popcorn_timer = 0;
+popcorn_interval = irandom_range(35, 55);
+
 // === OVERRIDE INTERACT_TAKE TO PREVENT TAKING WHILE PROCESSING ===
 function interact_take(player) {
     // Can't take while processing

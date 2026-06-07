@@ -38,6 +38,40 @@ if (is_processing && active_player != noone) {
     }
 }
 
+// === POPCORN PARTICLES ===
+// Update existing particles
+for (var _i = ds_list_size(popcorn_particles) - 1; _i >= 0; _i--) {
+    var _p = popcorn_particles[| _i];
+    _p[0] += _p[2];      // x += vx
+    _p[1] += _p[3];      // y += vy
+    _p[3] += 0.28;       // gravity
+    _p[5] -= 0.025;      // fade out
+    if (_p[5] <= 0) ds_list_delete(popcorn_particles, _i);
+}
+
+// Spawn new burst every so often while processing
+if (is_processing) {
+    popcorn_timer++;
+    if (popcorn_timer >= popcorn_interval) {
+        popcorn_timer = 0;
+        popcorn_interval = irandom_range(35, 60);
+        var _cloud_sprites = [spr_Fx1, spr_Fx2, spr_Fx3, spr_Fx4];
+        var _spawn = irandom_range(1, 3);
+        for (var _s = 0; _s < _spawn; _s++) {
+            var _px  = x + food_offset_x + random_range(-8, 8);
+            var _py  = y + food_offset_y + random_range(-4, 4);
+            var _pvx = random_range(-2.2, 2.2);
+            var _pvy = random_range(-4.5, -2.5);
+            var _psc = random_range(0.55, 1.0);
+            var _pal = random_range(0.75, 1.0);
+            var _spr = _cloud_sprites[irandom(3)];
+            ds_list_add(popcorn_particles, [_px, _py, _pvx, _pvy, 0, _pal, _spr, _psc]);
+        }
+    }
+} else {
+    popcorn_timer = 0;
+}
+
 function cancel_processing() {
     is_processing = false;
     progress_current = 0;

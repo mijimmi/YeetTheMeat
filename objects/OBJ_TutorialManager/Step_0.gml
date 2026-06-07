@@ -20,17 +20,17 @@ if (!instruction_text_complete && instruction_text_full != "") {
         instruction_char_index++;
         instruction_text_display = string_copy(instruction_text_full, 1, instruction_char_index);
         
-        // Play text sound every 3 characters to avoid overlap
+        // Play Istar's voice every 3 characters (low-pitched meow, matching cutscene)
         if (instruction_char_index % 3 == 0) {
-            audio_stop_sound(sfx_text_talk);
-            audio_sound_gain(sfx_text_talk, 0.9, 0);
-            audio_play_sound(sfx_text_talk, 1, false);
+            audio_stop_sound(sfx_meow_talk);
+            audio_sound_gain(sfx_meow_talk, 0.3, 0);
+            audio_sound_pitch(sfx_meow_talk, 0.6);
+            audio_play_sound(sfx_meow_talk, 1, false);
         }
     }
     if (instruction_char_index >= string_length(instruction_text_full)) {
         instruction_text_complete = true;
-        // Stop the text sound when typing completes
-        audio_stop_sound(sfx_text_talk);
+        audio_stop_sound(sfx_meow_talk);
     }
 }
 
@@ -243,27 +243,50 @@ if (current_phase == "movement") {
 
 // === CONTROLS PHASE ===
 else if (current_phase == "controls") {
-    // Track button presses from either player
-    var pressed_action = gamepad_button_check_pressed(0, global.btn_action) || gamepad_button_check_pressed(1, global.btn_action) ||
-                        keyboard_check_pressed(ord("E")) || keyboard_check_pressed(ord("U"));
-    var pressed_drop = gamepad_button_check_pressed(0, global.btn_drop) || gamepad_button_check_pressed(1, global.btn_drop) ||
-                      keyboard_check_pressed(ord("R")) || keyboard_check_pressed(ord("O"));
-    
-    // Advance when any button has been pressed
-    if (pressed_action || pressed_drop) {
-        alarm[0] = 120; // Brief beat, then move to recipe phase
+    controls_idle_timer++;
+
+    // Require a short read before the player can continue. This also prevents
+    // any input buffered from the movement phase from instantly skipping it.
+    var can_continue = controls_anim_timer >= 90; // ~1.5s minimum on screen
+
+    if (can_continue && alarm[0] < 0) {
+        var pressed_continue =
+            gamepad_button_check_pressed(0, global.btn_action) || gamepad_button_check_pressed(1, global.btn_action) ||
+            gamepad_button_check_pressed(0, gp_face1)          || gamepad_button_check_pressed(1, gp_face1) ||
+            keyboard_check_pressed(ord("E"))                   || keyboard_check_pressed(ord("U")) ||
+            keyboard_check_pressed(vk_space)                   || keyboard_check_pressed(vk_enter);
+
+        if (pressed_continue) {
+            alarm[0] = 1; // proceed to the recipe phase
+        }
     }
 
-    // Failsafe: never let the player get stuck here. Auto-advance after a
-    // short read even if they never press anything.
-    controls_idle_timer++;
-    if (controls_idle_timer >= 420 && alarm[0] < 0) { // ~7 seconds, no pending advance
+    // Failsafe so the player can never soft-lock here (long, unobtrusive).
+    if (controls_idle_timer >= 1200 && alarm[0] < 0) { // ~20 seconds
         alarm[0] = 1;
     }
 }
 
 // === RECIPE PHASE ===
 else if (current_phase == "recipe") {
+    // During steps 2-5 the wrapper must stay in the mixer. If a player
+    // accidentally picks it up while empty-handed, silently respawn it so
+    // the tutorial doesn't soft-lock.
+    if (tutorial_step >= 2 && tutorial_step <= 5) {
+        var _mixer = instance_find(OBJ_MixingStation, 0);
+        if (instance_exists(_mixer) && _mixer.ingredient1 == noone && _mixer.food_on_station == noone) {
+            var _w = instance_create_depth(
+                _mixer.x + _mixer.food_offset_x - 15,
+                _mixer.y + _mixer.food_offset_y,
+                _mixer.depth - 1,
+                OBJ_LumpiaWrapper
+            );
+            _w.can_slide = false;
+            _w.velocity_x = 0;
+            _w.velocity_y = 0;
+            _mixer.ingredient1 = _w;
+        }
+    }
     check_recipe_tutorial();
 }
 

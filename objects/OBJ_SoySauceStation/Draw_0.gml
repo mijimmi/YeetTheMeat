@@ -102,18 +102,24 @@ if (is_processing) {
     var time_factor = current_time * 0.003;
     var sauce_tint = make_color_rgb(180, 150, 120); // Light brownish tint
     
-    // Draw multiple animated clouds over the food
+    // Draw multiple animated clouds over the food (bigger)
     for (var i = 0; i < 4; i++) {
         var cloud_spr = cloud_sprites[i mod 4];
         var angle_offset = i * 90;
-        var cloud_dist = 8 + sin(time_factor + i * 1.5) * 4;
+        var cloud_dist = 10 + sin(time_factor + i * 1.5) * 5;
         var cloud_x = food_x + lengthdir_x(cloud_dist, time_factor * 60 + angle_offset);
         var cloud_y = food_y + lengthdir_y(cloud_dist * 0.6, time_factor * 60 + angle_offset);
-        var cloud_scale = 0.4 + sin(time_factor * 2 + i) * 0.1;
+        var cloud_scale = 0.8 + sin(time_factor * 2 + i) * 0.18;
         var cloud_alpha = 0.7 + sin(time_factor * 3 + i * 0.5) * 0.2;
         var cloud_rot = sin(time_factor + i) * 15;
         
         draw_sprite_ext(cloud_spr, 0, cloud_x, cloud_y, cloud_scale, cloud_scale, cloud_rot, sauce_tint, cloud_alpha);
+    }
+
+    // Popcorn particles
+    for (var i = 0; i < ds_list_size(popcorn_particles); i++) {
+        var _p = popcorn_particles[| i];
+        draw_sprite_ext(_p[6], 0, _p[0], _p[1], _p[7], _p[7], 0, sauce_tint, _p[5]);
     }
     
     random_set_seed(current_time);

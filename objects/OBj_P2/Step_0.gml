@@ -809,3 +809,45 @@ if (instance_exists(OBJ_P1) && place_meeting(x, y, OBJ_P1)) {
         }
     }
 }
+
+// === DYNAMIC DEPTH: don't get cut off by the spr_BGdepth occlusion layer ===
+// The "Depth" background layer (spr_BGdepth) sits at depth 200 and is always
+// painted over the Players layer (300), so ANY overlap chops the player. Instead
+// we pick the player's depth each frame: drawn IN FRONT of that layer by default
+// (so a slight overlap never cuts them off), and only DROP BEHIND it when the
+// player is genuinely standing behind a nearby counter/table (their feet are above
+// its centre line). Tweak the constants below to taste.
+var _depth_front  = 150;   // < 200  -> drawn over spr_BGdepth (not cut off)
+var _depth_behind = 350;   // > 200  -> hidden by spr_BGdepth (intended occlusion)
+var _zone_half_w  = 110;   // how far sideways a structure's occlusion zone reaches
+var _vert_range   = 140;   // only structures this close (vertically) can occlude
+var _edge_tol     = 6;     // feet must clear the centre line by this much to go behind
+
+var _pf = bbox_bottom;     // player's feet
+var _px = x;
+var _behind = false;
+
+var _occ_obj = [OBJ_CookingStation_Parent, OBJ_FoodStorage_Parent, OBJ_Table_Parent, OBJ_ServingCounter, OBJ_TrashCan];
+// How far BELOW each structure's marker its "go behind" line sits. The serving
+// counter's marker sits well above the checkered table's front edge, so its line
+// is pushed down to that edge — otherwise players stay drawn over the table when
+// they step too deep into it.
+var _occ_off = [0, 0, 0, 65, 0];
+
+for (var _i = 0; _i < array_length(_occ_obj); _i++) {
+    if (!instance_exists(_occ_obj[_i])) continue;
+    var _off = _occ_off[_i];
+    with (_occ_obj[_i]) {
+        var _line = y + _off;                        // this structure's front edge
+        if (abs(_px - x) > _zone_half_w) continue;   // not horizontally over this structure
+        if (abs(_pf - _line) > _vert_range) continue;// too far away for it to occlude us
+        if (_pf < _line - _edge_tol) _behind = true; // feet past the front edge -> behind it
+    }
+}
+
+depth = _behind ? _depth_behind : _depth_front;
+
+// Keep any held item just in front of the player at the new depth
+if (held_item != noone && instance_exists(held_item)) {
+    held_item.depth = depth - 1;
+}

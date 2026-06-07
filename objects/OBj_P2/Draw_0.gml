@@ -308,9 +308,49 @@ if (state == "aiming") {
 draw_set_color(c_white);
 draw_set_alpha(1);
 
-// === DRAW HANDS ===
-draw_sprite_ext(spr_2Hand, hand_frame, x + hand1_x, y + hand1_y, hand_scale_x, hand_scale_y, hand1_angle, c_white, 1);
-draw_sprite_ext(spr_2Hand, hand_frame, x + hand2_x, y + hand2_y, -hand_scale_x, hand_scale_y, hand2_angle, c_white, 1);
+// === WORKING ANIMATION STATE (slicing/soying) ===
+var doing_station_work = false;
+var _sl = instance_find(OBJ_SlicingStation, 0);
+if (_sl != noone && instance_exists(_sl) && _sl.is_processing && _sl.active_player == id) {
+    doing_station_work = true;
+}
+var _soy = instance_find(OBJ_SoySauceStation, 0);
+if (_soy != noone && instance_exists(_soy) && _soy.is_processing && _soy.active_player == id) {
+    doing_station_work = true;
+}
+
+// === COMPUTE HAND DRAW PARAMS ===
+var draw_hand1_x = hand1_x;
+var draw_hand1_y = hand1_y;
+var draw_hand2_x = hand2_x;
+var draw_hand2_y = hand2_y;
+var draw_hand1_angle = hand1_angle;
+var draw_hand2_angle = hand2_angle;
+var draw_hand_scale_x = hand_scale_x;
+var draw_hand_scale_y = hand_scale_y;
+var draw_hand_frame = hand_frame;
+
+if (doing_station_work) {
+    // Slightly offset phase from P1 so they don't look identical
+    var work_t = current_time * 0.022 + 1.37;
+    var hand_pump = sin(work_t) * 6;
+    var hand_sway = sin(work_t * 0.7) * 2;
+    draw_hand1_x = -20 + hand_sway;
+    draw_hand1_y = -2 - hand_pump;
+    draw_hand2_x = 20 + hand_sway;
+    draw_hand2_y = -2 + hand_pump;
+    draw_hand1_angle = 162;
+    draw_hand2_angle = -162;
+    draw_hand_scale_x = hand_scale_x * 1.08;
+    draw_hand_scale_y = hand_scale_y * 0.95;
+    draw_hand_frame = 1;
+}
+
+// Draw hands BEHIND body only when NOT doing station work
+if (!doing_station_work) {
+    draw_sprite_ext(spr_2Hand, draw_hand_frame, x + draw_hand1_x, y + draw_hand1_y, draw_hand_scale_x, draw_hand_scale_y, draw_hand1_angle, c_white, 1);
+    draw_sprite_ext(spr_2Hand, draw_hand_frame, x + draw_hand2_x, y + draw_hand2_y, -draw_hand_scale_x, draw_hand_scale_y, draw_hand2_angle, c_white, 1);
+}
 
 // === IDLE BLINK LOGIC ===
 if (state == "idle") {
@@ -337,7 +377,10 @@ if (state == "idle") {
 var squish_threshold = 0.75;
 var sprite_to_use = spr_P2;
 
-if (state == "moving") {
+if (doing_station_work) {
+    sprite_to_use = spr_P2Squish;
+}
+else if (state == "moving") {
     sprite_to_use = spr_P2Dash;
 }
 else if (scale_y < squish_threshold || (state == "aiming" && aim_power >= 0.85)) {
@@ -347,13 +390,26 @@ else if (is_blinking && state == "idle") {
     sprite_to_use = spr_P2Squish;  // Use squish sprite for blinking
 }
 
+// Very slight left-right sway while working at a station
+// Phase offset (+1.37) keeps P2's sway out of sync with P1's
+var _body_x = x;
+if (doing_station_work) {
+    _body_x += sin(current_time * 0.04 + 1.37) * 1.2;
+}
+
 draw_sprite_ext(
     sprite_to_use,
     facing_frame,
-    x, y,
+    _body_x, y,
     scale_x * facing_flip,
     scale_y,
     0,
     c_white,
     1
 );
+
+// Draw hands IN FRONT of body during station work
+if (doing_station_work) {
+    draw_sprite_ext(spr_2Hand, draw_hand_frame, _body_x + draw_hand1_x, y + draw_hand1_y, draw_hand_scale_x, draw_hand_scale_y, draw_hand1_angle, c_white, 1);
+    draw_sprite_ext(spr_2Hand, draw_hand_frame, _body_x + draw_hand2_x, y + draw_hand2_y, -draw_hand_scale_x, draw_hand_scale_y, draw_hand2_angle, c_white, 1);
+}
