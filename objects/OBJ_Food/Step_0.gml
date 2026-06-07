@@ -250,3 +250,34 @@ if (!is_held && !is_cooking && !is_on_plate && can_slide) {
         }
     }
 }
+
+// === DYNAMIC DEPTH for free food items ===
+// Only self-sort when the food is genuinely loose (on a station, sliding, or on
+// the floor). If it is held, or riding on a plate, let the player/plate drive its
+// depth instead — otherwise its raised position would wrongly push it behind a
+// nearby counter and cut it off.
+if (!is_held && !is_on_plate) {
+    var _fd_depth_front  = 151;  // slightly above plates (150) when free
+    var _fd_depth_behind = 351;
+    var _fd_half_w  = 110;
+    var _fd_vert    = 140;
+    var _fd_tol     = 6;
+    var _fd_pf = bbox_bottom;
+    var _fd_px = x;
+    var _fd_behind = false;
+
+    var _fd_occ_obj = [OBJ_CookingStation_Parent, OBJ_FoodStorage_Parent, OBJ_Table_Parent, OBJ_ServingCounter, OBJ_TrashCan];
+    var _fd_occ_off = [0, 0, 0, 65, 0];
+    for (var _fi = 0; _fi < array_length(_fd_occ_obj); _fi++) {
+        if (!instance_exists(_fd_occ_obj[_fi])) continue;
+        var _foff = _fd_occ_off[_fi];
+        with (_fd_occ_obj[_fi]) {
+            var _fline = y + _foff;
+            if (abs(_fd_px - x) > _fd_half_w) continue;
+            if (abs(_fd_pf - _fline) > _fd_vert) continue;
+            if (_fd_pf < _fline - _fd_tol) _fd_behind = true;
+        }
+    }
+
+    depth = _fd_behind ? _fd_depth_behind : _fd_depth_front;
+}

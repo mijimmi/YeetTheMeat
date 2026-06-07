@@ -841,7 +841,14 @@ for (var _i = 0; _i < array_length(_occ_obj); _i++) {
 
 depth = _behind ? _depth_behind : _depth_front;
 
-// Keep any held item just in front of the player at the new depth
+// Carried items are held up near the player's head, so they often overlap a
+// counter the player is reaching over. Always draw them (and anything riding on
+// top, e.g. food on a plate) IN FRONT of the spr_BGdepth layer so they never get
+// clipped — even when the player themselves is standing behind that counter.
 if (held_item != noone && instance_exists(held_item)) {
-    held_item.depth = depth - 1;
+    held_item.depth = _depth_front - 1;
+    if (variable_instance_exists(held_item, "food_on_plate") &&
+        held_item.food_on_plate != noone && instance_exists(held_item.food_on_plate)) {
+        held_item.food_on_plate.depth = _depth_front - 2;
+    }
 }

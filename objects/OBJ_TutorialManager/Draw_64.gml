@@ -3,7 +3,7 @@ if (instruction_alpha > 0.01 && current_phase == "controls") {
     var gui_w = display_get_gui_width();
     var gui_h = display_get_gui_height();
     var cx = gui_w / 2;
-    var cy = gui_h / 2 + 20;
+    var cy = gui_h / 2 + 80;
     var multiplayer = is_multiplayer_mode();
     var anim_t = controls_anim_timer;
 
@@ -112,7 +112,7 @@ if (instruction_alpha > 0.01 && current_phase != "complete" && current_phase != 
     var gui_h = display_get_gui_height();
     var center_y = gui_h / 2;
     var bottom_y = gui_h;
-    var base_y = (center_y + bottom_y) / 2 - 25;
+    var base_y = (center_y + bottom_y) / 2 + 55;
 
     // Gentle idle bob
     var bob = sin(box_bob_timer) * 4;

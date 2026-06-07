@@ -2,7 +2,7 @@
 instruction_alpha = lerp(instruction_alpha, target_alpha, 0.1);
 
 // Update arrow bounce animation
-arrow_bounce += 0.15;
+arrow_bounce += 0.09;
 
 // Gentle idle bob for the instruction card
 box_bob_timer += 0.05;

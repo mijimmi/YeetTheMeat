@@ -419,8 +419,8 @@ if (recipe_book_open && recipe_anim_progress > 0) {
         draw_text_transformed(gui_width / 2, close_y, close_text, 1.0, 1.0, 0);
     }
 }
-// === RECIPE BOOK HINT (Bottom Center - only when book is closed) ===
-else if (sprite_exists(spr_recipeicon)) {
+// === RECIPE BOOK HINT (Bottom Center - only when book is closed, hidden during tutorial) ===
+else if (sprite_exists(spr_recipeicon) && !instance_exists(OBJ_TutorialManager)) {
     var hint_x = gui_width / 2;
     var icon_alpha = 0.7 + sin(anim_timer * 0.03) * 0.1; // Subtle pulse for icon
     var text_alpha = 0.9; // More opaque text

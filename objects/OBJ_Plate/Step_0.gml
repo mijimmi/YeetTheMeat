@@ -30,6 +30,41 @@ if (food_on_plate != noone && instance_exists(food_on_plate)) {
     food_on_plate.velocity_y = velocity_y;
 }
 
+// === DYNAMIC DEPTH for plates not held by a player ===
+// When a plate is held, the carrying player overrides depth each frame.
+// When it is free (dropped, on counter, sliding), apply the same front/behind
+// logic as the players so it doesn't get permanently cut off.
+if (!is_held) {
+    var _pl_depth_front  = 150;
+    var _pl_depth_behind = 350;
+    var _pl_half_w  = 110;
+    var _pl_vert    = 140;
+    var _pl_tol     = 6;
+    var _pl_pf = bbox_bottom;
+    var _pl_px = x;
+    var _pl_behind = false;
+
+    var _pl_occ_obj = [OBJ_CookingStation_Parent, OBJ_FoodStorage_Parent, OBJ_Table_Parent, OBJ_ServingCounter, OBJ_TrashCan];
+    var _pl_occ_off = [0, 0, 0, 65, 0];
+    for (var _pi = 0; _pi < array_length(_pl_occ_obj); _pi++) {
+        if (!instance_exists(_pl_occ_obj[_pi])) continue;
+        var _poff = _pl_occ_off[_pi];
+        with (_pl_occ_obj[_pi]) {
+            var _pline = y + _poff;
+            if (abs(_pl_px - x) > _pl_half_w) continue;
+            if (abs(_pl_pf - _pline) > _pl_vert) continue;
+            if (_pl_pf < _pline - _pl_tol) _pl_behind = true;
+        }
+    }
+
+    depth = _pl_behind ? _pl_depth_behind : _pl_depth_front;
+
+    // Keep food on plate in sync
+    if (food_on_plate != noone && instance_exists(food_on_plate)) {
+        food_on_plate.depth = depth - 1;
+    }
+}
+
 // === PHYSICS - ONLY WHEN NOT HELD ===
 if (!is_held && can_slide) {
     var bounce_factor = 0.6;
