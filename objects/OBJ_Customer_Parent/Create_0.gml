@@ -76,19 +76,84 @@ angry_timer = 0;
 angry_duration = 60;     
 temp_angry = false;      
 
+// === ORDER INFO ===
+ordered_food_type = "";
+order_sprite = noone;
+order_name = "";
+has_been_served = false;
 
+// === SECOND ORDER (optional) ===
+has_second_order = false;
+ordered_food_type2 = "";
+order_sprite2 = noone;
+order_name2 = "";
+has_been_served2 = false;
 
 // Get spawner reference
 spawner = instance_find(OBJ_CustomerSpawner, 0);
 
 function choose_order() {
-    if (instance_exists(OBJ_CustomerSpawner)) {
-        var orders = OBJ_CustomerSpawner.available_orders;
-        var random_order = orders[irandom(array_length(orders) - 1)];
-        
-        ordered_food_type = random_order[0];
-        order_sprite = random_order[1];
-        order_name = random_order[2];
+    if (!instance_exists(OBJ_CustomerSpawner)) return;
+
+    var all_orders = OBJ_CustomerSpawner.available_orders;
+
+    // === MAIN ORDER POOL: exclude rice, buko, gulaman ===
+    var main_pool = [];
+    for (var i = 0; i < array_length(all_orders); i++) {
+        var ft = all_orders[i][0];
+        var spr = all_orders[i][1];
+        // Exclude gulaman, buko, and rice (plated rice dish)
+        if (ft == "gulaman" || ft == "buko") continue;
+        if (ft == "plated" && spr == spr_ricedish) continue;
+        array_push(main_pool, all_orders[i]);
+    }
+
+    // === SIDE ORDER POOL: rice, buko, gulaman, kwek-kwek ===
+    var side_pool = [];
+    for (var i = 0; i < array_length(all_orders); i++) {
+        var ft = all_orders[i][0];
+        var spr = all_orders[i][1];
+        if (ft == "gulaman" || ft == "buko") {
+            array_push(side_pool, all_orders[i]);
+            continue;
+        }
+        if (ft == "plated" && spr == spr_ricedish) {
+            array_push(side_pool, all_orders[i]);
+            continue;
+        }
+        if (ft == "plated" && spr == spr_takoyakidish) {
+            array_push(side_pool, all_orders[i]);
+            continue;
+        }
+    }
+
+    // Pick main order
+    var pick1 = main_pool[irandom(array_length(main_pool) - 1)];
+    ordered_food_type = pick1[0];
+    order_sprite      = pick1[1];
+    order_name        = pick1[2];
+    has_been_served   = false;
+
+    // 15% chance of a second order
+    if (random(1) < 0.5) {
+        // Filter out any side that matches the main order
+        var filtered_side = [];
+        for (var i = 0; i < array_length(side_pool); i++) {
+            var same_type   = (side_pool[i][0] == ordered_food_type);
+            var same_sprite = (side_pool[i][1] == order_sprite);
+            if (!(same_type && same_sprite)) {
+                array_push(filtered_side, side_pool[i]);
+            }
+        }
+
+        if (array_length(filtered_side) > 0) {
+            var pick2 = filtered_side[irandom(array_length(filtered_side) - 1)];
+            has_second_order    = true;
+            ordered_food_type2  = pick2[0];
+            order_sprite2       = pick2[1];
+            order_name2         = pick2[2];
+            has_been_served2    = false;
+        }
     }
 }
 
@@ -357,68 +422,74 @@ function cleanup_table() {
 }
 
 function serve_food(food_item) {
-    // Only allow serving if customer is waiting and hasn't been served yet
-    if (customer_state != "waiting" || has_been_served) {
-        return false;
-    }
-    
-    // Check if food matches order
-    
-    // For drinks, check food_type
-    if (food_item.object_index == OBJ_Drink) {
-        if (food_item.food_type == ordered_food_type) {
-            // Correct drink!
-            has_been_served = true;
-            customer_state = "eating";
-            wait_timer = 0;
-            
-            // Award points
-            if (instance_exists(OBJ_Scoring)) {
-                var points = OBJ_Scoring.get_food_points(ordered_food_type);
-                OBJ_Scoring.add_score(points);
-                
-                // Spawn score popup
-                var popup = instance_create_depth(x, y - 50, depth - 200, OBJ_ScorePopup);
-                popup.score_value = points;
-            }
-            
-            // Spawn confetti!
-            spawn_confetti();
-            
-            // Destroy the drink
-            instance_destroy(food_item);
-            return true;
+    if (customer_state != "waiting") return false;
+    // Must have at least one unserved order
+    if (has_been_served && (!has_second_order || has_been_served2)) return false;
+
+    var matched = false;
+    var points  = 0;
+
+    // --- Helper: does this food item match an order slot? ---
+    // Returns 1 = matched slot 1, 2 = matched slot 2, 0 = no match
+    var slot_match = 0;
+
+    // Check slot 1
+    if (!has_been_served) {
+        if (food_item.object_index == OBJ_Drink && food_item.food_type == ordered_food_type) {
+            slot_match = 1;
+        } else if (food_item.food_type == "plated" && ordered_food_type == "plated"
+                   && food_item.sprite_index == order_sprite) {
+            slot_match = 1;
         }
     }
-    // For plated food, check sprite
-    else if (food_item.food_type == "plated" && ordered_food_type == "plated") {
-        // Check if the sprite matches what they ordered
-        if (food_item.sprite_index == order_sprite) {
-            // Correct food!
-            has_been_served = true;
-            customer_state = "eating";
-            wait_timer = 0;
-            
-            // Award points
-            if (instance_exists(OBJ_Scoring)) {
-                var points = OBJ_Scoring.get_food_points_by_sprite(order_sprite);
-                OBJ_Scoring.add_score(points);
-                
-                // Spawn score popup
-                var popup = instance_create_depth(x, y - 50, depth - 200, OBJ_ScorePopup);
-                popup.score_value = points;
-            }
-            
-            // Spawn confetti!
-            spawn_confetti();
-            
-            // Destroy the food
-            instance_destroy(food_item);
-            return true;
+
+    // Check slot 2 (only if slot 1 didn't match and second order exists)
+    if (slot_match == 0 && has_second_order && !has_been_served2) {
+        if (food_item.object_index == OBJ_Drink && food_item.food_type == ordered_food_type2) {
+            slot_match = 2;
+        } else if (food_item.food_type == "plated" && ordered_food_type2 == "plated"
+                   && food_item.sprite_index == order_sprite2) {
+            slot_match = 2;
         }
     }
-    
-    return false; // Wrong food/drink
+
+    if (slot_match == 0) return false; // Wrong food
+
+    // --- Award points ---
+    if (instance_exists(OBJ_Scoring)) {
+        if (slot_match == 1) {
+            if (food_item.object_index == OBJ_Drink) {
+                points = OBJ_Scoring.get_food_points(ordered_food_type);
+            } else {
+                points = OBJ_Scoring.get_food_points_by_sprite(order_sprite);
+            }
+        } else {
+            if (food_item.object_index == OBJ_Drink) {
+                points = OBJ_Scoring.get_food_points(ordered_food_type2);
+            } else {
+                points = OBJ_Scoring.get_food_points_by_sprite(order_sprite2);
+            }
+        }
+        OBJ_Scoring.add_score(points);
+        var popup = instance_create_depth(x, y - 50, depth - 200, OBJ_ScorePopup);
+        popup.score_value = points;
+    }
+
+    // --- Mark slot as served ---
+    if (slot_match == 1) has_been_served  = true;
+    if (slot_match == 2) has_been_served2 = true;
+
+    spawn_confetti();
+    instance_destroy(food_item);
+
+    // --- Move to eating only when ALL orders fulfilled ---
+    var all_done = has_been_served && (!has_second_order || has_been_served2);
+    if (all_done) {
+        customer_state = "eating";
+        wait_timer = 0;
+    }
+
+    return true;
 }
 
 function spawn_confetti() {
