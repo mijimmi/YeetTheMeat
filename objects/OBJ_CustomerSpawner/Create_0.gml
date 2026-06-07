@@ -44,6 +44,7 @@ available_orders = [
     ["plated", spr_meatlumpiadish, "Meat Lumpia"],
     ["plated", spr_veggielumpiadish, "Veggie Lumpia"],
     ["plated", spr_adobodish, "Adobo"],
+    ["plated", spr_porkchopdish, "Fried Pork"],
     
     // Hard dishes
     ["plated", spr_calderetadish, "Caldereta"]

@@ -65,9 +65,11 @@ if (global.controller_disconnected) {
 }
 
 // === NOW PLAYING (Top Right Corner - Shows during gameplay only) ===
-// Don't show during cutscene, tutorial, or results screen
+// Don't show during cutscene, tutorial, results screen, or while a recipe-book
+// dish guide is running (its panel takes over the top-right corner).
 var results_showing = (instance_exists(OBJ_Scoring) && OBJ_Scoring.show_results);
-if (!instance_exists(OBJ_CutsceneController) && !instance_exists(OBJ_TutorialManager) && !results_showing) {
+var dish_guide_active = (instance_exists(OBJ_HintController) && (OBJ_HintController.guide_active || OBJ_HintController.guide_done_flash > 0));
+if (!instance_exists(OBJ_CutsceneController) && !instance_exists(OBJ_TutorialManager) && !results_showing && !dish_guide_active) {
     draw_set_font(global.game_font);
     draw_set_halign(fa_right);
     draw_set_valign(fa_top);

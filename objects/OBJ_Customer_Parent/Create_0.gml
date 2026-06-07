@@ -30,7 +30,7 @@ has_been_served = false;
 
 // === TIMING ===
 wait_timer = 0;
-max_wait_time = 60 * 90;   // 90 seconds (adjustable)
+max_wait_time = 60 * 120;  // 120 seconds (adjustable)
 eat_time = 60 * 5;         // 5 seconds eating
 
 // === PATHFINDING ===
@@ -74,7 +74,11 @@ sitting_xscale = 1;
 is_angry = false;
 angry_timer = 0;         
 angry_duration = 60;     
-temp_angry = false;      
+temp_angry = false;
+
+// Bump penalty: accumulated deduction applied to this customer's final payout
+bump_penalty = 0;
+bump_penalty_per_hit = 5;
 
 // === ORDER INFO ===
 ordered_food_type = "";
@@ -88,6 +92,9 @@ ordered_food_type2 = "";
 order_sprite2 = noone;
 order_name2 = "";
 has_been_served2 = false;
+
+// Accumulated points for this customer (awarded all at once when fully served)
+pending_score = 0;
 
 // Get spawner reference
 spawner = instance_find(OBJ_CustomerSpawner, 0);
@@ -134,8 +141,8 @@ function choose_order() {
     order_name        = pick1[2];
     has_been_served   = false;
 
-    // 15% chance of a second order
-    if (random(1) < 0.5) {
+    // 10% chance of a second order
+    if (random(1) < 0.1) {
         // Filter out any side that matches the main order
         var filtered_side = [];
         for (var i = 0; i < array_length(side_pool); i++) {
@@ -237,7 +244,10 @@ function handle_player_collision() {
                          cust_top > player_bottom);
         
         if (colliding) {
-            // Make customer temporarily angry
+            // Make customer temporarily angry and rack up a penalty on their payout
+            if (!other.temp_angry) {
+                other.bump_penalty += other.bump_penalty_per_hit;
+            }
             other.temp_angry = true;
             other.angry_timer = 0;
             
@@ -247,26 +257,13 @@ function handle_player_collision() {
             var overlap = max(0, min_dist - dist_centers);
             
             if (overlap > 0) {
-                // Drop held item
                 if (held_item != noone && instance_exists(held_item)) {
                     held_item.x = x + lengthdir_x(20, push_dir + 180);
                     held_item.y = y + lengthdir_y(20, push_dir + 180) + 40;
                     held_item.is_held = false;
                     held_item.held_by = noone;
-                    
-                    if (object_is_ancestor(held_item.object_index, OBJ_Food)) {
-                        held_item.velocity_x = velocity_x * 0.5;
-                        held_item.velocity_y = velocity_y * 0.5;
-                    }
-                    else if (held_item.object_index == OBJ_Plate) {
-                        held_item.velocity_x = velocity_x * 0.5;
-                        held_item.velocity_y = velocity_y * 0.5;
-                    }
-                    else if (held_item.object_index == OBJ_Drink) {
-                        held_item.velocity_x = velocity_x * 0.5;
-                        held_item.velocity_y = velocity_y * 0.5;
-                    }
-                    
+                    held_item.velocity_x = velocity_x * 0.5;
+                    held_item.velocity_y = velocity_y * 0.5;
                     if (held_item.object_index == OBJ_Plate && held_item.has_food) {
                         var food = held_item.food_on_plate;
                         if (food != noone && instance_exists(food)) {
@@ -276,20 +273,12 @@ function handle_player_collision() {
                             food.velocity_y = velocity_y * 0.5;
                         }
                     }
-                    
                     held_item = noone;
                 }
-                
-                // Push customer
                 var push_x = lengthdir_x(overlap * 0.5, push_dir);
                 var push_y = lengthdir_y(overlap * 0.5, push_dir);
-                
-                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) {
-                    other.x += push_x;
-                }
-                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) {
-                    other.y += push_y;
-                }
+                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) other.x += push_x;
+                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) other.y += push_y;
             }
         }
     }
@@ -315,7 +304,10 @@ function handle_player_collision() {
                          cust_top > player_bottom);
         
         if (colliding) {
-            // MAKE CUSTOMER ANGRY WHEN HIT
+            // Make customer temporarily angry and rack up a penalty on their payout
+            if (!other.temp_angry) {
+                other.bump_penalty += other.bump_penalty_per_hit;
+            }
             other.temp_angry = true;
             other.angry_timer = 0;
             
@@ -325,26 +317,13 @@ function handle_player_collision() {
             var overlap = max(0, min_dist - dist_centers);
             
             if (overlap > 0) {
-                // Drop held item
                 if (held_item != noone && instance_exists(held_item)) {
                     held_item.x = x + lengthdir_x(20, push_dir + 180);
                     held_item.y = y + lengthdir_y(20, push_dir + 180) + 40;
                     held_item.is_held = false;
                     held_item.held_by = noone;
-                    
-                    if (object_is_ancestor(held_item.object_index, OBJ_Food)) {
-                        held_item.velocity_x = velocity_x * 0.5;
-                        held_item.velocity_y = velocity_y * 0.5;
-                    }
-                    else if (held_item.object_index == OBJ_Plate) {
-                        held_item.velocity_x = velocity_x * 0.5;
-                        held_item.velocity_y = velocity_y * 0.5;
-                    }
-                    else if (held_item.object_index == OBJ_Drink) {
-                        held_item.velocity_x = velocity_x * 0.5;
-                        held_item.velocity_y = velocity_y * 0.5;
-                    }
-                    
+                    held_item.velocity_x = velocity_x * 0.5;
+                    held_item.velocity_y = velocity_y * 0.5;
                     if (held_item.object_index == OBJ_Plate && held_item.has_food) {
                         var food = held_item.food_on_plate;
                         if (food != noone && instance_exists(food)) {
@@ -354,20 +333,12 @@ function handle_player_collision() {
                             food.velocity_y = velocity_y * 0.5;
                         }
                     }
-                    
                     held_item = noone;
                 }
-                
-                // Push customer
                 var push_x = lengthdir_x(overlap * 0.5, push_dir);
                 var push_y = lengthdir_y(overlap * 0.5, push_dir);
-                
-                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) {
-                    other.x += push_x;
-                }
-                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) {
-                    other.y += push_y;
-                }
+                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) other.x += push_x;
+                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) other.y += push_y;
             }
         }
     }
@@ -426,14 +397,10 @@ function serve_food(food_item) {
     // Must have at least one unserved order
     if (has_been_served && (!has_second_order || has_been_served2)) return false;
 
-    var matched = false;
-    var points  = 0;
-
-    // --- Helper: does this food item match an order slot? ---
+    // --- Match food to an order slot ---
     // Returns 1 = matched slot 1, 2 = matched slot 2, 0 = no match
     var slot_match = 0;
 
-    // Check slot 1
     if (!has_been_served) {
         if (food_item.object_index == OBJ_Drink && food_item.food_type == ordered_food_type) {
             slot_match = 1;
@@ -442,8 +409,6 @@ function serve_food(food_item) {
             slot_match = 1;
         }
     }
-
-    // Check slot 2 (only if slot 1 didn't match and second order exists)
     if (slot_match == 0 && has_second_order && !has_been_served2) {
         if (food_item.object_index == OBJ_Drink && food_item.food_type == ordered_food_type2) {
             slot_match = 2;
@@ -452,41 +417,50 @@ function serve_food(food_item) {
             slot_match = 2;
         }
     }
+    if (slot_match == 0) return false;
 
-    if (slot_match == 0) return false; // Wrong food
-
-    // --- Award points ---
+    // --- Accumulate this slot's points into pending_score ---
+    var slot_points = 0;
     if (instance_exists(OBJ_Scoring)) {
         if (slot_match == 1) {
-            if (food_item.object_index == OBJ_Drink) {
-                points = OBJ_Scoring.get_food_points(ordered_food_type);
-            } else {
-                points = OBJ_Scoring.get_food_points_by_sprite(order_sprite);
-            }
+            slot_points = (food_item.object_index == OBJ_Drink)
+                ? OBJ_Scoring.get_food_points(ordered_food_type)
+                : OBJ_Scoring.get_food_points_by_sprite(order_sprite);
         } else {
-            if (food_item.object_index == OBJ_Drink) {
-                points = OBJ_Scoring.get_food_points(ordered_food_type2);
-            } else {
-                points = OBJ_Scoring.get_food_points_by_sprite(order_sprite2);
-            }
+            slot_points = (food_item.object_index == OBJ_Drink)
+                ? OBJ_Scoring.get_food_points(ordered_food_type2)
+                : OBJ_Scoring.get_food_points_by_sprite(order_sprite2);
         }
-        OBJ_Scoring.add_score(points);
-        var popup = instance_create_depth(x, y - 50, depth - 200, OBJ_ScorePopup);
-        popup.score_value = points;
+        pending_score += slot_points;
     }
 
-    // --- Mark slot as served ---
+    // --- Mark slot served ---
     if (slot_match == 1) has_been_served  = true;
     if (slot_match == 2) has_been_served2 = true;
 
     spawn_confetti();
     instance_destroy(food_item);
 
-    // --- Move to eating only when ALL orders fulfilled ---
+    // --- Check if all orders are now fulfilled ---
     var all_done = has_been_served && (!has_second_order || has_been_served2);
+
     if (all_done) {
+        // Apply accumulated points minus any bump penalty, minimum 0
+        if (instance_exists(OBJ_Scoring)) {
+            var final_points = max(0, pending_score - bump_penalty);
+            OBJ_Scoring.add_score(final_points);
+            var popup = instance_create_depth(x, y - 50, depth - 200, OBJ_ScorePopup);
+            popup.score_value = final_points;
+        }
         customer_state = "eating";
         wait_timer = 0;
+    } else {
+        // Partial serve on a dual-order: reset wait timer so they don't go
+        // angry immediately while waiting for the second item
+        wait_timer = 0;
+        is_angry   = false;
+        temp_angry = false;
+        angry_timer = 0;
     }
 
     return true;

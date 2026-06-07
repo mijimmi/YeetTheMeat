@@ -48,6 +48,36 @@ if (p2 != noone && instance_exists(p2)) {
     }
 }
 
+// === DISH TUTORIAL GUIDE PROGRESSION ===
+if (guide_done_flash > 0) guide_done_flash--;
+guide_arrow_bounce += 0.09;
+
+if (guide_active && !global.game_paused) {
+    if (guide_step >= array_length(guide_steps)) {
+        guide_active = false;
+    } else {
+        var _st = guide_steps[guide_step];
+        if (evaluate_guide_step(_st)) {
+            guide_step++;
+            if (guide_step >= array_length(guide_steps)) {
+                // Whole dish complete!
+                guide_active = false;
+                guide_done_flash = 150;
+                // Clear the recipe-book highlight so closing the book again
+                // won't restart this finished tutorial.
+                if (instance_exists(OBJ_InventoryController)) {
+                    OBJ_InventoryController.recipe_selected_dish = "";
+                }
+                audio_sound_gain(sfx_complete, 0.7, 0);
+                audio_play_sound(sfx_complete, 1, false);
+            } else {
+                audio_sound_gain(sfx_ding, 0.5, 0);
+                audio_play_sound(sfx_ding, 1, false);
+            }
+        }
+    }
+}
+
 // === HELPER FUNCTION: Check if player can interact with station ===
 function check_can_interact(player, station) {
     var held = player.held_item;

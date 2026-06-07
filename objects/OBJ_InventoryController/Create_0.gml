@@ -45,6 +45,48 @@ recipe_anim_speed = 0.12;  // Animation speed
 recipe_opening = false;    // Is currently opening
 recipe_closing = false;    // Is currently closing
 
+// === RECIPE DISH TUTORIAL SELECTION ===
+// Each page shows two dishes (left + right). Players can highlight one with
+// the action button to start an in-game, step-by-step station-hint tutorial
+// after closing the book. Page 4's right side is the drinks page (no tutorial).
+recipe_page_dishes = [
+    ["kwekkwek", "friedpork"],     // Page 1
+    ["adobo", "rice"],             // Page 2
+    ["meatlumpia", "veggielumpia"],// Page 3
+    ["caldereta", ""]              // Page 4 (right = drinks, not selectable)
+];
+
+recipe_cursor_side = 0;        // 0 = left dish, 1 = right dish (focused for selection)
+recipe_selected_dish = "";     // Currently highlighted dish id ("" = none)
+recipe_sel_pulse = 0;          // Animation timer for the selection UI
+
+// Human-readable dish names for the selection banner
+function recipe_dish_label(_id) {
+    switch (_id) {
+        case "kwekkwek":     return "Kwek-Kwek";
+        case "friedpork":    return "Fried Pork";
+        case "adobo":        return "Adobo";
+        case "rice":         return "Rice";
+        case "meatlumpia":   return "Meat Lumpia";
+        case "veggielumpia": return "Veggie Lumpia";
+        case "caldereta":    return "Caldereta";
+    }
+    return "";
+}
+
+// Dish id on the given page (1-based) and side (0 = left, 1 = right)
+function recipe_dish_at(_page, _side) {
+    var idx = _page - 1;
+    if (idx < 0 || idx >= array_length(recipe_page_dishes)) return "";
+    return recipe_page_dishes[idx][_side];
+}
+
+// Device-aware label for the "select" button
+function recipe_confirm_label() {
+    if (gamepad_is_connected(0) || gamepad_is_connected(1)) return "X";
+    return "SPACE";
+}
+
 // Function to get item display name from object type
 function get_item_name(item) {
     if (item == noone || !instance_exists(item)) return "Empty";

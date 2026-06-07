@@ -336,12 +336,12 @@ if (recipe_book_open && recipe_anim_progress > 0) {
             for (var ox = -2; ox <= 2; ox++) {
                 for (var oy = -2; oy <= 2; oy++) {
                     if (ox != 0 || oy != 0) {
-                        draw_text_transformed(left_x + ox, nav_y - 20 + oy, "LT", nav_scale, nav_scale, 0);
+                        draw_text_transformed(left_x + ox, nav_y - 20 + oy, "LB", nav_scale, nav_scale, 0);
                     }
                 }
             }
             draw_set_color(c_white);
-            draw_text_transformed(left_x, nav_y - 20, "LT", nav_scale, nav_scale, 0);
+            draw_text_transformed(left_x, nav_y - 20, "LB", nav_scale, nav_scale, 0);
             
             // Draw "Previous Page" below
             draw_set_color(c_black);
@@ -379,12 +379,12 @@ if (recipe_book_open && recipe_anim_progress > 0) {
             for (var ox = -2; ox <= 2; ox++) {
                 for (var oy = -2; oy <= 2; oy++) {
                     if (ox != 0 || oy != 0) {
-                        draw_text_transformed(right_x + ox, nav_y - 20 + oy, "RT", nav_scale, nav_scale, 0);
+                        draw_text_transformed(right_x + ox, nav_y - 20 + oy, "RB", nav_scale, nav_scale, 0);
                     }
                 }
             }
             draw_set_color(c_white);
-            draw_text_transformed(right_x, nav_y - 20, "RT", nav_scale, nav_scale, 0);
+            draw_text_transformed(right_x, nav_y - 20, "RB", nav_scale, nav_scale, 0);
             
             // Draw "Next Page" below
             draw_set_color(c_black);
@@ -399,6 +399,146 @@ if (recipe_book_open && recipe_anim_progress > 0) {
             draw_text_transformed(right_x, nav_y + 15, "Next Page", nav_scale * 0.7, nav_scale * 0.7, 0);
         }
         
+        // === DISH TUTORIAL SELECTION ===
+        var sel_t = recipe_sel_pulse;
+
+        var left_dish  = recipe_dish_at(recipe_current_page, 0);
+        var right_dish = recipe_dish_at(recipe_current_page, 1);
+        var side_cx   = [gui_width * 0.28, gui_width * 0.72];
+        var side_dish = [left_dish, right_dish];
+
+        var hl_w = gui_width * 0.30;
+        var hl_h = gui_height * 0.66;
+        var hl_cy = gui_height * 0.47;
+
+        // Tint each selectable dish with a colored overlay:
+        //   focused (not chosen) = soft cream wash, chosen = warm gold wash.
+        for (var s = 0; s < 2; s++) {
+            if (side_dish[s] == "") continue;
+
+            var cx = side_cx[s];
+            var fx1 = cx - hl_w / 2;
+            var fx2 = cx + hl_w / 2;
+            var fy1 = hl_cy - hl_h / 2;
+            var fy2 = hl_cy + hl_h / 2;
+
+            var is_focused  = (recipe_cursor_side == s);
+            var is_selected = (recipe_selected_dish != "" && recipe_selected_dish == side_dish[s]);
+
+            if (!is_focused && !is_selected) continue;
+
+            var ov_col;
+            var ov_alpha;
+            if (is_selected) {
+                ov_col = make_color_rgb(196, 86, 60);            // dialogue terracotta
+                ov_alpha = 0.32 + sin(sel_t * 0.09) * 0.06;
+            } else {
+                ov_col = make_color_rgb(250, 241, 218);          // dialogue cream
+                ov_alpha = 0.24 + sin(sel_t * 0.10) * 0.05;
+            }
+
+            // Colored overlay fill
+            draw_set_alpha(ov_alpha);
+            draw_set_color(ov_col);
+            draw_roundrect_ext(fx1, fy1, fx2, fy2, 26, 26, false);
+            draw_set_alpha(1);
+
+            // "TUTORIAL" ribbon at the top of the chosen dish
+            if (is_selected) {
+                var rib_w = 150;
+                var rib_y = fy1 - 4;
+                draw_set_color(make_color_rgb(196, 86, 60));
+                draw_roundrect_ext(cx - rib_w / 2, rib_y - 17, cx + rib_w / 2, rib_y + 17, 10, 10, false);
+                draw_set_color(make_color_rgb(255, 240, 215));
+                draw_set_halign(fa_center);
+                draw_set_valign(fa_middle);
+                draw_set_font(fnt_winkle);
+                draw_text_transformed(cx, rib_y, "TUTORIAL", 0.95, 0.95, 0);
+            }
+        }
+
+        // === BIG SELECTION INDICATOR (Bottom) — styled like the dialogue boxes ===
+        var focused_dish = recipe_dish_at(recipe_current_page, recipe_cursor_side);
+        var btn_label = recipe_confirm_label();
+
+        // Dialogue-box palette
+        var dlg_cream  = make_color_rgb(250, 241, 218);
+        var dlg_ink    = make_color_rgb(90, 55, 30);
+        var dlg_border = make_color_rgb(124, 82, 46);
+        var dlg_pill   = make_color_rgb(196, 86, 60);
+
+        var prompt_txt;
+        var is_focus_selected = (recipe_selected_dish != "" && recipe_selected_dish == focused_dish);
+        if (is_focus_selected) {
+            prompt_txt = "Cancel the " + recipe_dish_label(focused_dish) + " tutorial";
+        } else {
+            prompt_txt = "Learn how to make " + recipe_dish_label(focused_dish);
+        }
+
+        draw_set_font(fnt_winkle);
+
+        // Measure the pill + prompt so the whole group can be centered
+        var prompt_scale = 1.85;
+        var pill_scale   = 1.9;
+        var pill_tw   = string_width(btn_label) * pill_scale;
+        var pill_box_w = pill_tw + 48;
+        var prompt_w  = string_width(prompt_txt) * prompt_scale;
+        var grp_gap   = 30;
+        var grp_w     = pill_box_w + grp_gap + prompt_w;
+
+        var sub_txt = "Choose with Left or Right. It begins when you close the book.";
+        var sub_scale = 1.0;
+
+        var banner_cy = gui_height - 116;
+        var ban_w = max(grp_w + 100, string_width(sub_txt) * sub_scale + 80);
+        ban_w = max(ban_w, gui_width * 0.55);
+        var ban_h = 124;
+        var bx1 = gui_width / 2 - ban_w / 2;
+        var bx2 = gui_width / 2 + ban_w / 2;
+        var by1 = banner_cy - ban_h / 2;
+        var by2 = banner_cy + ban_h / 2;
+
+        // Card: cream fill + brown double border + soft shadow
+        draw_set_alpha(0.26);
+        draw_set_color(c_black);
+        draw_roundrect_ext(bx1 + 6, by1 + 7, bx2 + 6, by2 + 7, 24, 24, false);
+        draw_set_alpha(0.97);
+        draw_set_color(dlg_cream);
+        draw_roundrect_ext(bx1, by1, bx2, by2, 24, 24, false);
+        draw_set_alpha(1);
+        draw_set_color(dlg_border);
+        draw_roundrect_ext(bx1, by1, bx2, by2, 24, 24, true);
+        draw_roundrect_ext(bx1 + 4, by1 + 4, bx2 - 4, by2 - 4, 20, 20, true);
+
+        var main_y = banner_cy - 20;
+        var grp_left = gui_width / 2 - grp_w / 2;
+
+        // Button pill
+        draw_set_halign(fa_center);
+        draw_set_valign(fa_middle);
+        var pill_cx = grp_left + pill_box_w / 2;
+        var pill_pulse = 1 + sin(sel_t * 0.1) * 0.05;
+        draw_set_color(dlg_pill);
+        draw_roundrect_ext(pill_cx - (pill_box_w / 2) * pill_pulse, main_y - 28 * pill_pulse,
+                           pill_cx + (pill_box_w / 2) * pill_pulse, main_y + 28 * pill_pulse, 14, 14, false);
+        draw_set_color(dlg_cream);
+        draw_text_transformed(pill_cx, main_y, btn_label, pill_scale, pill_scale, 0);
+
+        // Prompt text
+        draw_set_halign(fa_left);
+        draw_set_color(dlg_ink);
+        draw_text_transformed(grp_left + pill_box_w + grp_gap, main_y, prompt_txt, prompt_scale, prompt_scale, 0);
+
+        // Sub-hint underneath (centered)
+        draw_set_halign(fa_center);
+        draw_set_color(dlg_border);
+        draw_text_transformed(gui_width / 2, banner_cy + 36, sub_txt, sub_scale, sub_scale, 0);
+
+        draw_set_halign(fa_left);
+        draw_set_valign(fa_top);
+        draw_set_alpha(1);
+        draw_set_color(c_white);
+
         // === CLOSE HINT (Bottom Center) ===
         var close_text = "SELECT to close";
         var close_y = gui_height - 25;
@@ -419,8 +559,12 @@ if (recipe_book_open && recipe_anim_progress > 0) {
         draw_text_transformed(gui_width / 2, close_y, close_text, 1.0, 1.0, 0);
     }
 }
-// === RECIPE BOOK HINT (Bottom Center - only when book is closed, hidden during tutorial) ===
-else if (sprite_exists(spr_recipeicon) && !instance_exists(OBJ_TutorialManager)) {
+// === RECIPE BOOK HINT (Bottom Center - only when book is closed, hidden during
+// the onboarding tutorial and while an in-game dish guide is running, since the
+// guide panel takes over the bottom centre and explains how to cancel). ===
+else if (sprite_exists(spr_recipeicon) && !instance_exists(OBJ_TutorialManager)
+         && !(instance_exists(OBJ_HintController)
+              && (OBJ_HintController.guide_active || OBJ_HintController.guide_done_flash > 0))) {
     var hint_x = gui_width / 2;
     var icon_alpha = 0.7 + sin(anim_timer * 0.03) * 0.1; // Subtle pulse for icon
     var text_alpha = 0.9; // More opaque text

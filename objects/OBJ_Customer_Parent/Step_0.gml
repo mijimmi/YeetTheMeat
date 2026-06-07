@@ -203,3 +203,34 @@ switch (customer_state) {
         }
         break;
 }
+
+// === DYNAMIC DEPTH (same system as the players) ===
+// Customers seated on the NORTH side of a table have their feet above the
+// table's front edge, so they should be drawn BEHIND it (hidden by the
+// spr_BGdepth layer). South-side customers stay in front. This mirrors the
+// player depth logic so everyone sorts consistently against the kitchen art.
+var _depth_front  = 150;
+var _depth_behind = 350;
+var _zone_half_w  = 110;
+var _vert_range   = 140;
+var _edge_tol     = 6;
+
+var _cf = bbox_bottom;     // customer's feet
+var _cx = x;
+var _behind = false;
+
+var _occ_obj = [OBJ_CookingStation_Parent, OBJ_FoodStorage_Parent, OBJ_Table_Parent, OBJ_ServingCounter, OBJ_TrashCan];
+var _occ_off = [0, 0, 0, 65, 0];
+
+for (var _i = 0; _i < array_length(_occ_obj); _i++) {
+    if (!instance_exists(_occ_obj[_i])) continue;
+    var _off = _occ_off[_i];
+    with (_occ_obj[_i]) {
+        var _line = y + _off;
+        if (abs(_cx - x) > _zone_half_w) continue;
+        if (abs(_cf - _line) > _vert_range) continue;
+        if (_cf < _line - _edge_tol) _behind = true;
+    }
+}
+
+depth = _behind ? _depth_behind : _depth_front;

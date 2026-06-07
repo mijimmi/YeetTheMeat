@@ -40,7 +40,7 @@ function get_food_points(food_type) {
             return points_easy;
         case "gulaman":
         case "buko":
-            return points_easy;
+            return 5; // drinks are worth 5 points
             
         // Medium foods (+20)
         case "cooked_meat_lumpia":
@@ -67,13 +67,17 @@ function get_food_points_by_sprite(spr) {
     else if (spr == spr_meatlumpiadish || spr == spr_veggielumpiadish || spr == spr_adobodish) {
         return points_medium;
     }
+    // Fried pork
+    else if (spr == spr_porkchopdish) {
+        return 15;
+    }
     // Hard dishes
     else if (spr == spr_calderetadish) {
         return points_hard;
     }
     // Drinks
     else if (spr == spr_gulaman || spr == spr_bukojuice) {
-        return points_easy;
+        return 5; // drinks are worth 5 points
     }
     
     return 0; // Unknown sprite
