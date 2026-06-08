@@ -559,35 +559,26 @@ if (recipe_book_open && recipe_anim_progress > 0) {
         draw_text_transformed(gui_width / 2, close_y, close_text, 1.0, 1.0, 0);
     }
 }
-// === RECIPE BOOK HINT (Bottom Center - only when book is closed, hidden during
-// the onboarding tutorial and while an in-game dish guide is running, since the
-// guide panel takes over the bottom centre and explains how to cancel). ===
-else if (sprite_exists(spr_recipeicon) && !instance_exists(OBJ_TutorialManager)
-         && !(instance_exists(OBJ_HintController)
-              && (OBJ_HintController.guide_active || OBJ_HintController.guide_done_flash > 0))) {
+// === RECIPE BOOK HINT (Bottom Center) ===
+// Always draw the icon + SELECT when the book is closed (independent of the
+// "learn how to cook" card above it so both are visible at the same time).
+if (sprite_exists(spr_recipeicon) && !recipe_book_open
+    && !instance_exists(OBJ_TutorialManager)
+    && !(instance_exists(OBJ_HintController)
+         && (OBJ_HintController.guide_active || OBJ_HintController.guide_done_flash > 0))) {
     var hint_x = gui_width / 2;
-    var icon_alpha = 0.7 + sin(anim_timer * 0.03) * 0.1; // Subtle pulse for icon
-    var text_alpha = 0.9; // More opaque text
-    var hint_scale = 0.25;  // Small icon
-    
-    // Calculate icon height for proper spacing
+    var icon_alpha = 0.7 + sin(anim_timer * 0.03) * 0.1;
+    var hint_scale = 0.25;
     var icon_height = sprite_get_height(spr_recipeicon) * hint_scale;
-    
-    // Draw recipe icon at bottom (lower)
     var icon_y = gui_height - 4;
-    draw_set_alpha(icon_alpha);
     draw_sprite_ext(spr_recipeicon, 0, hint_x, icon_y, hint_scale, hint_scale, 0, c_white, icon_alpha);
-    
-    // Draw "SELECT" text stacked on top of icon (no overlap)
+
     draw_set_font(fnt_winkle);
     draw_set_halign(fa_center);
     draw_set_valign(fa_bottom);
-    
-    var text_scale = 1.3;  // Bigger text
-    var text_y = icon_y - icon_height / 2 + 2;  // Lower (closer to icon)
-    
-    // Black outline (bigger)
-    draw_set_alpha(text_alpha);
+    var text_scale = 1.3;
+    var text_y = icon_y - icon_height / 2 + 2;
+    draw_set_alpha(0.9);
     draw_set_color(c_black);
     for (var ox = -2; ox <= 2; ox++) {
         for (var oy = -2; oy <= 2; oy++) {
@@ -596,13 +587,70 @@ else if (sprite_exists(spr_recipeicon) && !instance_exists(OBJ_TutorialManager)
             }
         }
     }
-    
-    // White text
     draw_set_color(c_white);
     draw_text_transformed(hint_x, text_y, "SELECT", text_scale, text_scale, 0);
-    
     draw_set_alpha(1);
 }
+
+// === "LEARN HOW TO COOK" FIRST-OPEN INDICATOR ===
+// Floats above the recipe icon; disappears the first time the book is opened.
+if (!recipe_book_open && !recipe_hint_dismissed
+    && !instance_exists(OBJ_TutorialManager)
+    && !(instance_exists(OBJ_HintController) && OBJ_HintController.guide_active)) {
+
+    var dlg_cream  = make_color_rgb(250, 241, 218);
+    var dlg_ink    = make_color_rgb(90, 55, 30);
+    var dlg_border = make_color_rgb(124, 82, 46);
+    var dlg_pill   = make_color_rgb(196, 86, 60);
+
+    var rh_x = gui_width / 2;
+
+    // The recipe icon is 512px tall drawn at scale 0.25 → ~128px, bottom-
+    // anchored at gui_height-4, so its top ≈ gui_height-68.
+    // SELECT text sits a bit above that. We place the card bottom edge at
+    // gui_height-110 so the whole recipe-icon cluster remains visible below.
+    var bounce   = sin(anim_timer * 0.07) * 5;
+    var card_w   = 470;
+    var card_h   = 52;
+    // card bottom stays fixed; center floats with bounce
+    var card_bot = gui_height - 114;
+    var card_cy  = card_bot - card_h / 2 + bounce;
+    var cx1 = rh_x - card_w / 2;
+    var cx2 = rh_x + card_w / 2;
+    var cy1 = card_cy - card_h / 2;
+    var cy2 = card_cy + card_h / 2;
+
+    // Shadow
+    draw_set_alpha(0.22);
+    draw_set_color(c_black);
+    draw_roundrect_ext(cx1 + 5, cy1 + 6, cx2 + 5, cy2 + 6, 18, 18, false);
+    // Cream card
+    draw_set_alpha(0.97);
+    draw_set_color(dlg_cream);
+    draw_roundrect_ext(cx1, cy1, cx2, cy2, 18, 18, false);
+    draw_set_alpha(1);
+    draw_set_color(dlg_pill);
+    draw_roundrect_ext(cx1, cy1, cx2, cy2, 18, 18, true);
+    draw_roundrect_ext(cx1 + 3, cy1 + 3, cx2 - 3, cy2 - 3, 15, 15, true);
+
+    // Label
+    draw_set_font(fnt_winkle);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    draw_set_color(dlg_ink);
+    draw_text_transformed(rh_x, card_cy, "Learn how to cook different dishes!", 1.55, 1.55, 0);
+
+    // Little arrow pointing down toward the recipe icon
+    var arr_cx = rh_x;
+    var arr_ty = cy2;
+    draw_set_color(dlg_pill);
+    draw_triangle(arr_cx - 10, arr_ty, arr_cx + 10, arr_ty, arr_cx, arr_ty + 14, false);
+
+    draw_set_alpha(1);
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+}
+
 
 // Reset draw settings
 draw_set_halign(fa_left);

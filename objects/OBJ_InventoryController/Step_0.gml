@@ -66,6 +66,7 @@ if (select_pressed && !recipe_opening && !recipe_closing) {
         // Start opening animation
         recipe_book_open = true;
         recipe_opening = true;
+        recipe_hint_dismissed = true;  // dismiss the "learn how to cook" prompt
         // Land on the highlighted dish (page + side) so the player can instantly
         // unhighlight/cancel it, even when it's the right-hand dish. Falls back to
         // the last viewed page / left side when nothing is highlighted.

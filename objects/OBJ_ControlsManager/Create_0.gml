@@ -165,6 +165,10 @@ function player_action(player_instance) {
                         interacted = closest_station.interact_plate_here(id);
                     }
                 }
+                // Not a cooking station — fall through to regular place (e.g. ServingCounter)
+                if (!interacted && closest_station != noone && variable_instance_exists(closest_station, "interact_place")) {
+                    interacted = closest_station.interact_place(id);
+                }
             }
             // --- REGULAR STATION PLACE ---
             else if (closest_station != noone && variable_instance_exists(closest_station, "interact_place")) {

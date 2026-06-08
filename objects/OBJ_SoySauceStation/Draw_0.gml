@@ -69,7 +69,7 @@ if (is_processing) {
         draw_set_alpha(1);
     }
     
-    // === Draw "Saucing.." text BELOW bar ===
+    // === Draw "Seasoning.." text BELOW bar ===
     draw_set_font(fnt_winkle);
     draw_set_halign(fa_center);
     draw_set_valign(fa_top);
@@ -78,7 +78,7 @@ if (is_processing) {
     var dots = "";
     var dot_count = floor((current_time / 300) mod 4);
     for (var d = 0; d < dot_count; d++) dots += ".";
-    var label_text = "Saucing" + dots;
+    var label_text = "Seasoning" + dots;
     
     var text_y = bar_y + bar_height + 4;
     

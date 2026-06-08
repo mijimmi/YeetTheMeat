@@ -125,6 +125,96 @@ else if (guide_done_flash > 0) {
     draw_set_alpha(1);
 }
 
+// === PAW INDICATOR (GUI layer, always on screen) ===
+// Drawn here so we can convert the station's world position into GUI space
+// and clamp it to the visible area — the paw is always visible even when the
+// station is partially off-camera.
+if (guide_active && !global.game_paused && guide_step < array_length(guide_steps)) {
+    var g_spr2        = guide_steps[guide_step].hint;
+    var g_station_obj = guide_station_obj(g_spr2);
+    var g_station2    = (g_station_obj != noone) ? instance_find(g_station_obj, 0) : noone;
+
+    if (g_station2 != noone && instance_exists(g_station2)) {
+        // World-space position above the station
+        var world_paw_x = g_station2.x;
+        var world_paw_y = min(g_station2.y - 52, g_station2.bbox_top - 20)
+                         - guide_paw_lift(g_station_obj);
+
+        // Convert world → GUI coordinates
+        var cam      = view_camera[0];
+        var cam_x    = camera_get_view_x(cam);
+        var cam_y    = camera_get_view_y(cam);
+        var cam_w    = camera_get_view_width(cam);
+        var cam_h    = camera_get_view_height(cam);
+        var gui_paw_x = (world_paw_x - cam_x) / cam_w * gui_w;
+        var gui_paw_y = (world_paw_y - cam_y) / cam_h * gui_h;
+
+        // Clamp so the paw stays fully on screen
+        var paw_margin  = 36;
+        var paw_margin_b = 120;  // extra clearance from bottom HUD
+        gui_paw_x = clamp(gui_paw_x, paw_margin, gui_w - paw_margin);
+        gui_paw_y = clamp(gui_paw_y, paw_margin, gui_h - paw_margin_b);
+
+        // Animate
+        var paw_y_final = gui_paw_y + sin(guide_arrow_bounce) * 3;
+        var pulse       = 1 + sin(guide_arrow_bounce * 1.2) * 0.04;
+        var paw_scale   = 0.82;
+
+        var paw_parts = [
+            [  0,  9, 15,  12],
+            [-15, -5,  6,   7],
+            [ -6,-14,  6.5, 7.5],
+            [  6,-14,  6.5, 7.5],
+            [ 15, -5,  6,   7],
+        ];
+        var paw_fill    = make_color_rgb(255, 188, 162);
+        var paw_outline = make_color_rgb(145, 78, 55);
+        var outline_pad = 3;
+        var n = array_length(paw_parts);
+
+        // Drop shadow
+        draw_set_alpha(0.18);
+        draw_set_color(c_black);
+        for (var s = 0; s < n; s++) {
+            var pdx = paw_parts[s][0] * paw_scale * pulse;
+            var pdy = paw_parts[s][1] * paw_scale * pulse;
+            var prx = paw_parts[s][2] * paw_scale * pulse;
+            var pry = paw_parts[s][3] * paw_scale * pulse;
+            draw_ellipse(gui_paw_x + pdx - prx + 3, paw_y_final + pdy - pry + 5,
+                         gui_paw_x + pdx + prx + 3, paw_y_final + pdy + pry + 5, false);
+        }
+        // Outline
+        draw_set_alpha(0.95);
+        draw_set_color(paw_outline);
+        for (var s = 0; s < n; s++) {
+            var pdx = paw_parts[s][0] * paw_scale * pulse;
+            var pdy = paw_parts[s][1] * paw_scale * pulse;
+            var prx = paw_parts[s][2] * paw_scale * pulse + outline_pad;
+            var pry = paw_parts[s][3] * paw_scale * pulse + outline_pad;
+            draw_ellipse(gui_paw_x + pdx - prx, paw_y_final + pdy - pry,
+                         gui_paw_x + pdx + prx, paw_y_final + pdy + pry, false);
+        }
+        // Fill
+        draw_set_alpha(1);
+        draw_set_color(paw_fill);
+        for (var s = 0; s < n; s++) {
+            var pdx = paw_parts[s][0] * paw_scale * pulse;
+            var pdy = paw_parts[s][1] * paw_scale * pulse;
+            var prx = paw_parts[s][2] * paw_scale * pulse;
+            var pry = paw_parts[s][3] * paw_scale * pulse;
+            draw_ellipse(gui_paw_x + pdx - prx, paw_y_final + pdy - pry,
+                         gui_paw_x + pdx + prx, paw_y_final + pdy + pry, false);
+        }
+        // Glossy highlight
+        draw_set_alpha(0.45);
+        draw_set_color(make_color_rgb(255, 232, 215));
+        var hl_rx = 4 * paw_scale * pulse;
+        var hl_ry = 3 * paw_scale * pulse;
+        draw_ellipse(gui_paw_x - hl_rx - 2, paw_y_final + 4 * paw_scale - hl_ry,
+                     gui_paw_x + hl_rx - 2,  paw_y_final + 4 * paw_scale + hl_ry, false);
+    }
+}
+
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);
 draw_set_color(c_white);

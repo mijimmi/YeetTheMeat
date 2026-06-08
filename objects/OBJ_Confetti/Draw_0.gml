@@ -1,26 +1,40 @@
-// Draw confetti particle as a rotated rectangle
+// Draw the confetti piece with a subtle dark edge so it pops against any
+// background. Streamers/squares are rotated quads; sparkles are circles.
 draw_set_alpha(alpha);
-draw_set_color(particle_color);
 
-// Calculate rectangle corners based on rotation
-var half_size = size / 2;
-var corner1_x = x + lengthdir_x(half_size, rotation);
-var corner1_y = y + lengthdir_y(half_size, rotation);
-var corner2_x = x + lengthdir_x(half_size, rotation + 90);
-var corner2_y = y + lengthdir_y(half_size, rotation + 90);
-var corner3_x = x + lengthdir_x(half_size, rotation + 180);
-var corner3_y = y + lengthdir_y(half_size, rotation + 180);
-var corner4_x = x + lengthdir_x(half_size, rotation + 270);
-var corner4_y = y + lengthdir_y(half_size, rotation + 270);
+var edge = merge_color(particle_color, c_black, 0.40);
 
-// Draw as a quad (rectangle)
-draw_primitive_begin(pr_trianglestrip);
-draw_vertex(corner1_x, corner1_y);
-draw_vertex(corner2_x, corner2_y);
-draw_vertex(corner4_x, corner4_y);
-draw_vertex(corner3_x, corner3_y);
-draw_primitive_end();
+if (shape == 2) {
+    // Round sparkle
+    var r = size * 0.55;
+    draw_set_color(edge);
+    draw_circle(x, y, r + 1.2, false);
+    draw_set_color(particle_color);
+    draw_circle(x, y, r, false);
+} else {
+    // Rotated rectangle / streamer
+    var hw = size * 0.5 * aspect;
+    var hh = size * 0.5;
 
-// Reset
+    // Outline pass (slightly larger), then colored fill
+    var pad = 1.4;
+    var passes = 2;
+    for (var p = 0; p < passes; p++) {
+        var ew = (p == 0) ? hw + pad : hw;
+        var eh = (p == 0) ? hh + pad : hh;
+        draw_set_color((p == 0) ? edge : particle_color);
+
+        var ax = lengthdir_x(ew, rotation),      ay = lengthdir_y(ew, rotation);
+        var bx = lengthdir_x(eh, rotation + 90), by = lengthdir_y(eh, rotation + 90);
+
+        draw_primitive_begin(pr_trianglestrip);
+        draw_vertex(x + ax + bx, y + ay + by);
+        draw_vertex(x - ax + bx, y - ay + by);
+        draw_vertex(x + ax - bx, y + ay - by);
+        draw_vertex(x - ax - bx, y - ay - by);
+        draw_primitive_end();
+    }
+}
+
 draw_set_alpha(1);
 draw_set_color(c_white);

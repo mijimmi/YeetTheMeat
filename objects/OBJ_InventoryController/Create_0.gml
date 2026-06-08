@@ -38,6 +38,7 @@ anim_breathe_amount = 0.04; // Scale variation (very subtle)
 
 // === RECIPE BOOK ===
 recipe_book_open = false;
+recipe_hint_dismissed = false;  // "learn how to cook" prompt, hides on first open
 recipe_current_page = 1;
 recipe_total_pages = 4;
 recipe_anim_progress = 0;  // 0 = closed, 1 = fully open

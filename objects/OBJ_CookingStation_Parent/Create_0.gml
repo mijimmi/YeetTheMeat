@@ -78,10 +78,11 @@ function interact_plate_here(player) {
     if (player.held_item != noone && instance_exists(player.held_item) && player.held_item.object_index == OBJ_Plate) {
         var plate = player.held_item;
         
-        // Check if food on station is cooked
-        if (!plate.has_food && food_on_station != noone && instance_exists(food_on_station)) {
+        // Check if food on station is cooked (only OBJ_Food descendants have food_type)
+        if (!plate.has_food && food_on_station != noone && instance_exists(food_on_station)
+            && object_is_ancestor(food_on_station.object_index, OBJ_Food)) {
             var food = food_on_station;
-            
+
             var is_cooked = (food.food_type == "cooked" || 
                            food.food_type == "fried_pork" ||
                            food.food_type == "adobo" ||

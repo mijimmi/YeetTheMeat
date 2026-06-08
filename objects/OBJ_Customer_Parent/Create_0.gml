@@ -30,7 +30,8 @@ has_been_served = false;
 
 // === TIMING ===
 wait_timer = 0;
-max_wait_time = 60 * 120;  // 120 seconds (adjustable)
+// Vary patience by -2 to +10 seconds so customers don't all leave at the same moment
+max_wait_time = 60 * (120 + irandom_range(-2, 10));
 eat_time = 60 * 5;         // 5 seconds eating
 
 // === PATHFINDING ===
@@ -96,6 +97,33 @@ has_been_served2 = false;
 // Accumulated points for this customer (awarded all at once when fully served)
 pending_score = 0;
 
+// === EATEN DISH DISPLAY ===
+// Served dishes are placed on the table in front of the customer (facing-aware,
+// side by side for dual orders). When eating finishes they turn into an empty
+// plate/cup right before the customer leaves.
+dish1_placed   = false;
+dish2_placed   = false;
+dish1_sprite   = noone;     // sprite currently drawn on the table for slot 1
+dish2_sprite   = noone;     // sprite currently drawn on the table for slot 2
+dish1_is_drink = false;
+dish2_is_drink = false;
+dishes_emptied = false;     // true once dishes become an empty plate/cup
+empty_linger   = 50;        // frames to show the empty plate/cup before leaving
+empty_timer    = 0;
+
+// Layout the dish prop (OBJ_CustomerDish) reads each frame. The prop is a
+// separate instance so it can draw IN FRONT of the table even when a north-seat
+// customer is drawn behind the table.
+dish_prop   = noone;
+dishUI_show = false;
+dishUI_s1   = noone;
+dishUI_s2   = noone;
+dishUI_both = false;
+dishUI_eating = false;
+dishUI_scale = 0.9;
+dishUI_d1x = x;  dishUI_d1y = y;
+dishUI_d2x = x;  dishUI_d2y = y;
+
 // === PATH MEMORY (for retracing route when leaving) ===
 path_memory = [];          // stores [x, y] waypoints walked on the way in
 path_memory_index = 0;     // current index when retracing
@@ -149,7 +177,7 @@ function choose_order() {
     has_been_served   = false;
 
     // 10% chance of a second order
-    if (random(1) < 0.15) {
+    if (random(1) < 0.10) {
         // Filter out any side that matches the main order
         var filtered_side = [];
         for (var i = 0; i < array_length(side_pool); i++) {
@@ -174,21 +202,56 @@ function choose_order() {
 function create_path_to_target() {
     // Get pathfinding grid
     if (!instance_exists(OBJ_PathfindingGrid)) return false;
-    
+
+    // Make sure the grid has its collision baked in. This is a safety net in
+    // case a path is requested before the grid's Room Start event has run, so
+    // customers can never path through walls due to event-ordering.
+    if (!OBJ_PathfindingGrid.grid_ready) {
+        OBJ_PathfindingGrid.rebuild_grid();
+    }
+
     var grid = OBJ_PathfindingGrid.path_grid;
-    
+    var gsz  = OBJ_PathfindingGrid.grid_size;
+    var gw   = OBJ_PathfindingGrid.grid_width;
+    var gh   = OBJ_PathfindingGrid.grid_height;
+
     // Clear old path
     path_clear_points(my_path);
-    
+
     // Find path using A*
     var path_found = mp_grid_path(grid, my_path, x, y, target_x, target_y, false);
-    
+
+    // mp_grid_path fails if the START or END cell is blocked. With the inflated
+    // obstacles a customer can spawn (or a seat can sit) inside a blocked cell,
+    // which would leave them frozen forever. As a safety net, carve a small
+    // patch around the start and the target and retry. These points are where
+    // the customer already is / is going, so freeing those cells can't make them
+    // clip through anything new.
+    if (!path_found) {
+        var _clear_patch = function(_grid, _wx, _wy, _gsz, _gw, _gh) {
+            var _cx = floor(_wx / _gsz);
+            var _cy = floor(_wy / _gsz);
+            for (var _ox = -1; _ox <= 1; _ox++) {
+                for (var _oy = -1; _oy <= 1; _oy++) {
+                    var _x = _cx + _ox;
+                    var _y = _cy + _oy;
+                    if (_x >= 0 && _x < _gw && _y >= 0 && _y < _gh) {
+                        mp_grid_clear_cell(_grid, _x, _y);
+                    }
+                }
+            }
+        };
+        _clear_patch(grid, x, y, gsz, gw, gh);
+        _clear_patch(grid, target_x, target_y, gsz, gw, gh);
+        path_found = mp_grid_path(grid, my_path, x, y, target_x, target_y, false);
+    }
+
     if (path_found) {
         has_path = true;
         path_progress = 0;
         return true;
     }
-    
+
     has_path = false;
     return false;
 }
@@ -198,19 +261,19 @@ function follow_path() {
     if (!has_path) {
         create_path_to_target();
     }
-    
-    // Manually move along the path
+
     if (has_path && path_get_number(my_path) > 0) {
+        // Manually move along the path
         var path_len = path_get_length(my_path);
         if (path_len > 0) {
             // Get target position on path
             var next_x = path_get_x(my_path, path_progress);
             var next_y = path_get_y(my_path, path_progress);
-            
+
             // Move toward the next point
             var dir = point_direction(x, y, next_x, next_y);
             var dist = point_distance(x, y, next_x, next_y);
-            
+
             if (dist > move_speed) {
                 x += lengthdir_x(move_speed, dir);
                 y += lengthdir_y(move_speed, dir);
@@ -220,11 +283,19 @@ function follow_path() {
                 path_progress = min(path_progress, 1);
             }
         }
+    } else {
+        // SAFETY NET: no valid path could be found (e.g. spawned in a spot the
+        // inflated grid sealed off). Never freeze - inch directly toward the
+        // target so the customer can walk out to where a path exists. Normal
+        // routing resumes automatically once create_path_to_target() succeeds.
+        var dir = point_direction(x, y, target_x, target_y);
+        x += lengthdir_x(move_speed, dir);
+        y += lengthdir_y(move_speed, dir);
     }
-    
+
     // Collision with players while walking
     handle_player_collision();
-    
+
     // Collision with food
     handle_food_collision();
 }
@@ -284,8 +355,8 @@ function handle_player_collision() {
                 }
                 var push_x = lengthdir_x(overlap * 0.5, push_dir);
                 var push_y = lengthdir_y(overlap * 0.5, push_dir);
-                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) other.x += push_x;
-                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) other.y += push_y;
+                if (!place_meeting(other.x + push_x, other.y, OBJ_CustomerCollision)) other.x += push_x;
+                if (!place_meeting(other.x, other.y + push_y, OBJ_CustomerCollision)) other.y += push_y;
             }
         }
     }
@@ -344,8 +415,8 @@ function handle_player_collision() {
                 }
                 var push_x = lengthdir_x(overlap * 0.5, push_dir);
                 var push_y = lengthdir_y(overlap * 0.5, push_dir);
-                if (!place_meeting(other.x + push_x, other.y, OBJ_Collision)) other.x += push_x;
-                if (!place_meeting(other.x, other.y + push_y, OBJ_Collision)) other.y += push_y;
+                if (!place_meeting(other.x + push_x, other.y, OBJ_CustomerCollision)) other.x += push_x;
+                if (!place_meeting(other.x, other.y + push_y, OBJ_CustomerCollision)) other.y += push_y;
             }
         }
     }
@@ -382,8 +453,8 @@ function handle_food_collision() {
 }
 
 function check_collision_at(check_x, check_y) {
-    // Check if a point is inside any OBJ_Collision instance
-    var col = collision_point(check_x, check_y, OBJ_Collision, false, true);
+    // Check if a point is inside any OBJ_CustomerCollision instance
+    var col = collision_point(check_x, check_y, OBJ_CustomerCollision, false, true);
     return (col != noone);
 }
 
@@ -441,9 +512,19 @@ function serve_food(food_item) {
         pending_score += slot_points;
     }
 
-    // --- Mark slot served ---
-    if (slot_match == 1) has_been_served  = true;
-    if (slot_match == 2) has_been_served2 = true;
+    // --- Mark slot served & place the dish on the table in front of them ---
+    if (slot_match == 1) {
+        has_been_served = true;
+        dish1_placed   = true;
+        dish1_sprite   = order_sprite;
+        dish1_is_drink = (food_item.object_index == OBJ_Drink);
+    }
+    if (slot_match == 2) {
+        has_been_served2 = true;
+        dish2_placed   = true;
+        dish2_sprite   = order_sprite2;
+        dish2_is_drink = (food_item.object_index == OBJ_Drink);
+    }
 
     spawn_confetti();
     instance_destroy(food_item);
@@ -474,13 +555,13 @@ function serve_food(food_item) {
 }
 
 function spawn_confetti() {
-    // Spawn confetti particles above customer
-    var confetti_count = 15;
+    // Spawn a lively confetti burst above the customer
+    var confetti_count = 30;
     for (var i = 0; i < confetti_count; i++) {
-        var confetti = instance_create_depth(
-            x + random_range(-20, 20),
-            y - 40,
-            depth - 100,
+        instance_create_depth(
+            x + random_range(-26, 26),
+            y - 42 + random_range(-10, 10),
+            -200,                       // well in front of the kitchen
             OBJ_Confetti
         );
     }

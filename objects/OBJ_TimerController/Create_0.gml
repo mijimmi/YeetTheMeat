@@ -1,8 +1,8 @@
 // === TIMER CONTROLLER ===
 
 // Timer settings
-game_timer = 240 * 60;  // 4 minutes (240 seconds * 60fps)
-timer_max = 240 * 60;
+game_timer = 300 * 60;  // 5 minutes (300 seconds * 60fps)
+timer_max = 300 * 60;
 
 // Visual settings
 timer_bar_width = 30;

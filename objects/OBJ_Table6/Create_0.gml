@@ -4,6 +4,6 @@ chair_count = 4;
 chair_positions = [
     [0, -90],    // North
     [0, 150],    // South — pushed further down past the divider
-    [115, 0],    // East
-    [-115, 0]    // West
+    [115, -20],  // East
+    [-115, -20]  // West
 ];

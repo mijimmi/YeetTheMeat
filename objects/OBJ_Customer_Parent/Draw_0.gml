@@ -1,4 +1,5 @@
-// Draw customer sprite
+// Draw customer sprite (the served dishes on the table are drawn by the
+// separate OBJ_CustomerDish prop so they can sort correctly against the table).
 draw_sprite_ext(sprite_index, 0, x, y, 1, 1, 0, c_white, 1);
 
 // Draw thought bubble with order
@@ -45,7 +46,13 @@ if ((customer_state == "waiting" || customer_state == "leaving") && thought_bubb
         draw_set_alpha(1);
     };
 
-    if (has_second_order) {
+    // Only show orders that haven't been served yet — once served, a dish moves
+    // onto the table in front of the customer rather than staying in the bubble.
+    var show1 = !has_been_served;
+    var show2 = has_second_order && !has_been_served2;
+    var pending = (show1 ? 1 : 0) + (show2 ? 1 : 0);
+
+    if (pending >= 2) {
         // === WIDE BUBBLE FOR TWO ORDERS ===
         var bubble_cx = x;
         var bubble_cy = y - 84;
@@ -54,7 +61,6 @@ if ((customer_state == "waiting" || customer_state == "leaving") && thought_bubb
         var spr_scale = 0.64;
         var gap       = 60;          // distance between the two item slots
 
-        // Main bubble
         _draw_bubble(bubble_cx, bubble_cy, bub_w, bub_h, 20, bub_fill_now, bub_border, border_w, a, bub_fill_a);
 
         // Soft divider between the two items
@@ -63,46 +69,21 @@ if ((customer_state == "waiting" || customer_state == "leaving") && thought_bubb
         draw_line_width(bubble_cx, bubble_cy - bub_h + 9, bubble_cx, bubble_cy + bub_h - 9, 2);
         draw_set_alpha(1);
 
-        // Order 1 (left)
-        if (order_sprite != noone) {
-            var col1 = has_been_served ? c_gray : c_white;
-            var a1   = has_been_served ? a * 0.6 : a;
-            draw_sprite_ext(order_sprite, 0, bubble_cx - gap * 0.5, bubble_cy, spr_scale, spr_scale, 0, col1, a1);
-            if (has_been_served) {
-                draw_set_alpha(a);
-                draw_set_color(make_color_rgb(96, 150, 86));
-                draw_line_width(bubble_cx - gap * 0.5 - 12, bubble_cy + 9, bubble_cx - gap * 0.5 - 3, bubble_cy + 17, 3);
-                draw_line_width(bubble_cx - gap * 0.5 - 3, bubble_cy + 17, bubble_cx - gap * 0.5 + 14, bubble_cy - 13, 3);
-                draw_set_alpha(1);
-            }
-        }
+        if (order_sprite != noone)  draw_sprite_ext(order_sprite,  0, bubble_cx - gap * 0.5, bubble_cy, spr_scale, spr_scale, 0, c_white, a);
+        if (order_sprite2 != noone) draw_sprite_ext(order_sprite2, 0, bubble_cx + gap * 0.5, bubble_cy, spr_scale, spr_scale, 0, c_white, a);
 
-        // Order 2 (right)
-        if (order_sprite2 != noone) {
-            var col2 = has_been_served2 ? c_gray : c_white;
-            var a2   = has_been_served2 ? a * 0.6 : a;
-            draw_sprite_ext(order_sprite2, 0, bubble_cx + gap * 0.5, bubble_cy, spr_scale, spr_scale, 0, col2, a2);
-            if (has_been_served2) {
-                draw_set_alpha(a);
-                draw_set_color(make_color_rgb(96, 150, 86));
-                draw_line_width(bubble_cx + gap * 0.5 - 12, bubble_cy + 9, bubble_cx + gap * 0.5 - 3, bubble_cy + 17, 3);
-                draw_line_width(bubble_cx + gap * 0.5 - 3, bubble_cy + 17, bubble_cx + gap * 0.5 + 14, bubble_cy - 13, 3);
-                draw_set_alpha(1);
-            }
-        }
-
-    } else {
-        // === SINGLE-ORDER BUBBLE ===
+    } else if (pending == 1) {
+        // === SINGLE-ORDER BUBBLE (the remaining unserved order) ===
+        var pend_spr = show1 ? order_sprite : order_sprite2;
         var bubble_x = x;
         var bubble_y = y - 82;
         var bub_hw   = 32;
         var bub_hh   = 30;
 
-        // Main bubble
         _draw_bubble(bubble_x, bubble_y, bub_hw, bub_hh, 18, bub_fill_now, bub_border, border_w, a, bub_fill_a);
 
-        if (order_sprite != noone) {
-            draw_sprite_ext(order_sprite, 0, bubble_x, bubble_y, 0.82, 0.82, 0, c_white, a);
+        if (pend_spr != noone) {
+            draw_sprite_ext(pend_spr, 0, bubble_x, bubble_y, 0.82, 0.82, 0, c_white, a);
         }
     }
 

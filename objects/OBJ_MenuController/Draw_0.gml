@@ -134,6 +134,28 @@ else if (menu_state == "mode_select") {
     }
     draw_sprite_ext(spr_goback, 0, cx, cy, back_scale, back_scale, 0, c_white, 1);
     
+    // === Controller disclaimer at bottom ===
+    draw_set_font(fnt_winkle);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    
+    var disclaimer_text = "This game is best played with a controller";
+    var disclaimer_y = 1080 - 80;  // 80px from bottom
+    var disclaimer_scale = 2;
+    
+    // Black outline
+    draw_set_color(c_black);
+    for (var ox = -2; ox <= 2; ox += 2) {
+        for (var oy = -2; oy <= 2; oy += 2) {
+            if (ox != 0 || oy != 0) {
+                draw_text_transformed(cx + ox, disclaimer_y + oy, disclaimer_text, disclaimer_scale, disclaimer_scale, 0);
+            }
+        }
+    }
+    // Light gray text (subtle but readable)
+    draw_set_color(make_color_rgb(200, 200, 200));
+    draw_text_transformed(cx, disclaimer_y, disclaimer_text, disclaimer_scale, disclaimer_scale, 0);
+    
     // Reset draw settings
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
