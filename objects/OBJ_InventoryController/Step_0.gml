@@ -100,14 +100,14 @@ if (recipe_book_open && !recipe_opening && !recipe_closing) {
     var prev_page = false;
     var next_page = false;
     
-    // Check gamepad LT/RT (triggers)
+    // Check gamepad LT/RT (GameMaker maps these to gp_shoulderlb / gp_shoulderrb)
     if (gamepad_is_connected(0)) {
-        if (gamepad_button_check_pressed(0, gp_shoulderlt)) prev_page = true;
-        if (gamepad_button_check_pressed(0, gp_shoulderrt)) next_page = true;
+        if (gamepad_button_check_pressed(0, gp_shoulderlb)) prev_page = true;
+        if (gamepad_button_check_pressed(0, gp_shoulderrb)) next_page = true;
     }
     if (gamepad_is_connected(1)) {
-        if (gamepad_button_check_pressed(1, gp_shoulderlt)) prev_page = true;
-        if (gamepad_button_check_pressed(1, gp_shoulderrt)) next_page = true;
+        if (gamepad_button_check_pressed(1, gp_shoulderlb)) prev_page = true;
+        if (gamepad_button_check_pressed(1, gp_shoulderrb)) next_page = true;
     }
     
     // Check keyboard Q/E
