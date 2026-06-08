@@ -51,11 +51,10 @@ function interact_place(player) {
             var item = player.held_item;
             var is_valid = false;
             
-            // Check if it's food with "raw" state
-            if (object_is_ancestor(item.object_index, OBJ_Food) && item.food_type == "raw") {
+            // Only raw meat and veggies can be sliced (not kwek-kwek, rice, etc.)
+            if (item.object_index == OBJ_Meat && item.food_type == "raw") {
                 is_valid = true;
             }
-            // Check if it's vegetables with "raw" state
             else if (item.object_index == OBJ_Vegetables && item.veggie_state == "raw") {
                 is_valid = true;
             }

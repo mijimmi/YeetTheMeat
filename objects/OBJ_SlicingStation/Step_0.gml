@@ -84,7 +84,7 @@ function cancel_processing() {
 function complete_slicing() {
     if (item_being_processed != noone && instance_exists(item_being_processed)) {
         // Transform the item
-        if (object_is_ancestor(item_being_processed.object_index, OBJ_Food)) {
+        if (item_being_processed.object_index == OBJ_Meat) {
             item_being_processed.food_type = "sliced";
         } else if (item_being_processed.object_index == OBJ_Vegetables) {
             item_being_processed.veggie_state = "sliced";
