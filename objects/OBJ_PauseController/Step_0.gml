@@ -78,6 +78,7 @@ if (paused && slice_active) {
             surface_free(pause_surf);
         }
         if (k == 1) {
+            audio_stop_all();
             room_restart();
         }
     }

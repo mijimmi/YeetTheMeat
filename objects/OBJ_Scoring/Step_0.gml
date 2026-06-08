@@ -65,6 +65,7 @@ else {
     
     // Restart on X button
     if (gamepad_button_check_pressed(0, gp_face3) || keyboard_check_pressed(ord("E"))) {
+        audio_stop_all();
         room_restart();
     }
     
