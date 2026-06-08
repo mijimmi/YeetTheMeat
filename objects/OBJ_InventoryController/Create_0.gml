@@ -85,6 +85,8 @@ function recipe_dish_at(_page, _side) {
 // Device-aware label for the "select" button
 function recipe_confirm_label() {
     if (gamepad_is_connected(0) || gamepad_is_connected(1)) return "X";
+    var _mp = variable_global_exists("game_mode") && global.game_mode == "multiplayer";
+    if (_mp && instance_exists(OBJ_P2)) return "SPACE / U";
     return "SPACE";
 }
 

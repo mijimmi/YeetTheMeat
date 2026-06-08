@@ -145,8 +145,12 @@ if (recipe_book_open && !recipe_opening && !recipe_closing) {
         if (gamepad_button_check_pressed(1, gp_padl) || gamepad_axis_value(1, gp_axislh) < -0.5) move_left = true;
         if (gamepad_button_check_pressed(1, gp_padr) || gamepad_axis_value(1, gp_axislh) >  0.5) move_right = true;
     }
+    // P1 keyboard: A/D + arrows
     if (keyboard_check_pressed(vk_left)  || keyboard_check_pressed(ord("A"))) move_left = true;
     if (keyboard_check_pressed(vk_right) || keyboard_check_pressed(ord("D"))) move_right = true;
+    // P2 keyboard: J/L (matches their movement keys)
+    if (keyboard_check_pressed(ord("J"))) move_left = true;
+    if (keyboard_check_pressed(ord("L"))) move_right = true;
 
     // Use an analog-stick debounce so the focus doesn't fly across instantly
     if (!variable_instance_exists(id, "recipe_stick_locked")) recipe_stick_locked = false;
@@ -181,7 +185,9 @@ if (recipe_book_open && !recipe_opening && !recipe_closing) {
     if (gamepad_is_connected(1)) {
         if (gamepad_button_check_pressed(1, gp_face1) || gamepad_button_check_pressed(1, gp_face3)) confirm = true;
     }
+    // P1 keyboard: Space/Enter — P2 keyboard: U (their action key)
     if (keyboard_check_pressed(vk_space) || keyboard_check_pressed(vk_enter)) confirm = true;
+    if (keyboard_check_pressed(ord("U"))) confirm = true;
 
     if (confirm) {
         var focused = recipe_dish_at(recipe_current_page, recipe_cursor_side);
