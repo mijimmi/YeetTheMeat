@@ -21,8 +21,8 @@ with (OBJ_Table_Parent) {
         var grid_y = floor(chair_y / other.grid_size);
         
         // Clear a small area around the chair (3x3 cells)
-        for (var cx = -1; cx <= 1; cx++) {
-            for (var cy = -1; cy <= 1; cy++) {
+        for (var cx = -2; cx <= 2; cx++) {
+            for (var cy = -2; cy <= 2; cy++) {
                 var check_x = grid_x + cx;
                 var check_y = grid_y + cy;
                 if (check_x >= 0 && check_x < other.grid_width && check_y >= 0 && check_y < other.grid_height) {
@@ -33,5 +33,5 @@ with (OBJ_Table_Parent) {
     }
 }
 
-// Debug: Draw grid (optional)
+
 show_grid = false;

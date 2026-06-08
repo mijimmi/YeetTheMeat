@@ -52,7 +52,7 @@
   "isEcma":false,
   "LibraryEmitters":[],
   "MetaData":{
-    "IDEVersion":"2024.14.4.222",
+    "IDEVersion":"2026.0.0.16",
   },
   "name":"YeetTheMeat",
   "resources":[
@@ -108,6 +108,7 @@
     {"id":{"name":"OBJ_Table3","path":"objects/OBJ_Table3/OBJ_Table3.yy",},},
     {"id":{"name":"OBJ_Table4","path":"objects/OBJ_Table4/OBJ_Table4.yy",},},
     {"id":{"name":"OBJ_Table5","path":"objects/OBJ_Table5/OBJ_Table5.yy",},},
+    {"id":{"name":"OBJ_Table6","path":"objects/OBJ_Table6/OBJ_Table6.yy",},},
     {"id":{"name":"OBJ_TimerController","path":"objects/OBJ_TimerController/OBJ_TimerController.yy",},},
     {"id":{"name":"OBJ_TrashCan","path":"objects/OBJ_TrashCan/OBJ_TrashCan.yy",},},
     {"id":{"name":"OBJ_TutorialManager","path":"objects/OBJ_TutorialManager/OBJ_TutorialManager.yy",},},
