@@ -313,7 +313,7 @@ if (recipe_book_open && recipe_anim_progress > 0) {
         var nav_scale = 1.4;  // Bigger text
         var arrow_size = 16;  // Arrow triangle size
         
-        // Left arrow (LB / Q) - Previous page
+        // Left arrow (LT / Q) - Previous page
         if (recipe_current_page > 1) {
             var left_x = 180;  // More padding from edge
             
@@ -331,17 +331,17 @@ if (recipe_book_open && recipe_anim_progress > 0) {
                           arrow_x + arrow_size, nav_y + arrow_size, 
                           arrow_x, nav_y, false);
             
-            // Draw "LB" text
+            // Draw "LT" text
             draw_set_color(c_black);
             for (var ox = -2; ox <= 2; ox++) {
                 for (var oy = -2; oy <= 2; oy++) {
                     if (ox != 0 || oy != 0) {
-                        draw_text_transformed(left_x + ox, nav_y - 20 + oy, "LB", nav_scale, nav_scale, 0);
+                        draw_text_transformed(left_x + ox, nav_y - 20 + oy, "LT", nav_scale, nav_scale, 0);
                     }
                 }
             }
             draw_set_color(c_white);
-            draw_text_transformed(left_x, nav_y - 20, "LB", nav_scale, nav_scale, 0);
+            draw_text_transformed(left_x, nav_y - 20, "LT", nav_scale, nav_scale, 0);
             
             // Draw "Previous Page" below
             draw_set_color(c_black);
@@ -356,7 +356,7 @@ if (recipe_book_open && recipe_anim_progress > 0) {
             draw_text_transformed(left_x, nav_y + 15, "Previous Page", nav_scale * 0.7, nav_scale * 0.7, 0);
         }
         
-        // Right arrow (RB / E) - Next page
+        // Right arrow (RT / E) - Next page
         if (recipe_current_page < recipe_total_pages) {
             var right_x = gui_width - 180;  // More padding from edge
             
@@ -374,17 +374,17 @@ if (recipe_book_open && recipe_anim_progress > 0) {
                           arrow_x - arrow_size, nav_y + arrow_size, 
                           arrow_x, nav_y, false);
             
-            // Draw "RB" text
+            // Draw "RT" text
             draw_set_color(c_black);
             for (var ox = -2; ox <= 2; ox++) {
                 for (var oy = -2; oy <= 2; oy++) {
                     if (ox != 0 || oy != 0) {
-                        draw_text_transformed(right_x + ox, nav_y - 20 + oy, "RB", nav_scale, nav_scale, 0);
+                        draw_text_transformed(right_x + ox, nav_y - 20 + oy, "RT", nav_scale, nav_scale, 0);
                     }
                 }
             }
             draw_set_color(c_white);
-            draw_text_transformed(right_x, nav_y - 20, "RB", nav_scale, nav_scale, 0);
+            draw_text_transformed(right_x, nav_y - 20, "RT", nav_scale, nav_scale, 0);
             
             // Draw "Next Page" below
             draw_set_color(c_black);

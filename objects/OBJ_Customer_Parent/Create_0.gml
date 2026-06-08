@@ -139,14 +139,9 @@ function choose_order() {
 
     var all_orders = OBJ_CustomerSpawner.available_orders;
 
-    // === MAIN ORDER POOL: exclude rice, buko, gulaman ===
+    // === MAIN ORDER POOL: any dish or drink can be ordered solo ===
     var main_pool = [];
     for (var i = 0; i < array_length(all_orders); i++) {
-        var ft = all_orders[i][0];
-        var spr = all_orders[i][1];
-        // Exclude gulaman, buko, and rice (plated rice dish)
-        if (ft == "gulaman" || ft == "buko") continue;
-        if (ft == "plated" && spr == spr_ricedish) continue;
         array_push(main_pool, all_orders[i]);
     }
 
@@ -176,8 +171,8 @@ function choose_order() {
     order_name        = pick1[2];
     has_been_served   = false;
 
-    // 10% chance of a second order
-    if (random(1) < 0.10) {
+    // 15% chance of a second order
+    if (random(1) < 0.15) {
         // Filter out any side that matches the main order
         var filtered_side = [];
         for (var i = 0; i < array_length(side_pool); i++) {
