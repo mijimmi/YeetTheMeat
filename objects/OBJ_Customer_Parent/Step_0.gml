@@ -150,6 +150,7 @@ switch (customer_state) {
         if (wait_timer >= max_wait_time && !has_been_served) {
             customer_state = "leaving";
             is_angry = true;
+			is_retracing = false; 
             
             if (instance_exists(OBJ_Scoring)) {
                 OBJ_Scoring.add_score(OBJ_Scoring.points_penalty);
@@ -166,6 +167,7 @@ switch (customer_state) {
         
         if (wait_timer >= eat_time) {
             customer_state = "leaving";
+			is_retracing = false; 
             cleanup_table();
             has_path = false;
         }
