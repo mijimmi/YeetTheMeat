@@ -138,7 +138,7 @@ if (p1 != noone && global.p1_closest_station == id && !is_processing) {
         // Player holding raw item, station empty
         if (p1.held_item != noone && food_on_station == noone) {
             var item = p1.held_item;
-            if ((object_is_ancestor(item.object_index, OBJ_Food) && item.food_type == "raw") ||
+            if ((item.object_index == OBJ_Meat && item.food_type == "raw") ||
                 (item.object_index == OBJ_Vegetables && item.veggie_state == "raw")) {
                 hint_text = "X  Slice";
             }
@@ -165,7 +165,7 @@ if (p2 != noone && global.p2_closest_station == id && !is_processing) {
         // Player holding raw item, station empty
         if (p2.held_item != noone && food_on_station == noone) {
             var item = p2.held_item;
-            if ((object_is_ancestor(item.object_index, OBJ_Food) && item.food_type == "raw") ||
+            if ((item.object_index == OBJ_Meat && item.food_type == "raw") ||
                 (item.object_index == OBJ_Vegetables && item.veggie_state == "raw")) {
                 hint_text = "X  Slice";
             }
