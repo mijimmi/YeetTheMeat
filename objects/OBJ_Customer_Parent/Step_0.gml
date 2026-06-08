@@ -26,18 +26,14 @@ if (customer_state == "walking" || customer_state == "leaving") {
     var dx = x - last_x;
     var dy = y - last_y;
     
-    // Only update direction if actually moving
     if (abs(dx) > 0.5 || abs(dy) > 0.5) {
-        // Determine primary direction (horizontal vs vertical)
         if (abs(dx) > abs(dy)) {
-            // Moving more horizontally
             if (dx > 0) {
                 facing_direction = "right";
             } else {
                 facing_direction = "left";
             }
         } else {
-            // Moving more vertically
             if (dy > 0) {
                 facing_direction = "down";
             } else {
@@ -46,7 +42,6 @@ if (customer_state == "walking" || customer_state == "leaving") {
         }
     }
     
-    // Update last position
     last_x = x;
     last_y = y;
 }
@@ -62,7 +57,7 @@ if (customer_state == "walking" || customer_state == "leaving") {
             walk_sprite_timer = 0;
             
             if (is_angry || temp_angry) {
-                sprite_index = customer_angry; // CHANGED
+                sprite_index = customer_angry;
             } else {
                 switch (facing_direction) {
                     case "left":
@@ -81,7 +76,6 @@ if (customer_state == "walking" || customer_state == "leaving") {
             }
         }
     } else {
-        // Not moving - use first frame
         if (is_angry) {
             sprite_index = customer_angry; 
         } else {
@@ -109,20 +103,32 @@ if (customer_state == "walking" || customer_state == "leaving") {
 
 switch (customer_state) {
     case "walking":
-        // Follow pathfinding
         follow_path();
         
-        // Check if reached chair position
+        // Record waypoints as we walk in
+        path_record_timer++;
+        if (path_record_timer >= path_record_interval) {
+            path_record_timer = 0;
+            array_push(path_memory, [x, y]);
+        }
+        
         if (point_distance(x, y, target_x, target_y) < 10) {
             x = target_x;
             y = target_y;
             has_path = false;
             customer_state = "sitting";
             
-            // Determine sitting sprite based on chair position
+            // Record final chair position then reverse for exit retracing
+            array_push(path_memory, [x, y]);
+            var reversed = [];
+            for (var i = array_length(path_memory) - 1; i >= 0; i--) {
+                array_push(reversed, path_memory[i]);
+            }
+            path_memory = reversed;
+            path_memory_index = 0;
+            
             determine_sitting_sprite();
             
-            // Start timer when first customer sits
             if (spawner != noone && instance_exists(spawner) && !spawner.first_customer_seated) {
                 spawner.first_customer_seated = true;
                 if (instance_exists(OBJ_TimerController)) {
@@ -143,7 +149,7 @@ switch (customer_state) {
         
         if (wait_timer >= max_wait_time && !has_been_served) {
             customer_state = "leaving";
-            is_angry = true; // Customer is angry!
+            is_angry = true;
             
             if (instance_exists(OBJ_Scoring)) {
                 OBJ_Scoring.add_score(OBJ_Scoring.points_penalty);
@@ -168,69 +174,70 @@ switch (customer_state) {
     case "leaving":
         thought_bubble_alpha = max(thought_bubble_alpha - 0.02, 0);
         
-        // Set exit as target
-        if (spawner != noone) {
-            target_x = spawner.exit_x;
-            target_y = spawner.exit_y;
-        }
-        
-        // Follow path to exit (faster if angry)
         var leave_speed = is_angry ? move_speed * 1.5 : move_speed;
         
-        if (!has_path) {
-            create_path_to_target();
-            if (has_path) {
-                path_speed = leave_speed;
+        if (!is_retracing && array_length(path_memory) > 0) {
+            // === RETRACE RECORDED PATH ===
+            if (path_memory_index < array_length(path_memory)) {
+                var wp   = path_memory[path_memory_index];
+                var wp_x = wp[0];
+                var wp_y = wp[1];
+                var wp_dist = point_distance(x, y, wp_x, wp_y);
+                
+                if (wp_dist > leave_speed) {
+                    var wp_dir = point_direction(x, y, wp_x, wp_y);
+                    x += lengthdir_x(leave_speed, wp_dir);
+                    y += lengthdir_y(leave_speed, wp_dir);
+                } else {
+                    // Reached this waypoint, advance to next
+                    x = wp_x;
+                    y = wp_y;
+                    path_memory_index++;
+                }
+            } else {
+                // Finished retracing, now pathfind to exit normally
+                is_retracing = true;
+                has_path = false;
+                
+                if (my_group != noone && instance_exists(my_group)) {
+                    target_x = my_group.exit_x;
+                    target_y = my_group.exit_y;
+                } else if (spawner != noone) {
+                    target_x = spawner.exit_x;
+                    target_y = spawner.exit_y;
+                }
             }
-        }
-        
-        follow_path();
-        
-        // Fallback movement
-        if (!has_path || path_progress >= 0.99) {
-            var dir = point_direction(x, y, target_x, target_y);
-            var dist = point_distance(x, y, target_x, target_y);
-            if (dist > leave_speed) {
-                x += lengthdir_x(leave_speed, dir);
-                y += lengthdir_y(leave_speed, dir);
+        } else {
+            // === PATHFIND TO EXIT after retracing ===
+            if (my_group != noone && instance_exists(my_group)) {
+                target_x = my_group.exit_x;
+                target_y = my_group.exit_y;
+            } else if (spawner != noone) {
+                target_x = spawner.exit_x;
+                target_y = spawner.exit_y;
+            }
+            
+            if (!has_path) {
+                create_path_to_target();
+            }
+            
+            follow_path();
+            
+            // Fallback movement
+            if (!has_path || path_progress >= 0.99) {
+                var dir  = point_direction(x, y, target_x, target_y);
+                var dist = point_distance(x, y, target_x, target_y);
+                if (dist > leave_speed) {
+                    x += lengthdir_x(leave_speed, dir);
+                    y += lengthdir_y(leave_speed, dir);
+                }
             }
         }
         
         // Destroy when reached exit
-        if (point_distance(x, y, target_x, target_y) < 20) {
+        if (point_distance(x, y, target_x, target_y) < 20 && is_retracing) {
             path_delete(my_path);
             instance_destroy();
         }
         break;
 }
-
-// === DYNAMIC DEPTH (same system as the players) ===
-// Customers seated on the NORTH side of a table have their feet above the
-// table's front edge, so they should be drawn BEHIND it (hidden by the
-// spr_BGdepth layer). South-side customers stay in front. This mirrors the
-// player depth logic so everyone sorts consistently against the kitchen art.
-var _depth_front  = 150;
-var _depth_behind = 350;
-var _zone_half_w  = 110;
-var _vert_range   = 140;
-var _edge_tol     = 6;
-
-var _cf = bbox_bottom;     // customer's feet
-var _cx = x;
-var _behind = false;
-
-var _occ_obj = [OBJ_CookingStation_Parent, OBJ_FoodStorage_Parent, OBJ_Table_Parent, OBJ_ServingCounter, OBJ_TrashCan];
-var _occ_off = [0, 0, 0, 65, 0];
-
-for (var _i = 0; _i < array_length(_occ_obj); _i++) {
-    if (!instance_exists(_occ_obj[_i])) continue;
-    var _off = _occ_off[_i];
-    with (_occ_obj[_i]) {
-        var _line = y + _off;
-        if (abs(_cx - x) > _zone_half_w) continue;
-        if (abs(_cf - _line) > _vert_range) continue;
-        if (_cf < _line - _edge_tol) _behind = true;
-    }
-}
-
-depth = _behind ? _depth_behind : _depth_front;

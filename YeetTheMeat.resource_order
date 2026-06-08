@@ -69,6 +69,7 @@
     {"name":"OBJ_Table3","order":3,"path":"objects/OBJ_Table3/OBJ_Table3.yy",},
     {"name":"OBJ_Table4","order":4,"path":"objects/OBJ_Table4/OBJ_Table4.yy",},
     {"name":"OBJ_Table5","order":5,"path":"objects/OBJ_Table5/OBJ_Table5.yy",},
+    {"name":"OBJ_Table6","order":6,"path":"objects/OBJ_Table6/OBJ_Table6.yy",},
     {"name":"OBJ_TimerController","order":1,"path":"objects/OBJ_TimerController/OBJ_TimerController.yy",},
     {"name":"OBJ_TrashCan","order":3,"path":"objects/OBJ_TrashCan/OBJ_TrashCan.yy",},
     {"name":"OBJ_TutorialManager","order":14,"path":"objects/OBJ_TutorialManager/OBJ_TutorialManager.yy",},

@@ -96,6 +96,13 @@ has_been_served2 = false;
 // Accumulated points for this customer (awarded all at once when fully served)
 pending_score = 0;
 
+// === PATH MEMORY (for retracing route when leaving) ===
+path_memory = [];          // stores [x, y] waypoints walked on the way in
+path_memory_index = 0;     // current index when retracing
+is_retracing = false;      // true when walking back out
+path_record_timer = 0;     // how often to record a waypoint
+path_record_interval = 15; // record a point every 15 frames
+
 // Get spawner reference
 spawner = instance_find(OBJ_CustomerSpawner, 0);
 
@@ -142,7 +149,7 @@ function choose_order() {
     has_been_served   = false;
 
     // 10% chance of a second order
-    if (random(1) < 0.1) {
+    if (random(1) < 0.15) {
         // Filter out any side that matches the main order
         var filtered_side = [];
         for (var i = 0; i < array_length(side_pool); i++) {
